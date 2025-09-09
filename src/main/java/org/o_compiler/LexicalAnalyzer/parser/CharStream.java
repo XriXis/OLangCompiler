@@ -6,10 +6,10 @@ import java.util.Iterator;
 import java.util.Stack;
 
 public class CharStream implements Iterator<Character>, Iterable<Character> {
-    static final char NO_CHAR = (char) -1;
+    static final int EOF = -1;
     final InputStream stream;
-    SizedStack<Character> history;
-    Stack<Character> buffer;
+    SizedStack<Integer> history;
+    Stack<Integer> buffer;
 
     public CharStream(final InputStream stream) throws IOException {
         this.stream = stream;
@@ -21,10 +21,11 @@ public class CharStream implements Iterator<Character>, Iterable<Character> {
 
     public char pop() throws IOException {
         if (!buffer.isEmpty()) {
-            return buffer.pop();
+            return (char) buffer.pop().intValue();
         }
-        history.push((char) stream.read());
-        return history.peek();
+        int val = stream.read();
+        history.push(val);
+        return (char) history.peek().intValue();
     }
 
     public void revert() {
@@ -34,7 +35,7 @@ public class CharStream implements Iterator<Character>, Iterable<Character> {
 
     @Override
     public boolean hasNext() {
-        return ((!buffer.isEmpty()) || (history.peek() != NO_CHAR));
+        return !(buffer.isEmpty() && history.peek() == EOF || !buffer.isEmpty() && buffer.peek() == EOF);
     }
 
     @Override

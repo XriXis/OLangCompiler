@@ -9,6 +9,8 @@ public class Analyzer {
 
     public Analyzer(InputStream target){
         tokens = new TokenStream(target);
-
+        for (var item: tokens){
+            //System.out.println(item.getClass().getCanonicalName());
+        }
     }
 }

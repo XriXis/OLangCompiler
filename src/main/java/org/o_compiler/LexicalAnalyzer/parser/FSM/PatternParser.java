@@ -3,6 +3,8 @@ package org.o_compiler.LexicalAnalyzer.parser.FSM;
 import java.util.*;
 import java.util.function.Predicate;
 
+/*CAUTION: WRITE-ONLY CODE, todo refactor*/
+
 class PatternParser<T> {
     final String pattern;
     final T value;  // the return value for accepting states
@@ -51,21 +53,29 @@ class PatternParser<T> {
         NDFSM<T> base;
         char c = pattern.charAt(l);
 
-        if (c == '(') {
+        switch (c){
+        case '\\' -> {
+            if (l + 1 >= r)
+                throw new IllegalArgumentException("Dangling escape character at end of pattern");
+            char literal = pattern.charAt(l + 1);
+            base = NDFSM.symbol(literal, value);
+            nextIndex = l + 2;
+        }case '(' -> {
             int match = findClosingParen(l, r);
             base = parseExpr(l + 1, match);
             nextIndex = match + 1;
-
-        } else if (c == '[') {
+        } case '[' -> {
             int match = findClosingBracket(l, r);
             Predicate<Character> pred = parseCharClass(l + 1, match);
             base = NDFSM.charClass(pred, value);
             nextIndex = match + 1;
-
-        } else {
+        } case '.' -> {
+            base = NDFSM.wildcard(value);
+            nextIndex = l + 1;
+        } default ->  {
             base = NDFSM.symbol(c, value);
             nextIndex = l + 1;
-        }
+        }}
 
         if (nextIndex < r) {
             char op = pattern.charAt(nextIndex);
@@ -96,19 +106,23 @@ class PatternParser<T> {
     }
 
     private Predicate<Character> parseCharClass(int l, int r) {
-        // parses between '[' and ']'
         List<Predicate<Character>> parts = new ArrayList<>();
         for (int i = l; i < r; i++) {
             char c = pattern.charAt(i);
-            if (i + 2 < r && pattern.charAt(i + 1) == '-') {
+            if (c == '\\') {
+                if (i + 1 >= r)
+                    throw new IllegalArgumentException("Dangling escape in character class");
+                char literal = pattern.charAt(i + 1);
+                parts.add(ch -> ch == literal);
+                i++;
+            } else if (i + 2 < r && pattern.charAt(i + 1) == '-') {
                 char end = pattern.charAt(i + 2);
                 parts.add(ch -> ch >= c && ch <= end);
-                i += 2; // skip the range
+                i += 2;
             } else {
                 parts.add(ch -> ch == c);
             }
         }
-        // merge all into one predicate
         return ch -> parts.stream().anyMatch(p -> p.test(ch));
     }
 }

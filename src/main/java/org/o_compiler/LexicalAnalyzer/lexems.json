@@ -7,5 +7,5 @@
   },
   "Identifier": "[A-z_][A-z_0-9]*",
   "Keyword": ["class", "method", "is", "end", "extends", "return", "this", "then", "while", "loop", "var"],
-  "ControlSigns": [":=", "=>", ".", "(", ")", "[", "]", "\n", ",", " ", "\t"]
+  "ControlSigns": [":=", "=>", ".", "(", ")", "[", "]", "\n", ",", " ", "\t", "//.*\n", "/!.*!/"]
 }

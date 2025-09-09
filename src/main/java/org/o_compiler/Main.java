@@ -8,13 +8,15 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-        try (InputStream target = new FileInputStream(new File(args[0]))){
+        try (InputStream target = new FileInputStream(args[0])){
             ArrayList<Token> res = new ArrayList<>();
             var stream = new TokenStream(target);
-            for (Token token = stream.next(); stream.hasNext(); token = stream.next()){
+
+            for (var token: stream){
                 res.add(token);
+                System.out.println(token);
             }
-            System.out.println(res);
+//            System.out.println(res);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -2,8 +2,10 @@ package org.o_compiler.LexicalAnalyzer.parser.FSM;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-public class NDFSM<T> {
+// todo: implement a determination for traversal optimization
+public class NDFSM<T> implements FSM<T> {
     private final State start;
     private final Map<State, T> finals;
 
@@ -11,6 +13,32 @@ public class NDFSM<T> {
         return new PatternParser<>(pattern, value).parseExpr();
     }
 
+    public static <T> NDFSM<T> fromRegexes(Map<String, T> conf) {
+        NDFSM<T> machine = null;
+        for (var pattern : conf.keySet()) {
+            if (machine == null) machine = fromRegex(pattern, conf.get(pattern));
+            else machine = machine.union(NDFSM.fromRegex(pattern, conf.get(pattern)));
+        }
+        return machine;
+    }
+
+    public TraverseIterator<T> traverse() {
+        return new _TraverseIterator<>(this);
+    }
+
+    Set<State> epsilonClosure(State s) {
+        var res = new HashSet<State>();
+        var order = new Stack<State>();
+        order.add(s);
+        res.add(s);
+        while (!order.empty()) {
+            var consideredState = order.pop();
+            for (var th : consideredState.transitions) {
+                if (th.o1 == null && res.add(th.o2)) order.add(th.o2);
+            }
+        }
+        return res;
+    }
 
     private NDFSM(State start, Map<State, T> finals) {
         this.start = start;
@@ -30,6 +58,13 @@ public class NDFSM<T> {
         State s1 = new State();
         State s2 = new State();
         s1.addTransition(ch -> ch == c, s2);
+        return new NDFSM<>(s1, Map.of(s2, value));
+    }
+
+    static <T> NDFSM<T> wildcard(T value) {
+        State s1 = new State();
+        State s2 = new State();
+        s1.addTransition(ch -> true, s2);
         return new NDFSM<>(s1, Map.of(s2, value));
     }
 
@@ -66,7 +101,6 @@ public class NDFSM<T> {
             f.addTransition(null, this.start);
             f.addTransition(null, end);
         }
-        // keep finals from a and add the new end state with the propagated value
         Map<State, T> finals = new HashMap<>(this.finals);
         finals.put(end, value);
         return new NDFSM<>(start, finals);
@@ -83,12 +117,64 @@ public class NDFSM<T> {
     // --- Inner helper classes ---
 
     private static class State {
+        static final State sink = new State();
+
+        static {
+            sink.addTransition(c -> true, sink);
+        }
+
         List<Pair<Predicate<Character>, State>> transitions = new ArrayList<>();
 
         public void addTransition(Predicate<Character> pred, State target) {
             transitions.add(new Pair<>(pred, target));
         }
+
+        public Set<State> feed(char ch) {
+            return transitions.stream()
+                    .filter(th -> th.o1 != null && th.o1.test(ch)) // keep only matching transitions
+                    .map(th -> th.o2)                               // extract the target state
+                    .collect(Collectors.toSet());
+        }
     }
 
-    private record Pair<T1, T2>(T1 o1, T2 o2) { }
+    private record Pair<T1, T2>(T1 o1, T2 o2) {
+    }
+
+    public static class _TraverseIterator<T> implements TraverseIterator<T> {
+        Set<State> current;
+        NDFSM<T> entry;
+        StringBuilder path;
+
+        protected _TraverseIterator(NDFSM<T> related) {
+            entry = related;
+            current = related.epsilonClosure(entry.start);
+            path = new StringBuilder();
+        }
+
+        public void feed(char ch) {
+            current = current.stream()
+                    .flatMap(item -> item.feed(ch).stream())
+                    .flatMap(item -> entry.epsilonClosure(item).stream())
+                    .collect(Collectors.toSet());
+            path.append(ch);
+        }
+
+        public boolean isEnd() {
+            return current.isEmpty();
+        }
+
+        // todo: handle overlapping of the identifier and keyword
+        public T result() {
+            for (var item : current) {
+                if (entry.finals.containsKey(item)) {
+                    return entry.finals.get(item);
+                }
+            }
+            return null;
+        }
+
+        public String pathTaken(){
+            return path.toString();
+        }
+    }
 }

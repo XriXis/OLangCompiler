@@ -4,26 +4,29 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.TokenDescription;
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
 
 public enum ControlSign implements TokenValue, TokenDescription {
-    ASSIGN(":="),
-    LAMBDA("=>"),
-    DYNAMIC_DISPATCH("."),
-    PARENTHESIS_OPEN("("),
-    PARENTHESIS_CLOSED(")"),
-    BRACKET_OPEN("["),
-    BRACKET_CLOSED("]"),
-    END_LINE("\n"),
-    SEPARATOR(","),
-    SPACE(" "),
-    TABULATION("\t"),
-    COLUMN(":"),
-    LINE_DELIMITER("\\"),
-    COMMENT("//.*\n"),
-    MULTILINE_COMMENT("/!.*!/"),
+    ASSIGN(":=", ":="),
+    LAMBDA("=>", "=>"),
+    DYNAMIC_DISPATCH(".", "\\."),
+    PARENTHESIS_OPEN("(", "\\("),
+    PARENTHESIS_CLOSED("\\", "\\)"),
+    BRACKET_OPEN("[", "\\["),
+    BRACKET_CLOSED("]", "\\]"),
+    END_LINE("\\n", "\n"),
+    CR("\\r", "\r"),
+    SEPARATOR(",", ","),
+    SPACE(" ", " *"),
+    TABULATION("\\t", "\t"),
+    COLUMN(":", ":"),
+    LINE_DELIMITER("\\", "\\\\"),
+    COMMENT("//...", "//.*\n"),
+    MULTILINE_COMMENT("/*...*/", "/\\*.*\\*/"),
     ;
 
     final String literal;
-    ControlSign(String token){
+    final String pattern;
+    ControlSign(String token, String pattern){
         literal = token;
+        this.pattern = pattern;
     }
 
     @Override
@@ -33,6 +36,6 @@ public enum ControlSign implements TokenValue, TokenDescription {
 
     @Override
     public String pattern() {
-        return value();
+        return pattern;
     }
 }

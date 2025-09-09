@@ -15,7 +15,10 @@ public enum ControlSign implements TokenValue, TokenDescription {
     SEPARATOR(","),
     SPACE(" "),
     TABULATION("\t"),
-    COLUMN(":")
+    COLUMN(":"),
+    LINE_DELIMITER("\\"),
+    COMMENT("//.*\n"),
+    MULTILINE_COMMENT("/!.*!/"),
     ;
 
     final String literal;
@@ -28,10 +31,8 @@ public enum ControlSign implements TokenValue, TokenDescription {
         return literal;
     }
 
+    @Override
     public String pattern() {
         return value();
-                /*Arrays.stream(Keyword.values())
-                .map(obj -> Pattern.quote(obj.value()))
-                .collect(Collectors.joining("|"));*/
     }
 }

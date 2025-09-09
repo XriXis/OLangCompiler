@@ -5,10 +5,10 @@ import java.io.InputStream;
 
 public class CharStream {
     static final char NO_CHAR = (char) -1;
-    InputStream stream;
+    final InputStream stream;
     char last = NO_CHAR;
 
-    public CharStream(InputStream stream) {
+    public CharStream(final InputStream stream) {
         this.stream = stream;
     }
 

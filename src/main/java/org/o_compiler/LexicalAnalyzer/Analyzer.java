@@ -9,5 +9,6 @@ public class Analyzer {
 
     public Analyzer(InputStream target){
         tokens = new TokenStream(target);
+
     }
 }

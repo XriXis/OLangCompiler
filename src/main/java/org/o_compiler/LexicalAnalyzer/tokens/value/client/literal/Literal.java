@@ -2,10 +2,6 @@ package org.o_compiler.LexicalAnalyzer.tokens.value.client.literal;
 
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
 
-//public interface Literal<T> extends TokenValue {
-//    public T bytes();
-//}
-
 
 public class Literal<T> implements TokenValue {
     String value;

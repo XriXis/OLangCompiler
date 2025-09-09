@@ -6,9 +6,9 @@ import java.io.InputStream;
 import java.util.Iterator;
 
 public class TokenStream implements Iterator<Token> {
-    CharStream source;
+    final CharStream source;
 
-    public TokenStream(InputStream target) {
+    public TokenStream(final InputStream target) {
         source = new CharStream(target);
     }
 

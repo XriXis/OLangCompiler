@@ -8,7 +8,7 @@ public enum ControlSign implements TokenValue, TokenDescription {
     LAMBDA("=>", "=>"),
     DYNAMIC_DISPATCH(".", "\\."),
     PARENTHESIS_OPEN("(", "\\("),
-    PARENTHESIS_CLOSED("\\", "\\)"),
+    PARENTHESIS_CLOSED(")", "\\)"),
     BRACKET_OPEN("[", "\\["),
     BRACKET_CLOSED("]", "\\]"),
     END_LINE("\\n", "\n"),

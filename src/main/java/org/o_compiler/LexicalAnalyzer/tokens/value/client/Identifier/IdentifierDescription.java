@@ -4,6 +4,6 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.TokenDescription;
 
 public class IdentifierDescription implements TokenDescription {
     public String pattern(){
-        return "[A-z_][A-z_0-9]*";
+        return "[A-Za-z_][A-Za-z0-9_]*";
     }
 }

@@ -63,6 +63,7 @@ public class TokenStream implements Iterator<Token>, Iterable<Token> {
                 pos += 3;
             }
             if (smth.isEnd()){
+                source.revert();
                 return extract(lastSeen, smth);
             }
             pos++;

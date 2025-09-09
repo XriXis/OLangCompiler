@@ -156,7 +156,7 @@ public class NDFSM<T> implements FSM<T> {
                     .flatMap(item -> item.feed(ch).stream())
                     .flatMap(item -> entry.epsilonClosure(item).stream())
                     .collect(Collectors.toSet());
-            path.append(ch);
+            if (!isEnd()) path.append(ch);
         }
 
         public boolean isEnd() {

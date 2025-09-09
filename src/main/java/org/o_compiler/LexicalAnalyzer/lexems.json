@@ -5,7 +5,7 @@
     "Boolean": "true|false",
     "String": "\".*\""
   },
-  "Identifier": "[A-z_][A-z_0-9]*",
+  "Identifier": "[A-Za-z_][A-Za-z0-9_]*",
   "Keyword": ["class", "method", "is", "end", "extends", "return", "this", "then", "while", "loop", "var"],
-  "ControlSigns": [":=", "=>", ".", "(", ")", "[", "]", "\n", ",", " ", "\t", "//.*\n", "/!.*!/"]
+  "ControlSigns": [":=", "=>", "\\.", "\\(", "\\)", "\\[", "\\]", "\n", "\r", ",", " ", "\t", "//.*\n", "/\\*.*\\*/"]
 }

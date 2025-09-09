@@ -26,7 +26,7 @@ public enum ControlSign implements TokenValue, TokenDescription {
             '-' +
             Character.MAX_VALUE
             + "]*\n"),
-    MULTILINE_COMMENT("/*...*/", "/\\*.*\\*/"),
+//    MULTILINE_COMMENT("/*...*/", "/\\*.*\\*/"),
     ;
 
     final String literal;

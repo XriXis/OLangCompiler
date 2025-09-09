@@ -14,10 +14,7 @@ import org.o_compiler.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 public class TokenStream implements Iterator<Token>, Iterable<Token> {
@@ -73,7 +70,7 @@ public class TokenStream implements Iterator<Token>, Iterable<Token> {
     }
 
     private Token extract(Function<String,TokenValue> lastSeen, TraverseIterator<Function<String,TokenValue>> smth){
-        if (lastSeen == null){
+        if (lastSeen == null || Objects.equals(smth.pathTaken(), "")){
             //todo: proper exception
             throw new RuntimeException("Improper token met: " + smth.pathTaken() + " at " + line + ":" + pos);
         }

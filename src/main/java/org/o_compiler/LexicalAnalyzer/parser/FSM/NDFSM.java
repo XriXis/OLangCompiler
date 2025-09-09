@@ -1,5 +1,7 @@
 package org.o_compiler.LexicalAnalyzer.parser.FSM;
 
+import org.o_compiler.Pair;
+
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -7,13 +9,13 @@ import java.util.stream.Collectors;
 // todo: implement a determination for traversal optimization
 public class NDFSM<T> implements FSM<T> {
     private final State start;
-    private final Map<State, T> finals;
+    private final Map<State, Pair<Integer, T>> finals;
 
-    public static <T> NDFSM<T> fromRegex(String pattern, T value) {
+    public static <T> NDFSM<T> fromRegex(String pattern, Pair<Integer, T> value) {
         return new PatternParser<>(pattern, value).parseExpr();
     }
 
-    public static <T> NDFSM<T> fromRegexes(Map<String, T> conf) {
+    public static <T> NDFSM<T> fromRegexes(Map<String, Pair<Integer, T>> conf) {
         NDFSM<T> machine = null;
         for (var pattern : conf.keySet()) {
             if (machine == null) machine = fromRegex(pattern, conf.get(pattern));
@@ -40,35 +42,45 @@ public class NDFSM<T> implements FSM<T> {
         return res;
     }
 
-    private NDFSM(State start, Map<State, T> finals) {
+    private NDFSM(State start, Map<State, Pair<Integer, T>> finals) {
         this.start = start;
         this.finals = finals;
     }
 
+    private Pair<Integer, T> mostPriorFinalValue(){
+        Pair<Integer, T> resultingRet = new Pair<>(Integer.MAX_VALUE, null);
+        for (var f: finals.keySet()) {
+            if (this.finals.get(f).o1 < resultingRet.o1) {
+                resultingRet = this.finals.get(f);
+            }
+        }
+        return resultingRet;
+    }
+
     // Operations over FSMs according to TCS lecture book
 
-    static <T> NDFSM<T> epsilon(T value) {
+    static <T> NDFSM<T> epsilon(Pair<Integer, T> value) {
         State s1 = new State();
         State s2 = new State();
         s1.addTransition(null, s2);
         return new NDFSM<>(s1, Map.of(s2, value));
     }
 
-    static <T> NDFSM<T> symbol(char c, T value) {
+    static <T> NDFSM<T> symbol(char c, Pair<Integer, T> value) {
         State s1 = new State();
         State s2 = new State();
         s1.addTransition(ch -> ch == c, s2);
         return new NDFSM<>(s1, Map.of(s2, value));
     }
 
-    static <T> NDFSM<T> wildcard(T value) {
+    static <T> NDFSM<T> wildcard(Pair<Integer, T> value) {
         State s1 = new State();
         State s2 = new State();
         s1.addTransition(ch -> true, s2);
         return new NDFSM<>(s1, Map.of(s2, value));
     }
 
-    static <T> NDFSM<T> charClass(Predicate<Character> pred, T value) {
+    static <T> NDFSM<T> charClass(Predicate<Character> pred, Pair<Integer, T> value) {
         State s1 = new State();
         State s2 = new State();
         s1.addTransition(pred, s2);
@@ -77,7 +89,7 @@ public class NDFSM<T> implements FSM<T> {
 
     NDFSM<T> union(NDFSM<T> b) {
         State start = new State();
-        Map<State, T> finals = new HashMap<>();
+        Map<State, Pair<Integer, T>> finals = new HashMap<>();
         start.addTransition(null, this.start);
         start.addTransition(null, b.start);
         finals.putAll(this.finals);
@@ -92,7 +104,7 @@ public class NDFSM<T> implements FSM<T> {
         return new NDFSM<>(this.start, b.finals);
     }
 
-    NDFSM<T> star(T value) {
+    NDFSM<T> star() {
         State start = new State();
         State end = new State();
         start.addTransition(null, this.start);
@@ -101,17 +113,17 @@ public class NDFSM<T> implements FSM<T> {
             f.addTransition(null, this.start);
             f.addTransition(null, end);
         }
-        Map<State, T> finals = new HashMap<>(this.finals);
-        finals.put(end, value);
+        Map<State, Pair<Integer, T>> finals = new HashMap<>(this.finals);
+        finals.put(end, mostPriorFinalValue());
         return new NDFSM<>(start, finals);
     }
 
-    NDFSM<T> plus(T value) {
-        return concat(star(value));
+    NDFSM<T> plus() {
+        return concat(star());
     }
 
-    NDFSM<T> optional(T value) {
-        return union(epsilon(value));
+    NDFSM<T> optional() {
+        return union(epsilon(mostPriorFinalValue()));
     }
 
     // --- Inner helper classes ---
@@ -135,9 +147,6 @@ public class NDFSM<T> implements FSM<T> {
                     .map(th -> th.o2)                               // extract the target state
                     .collect(Collectors.toSet());
         }
-    }
-
-    private record Pair<T1, T2>(T1 o1, T2 o2) {
     }
 
     public static class _TraverseIterator<T> implements TraverseIterator<T> {
@@ -165,15 +174,21 @@ public class NDFSM<T> implements FSM<T> {
 
         // todo: handle overlapping of the identifier and keyword
         public T result() {
+            Pair<Integer, T> res = null;
             for (var item : current) {
-                if (entry.finals.containsKey(item)) {
-                    return entry.finals.get(item);
+                if (!entry.finals.containsKey(item)) {
+                    continue;
+                } else if (res == null){
+                    res = entry.finals.get(item);
+                } else if (res.o1 > entry.finals.get(item).o1 ) {
+                    res = entry.finals.get(item);
                 }
             }
-            return null;
+            if (res==null) return null;
+            return res.o2;
         }
 
-        public String pathTaken(){
+        public String pathTaken() {
             return path.toString();
         }
     }

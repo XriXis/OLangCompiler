@@ -1,5 +1,7 @@
 package org.o_compiler.LexicalAnalyzer.parser.FSM;
 
+import org.o_compiler.Pair;
+
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -7,9 +9,9 @@ import java.util.function.Predicate;
 
 class PatternParser<T> {
     final String pattern;
-    final T value;  // the return value for accepting states
+    final Pair<Integer, T> value;  // the return value for accepting states
 
-    public PatternParser(String pattern, T value) {
+    public PatternParser(String pattern, Pair<Integer, T> value) {
         this.pattern = pattern;
         this.value = value;
     }
@@ -79,9 +81,9 @@ class PatternParser<T> {
 
         if (nextIndex < r) {
             char op = pattern.charAt(nextIndex);
-            if (op == '*') { base = base.star(value); nextIndex++; }
-            else if (op == '+') { base = base.plus(value); nextIndex++; }
-            else if (op == '?') { base = base.optional(value); nextIndex++; }
+            if (op == '*') { base = base.star(); nextIndex++; }
+            else if (op == '+') { base = base.plus(); nextIndex++; }
+            else if (op == '?') { base = base.optional(); nextIndex++; }
         }
         return base;
     }

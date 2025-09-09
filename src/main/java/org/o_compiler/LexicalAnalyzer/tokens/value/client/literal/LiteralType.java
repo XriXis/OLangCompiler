@@ -1,6 +1,7 @@
 package org.o_compiler.LexicalAnalyzer.tokens.value.client.literal;
 
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenDescription;
+import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
 
 import java.util.function.Function;
 
@@ -22,5 +23,15 @@ public enum LiteralType implements TokenDescription {
     @Override
     public String pattern() {
         return pattern;
+    }
+
+    @Override
+    public int priority() { return 1; }
+
+    @Override
+    public TokenValue corresponding(String cumulated) {
+        var res = new Literal<>(cumulated);
+        res.type = this;
+        return res;
     }
 }

@@ -18,7 +18,14 @@ public enum ControlSign implements TokenValue, TokenDescription {
     TABULATION("\\t", "\t"),
     COLUMN(":", ":"),
     LINE_DELIMITER("\\", "\\\\"),
-    COMMENT("//...", "//.*\n"),
+    COMMENT("//...", "//["
+            + (char) 0 +
+            '-' +
+            (char) 9 +
+            (char) 11 +
+            '-' +
+            Character.MAX_VALUE
+            + "]*\n"),
     MULTILINE_COMMENT("/*...*/", "/\\*.*\\*/"),
     ;
 
@@ -37,5 +44,13 @@ public enum ControlSign implements TokenValue, TokenDescription {
     @Override
     public String pattern() {
         return pattern;
+    }
+
+    @Override
+    public int priority(){ return 2; }
+
+    @Override
+    public TokenValue corresponding(String cumulated) {
+        return this;
     }
 }

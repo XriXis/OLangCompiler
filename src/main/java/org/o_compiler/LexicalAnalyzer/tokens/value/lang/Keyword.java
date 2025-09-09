@@ -26,8 +26,13 @@ public enum Keyword implements TokenValue, TokenDescription {
     @Override
     public String pattern() {
         return value();
-                /*Arrays.stream(Keyword.values())
-                .map(obj -> Pattern.quote(obj.value()))
-                .collect(Collectors.joining("|"));*/
+    }
+
+    @Override
+    public int priority(){ return 0; }
+
+    @Override
+    public TokenValue corresponding(String cumulated) {
+        return this;
     }
 }

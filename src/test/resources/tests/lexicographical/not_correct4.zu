@@ -1,0 +1,7 @@
+class Main is
+    this() is
+        var 123msg : Boolean(true)
+        Console().print(msg.ToString())
+    end
+end
+// Expected: true

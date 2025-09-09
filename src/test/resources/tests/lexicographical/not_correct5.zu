@@ -1,0 +1,7 @@
+class aboba is
+    this() is
+        var msg : Boolean(true)
+        Console().print(msg.ToString())
+    end
+end
+// Expected: true

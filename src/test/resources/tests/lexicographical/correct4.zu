@@ -1,0 +1,25 @@
+class Squares is
+    var big : Boolean(false)
+
+    this() is
+        var example : SquareExample(5)
+    end
+
+    this(n: Integer) is
+        var arr : Array[Integer](n)
+        var i : Counter()
+
+        while i.Get().LessEqual(n) loop
+            var sq : Integer(i.Get().Mult(i.Get()))
+            arr.set(i.Get(), sq)
+            i.Increment()
+        end
+
+        if arr.get(n).Greater(Integer(10)) then
+            big := Boolean(true)
+        else
+            big := Boolean(false)
+        end
+        Console().print(big.ToString())
+    end
+end

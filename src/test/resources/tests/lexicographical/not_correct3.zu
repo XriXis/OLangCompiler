@@ -5,3 +5,4 @@ clas Main is
     end
 end
 // Expected: true
+

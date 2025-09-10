@@ -35,7 +35,7 @@ public class LexicalAnalyzerTest {
                 .forEach(file -> {
                     try (InputStream inputStream = Files.newInputStream(file)) {
                         System.out.println("Analyzing file: " + file.getFileName());
-                        assertTrue(analyzeLexicographically(inputStream), "File " + file.getFileName() + " should be correctly lexically structured.");
+                        assertFalse(analyzeLexicographically(inputStream), "File " + file.getFileName() + " should be correctly lexically structured.");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -43,9 +43,15 @@ public class LexicalAnalyzerTest {
     }
 
     public boolean analyzeLexicographically(InputStream inputStream) {
-        for (var token : new TokenStream(inputStream)) {
-            System.out.println(token);
+        try {
+            for (var token : new TokenStream(inputStream)) {
+                System.out.print(token + " ");
+            }
+        } catch (Exception e) {
+            System.out.println();
+            return false;
         }
+        System.out.println();
         return true;
     }
 }

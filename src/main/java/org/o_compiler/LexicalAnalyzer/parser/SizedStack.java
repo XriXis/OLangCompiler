@@ -3,8 +3,8 @@ package org.o_compiler.LexicalAnalyzer.parser;
 import java.util.ArrayDeque;
 
 public class SizedStack<T> {
-    ArrayDeque<T> entry;
-    int cap;
+    private final ArrayDeque<T> entry;
+    private final int cap;
 
     public SizedStack(int capacity){
         cap = capacity;

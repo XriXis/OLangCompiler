@@ -6,10 +6,10 @@ import java.util.Iterator;
 import java.util.Stack;
 
 public class CharStream implements Iterator<Character>, Iterable<Character> {
-    static final int EOF = -1;
-    final InputStream stream;
-    SizedStack<Integer> history;
-    Stack<Integer> buffer;
+    private static final int EOF = -1;
+    private final InputStream stream;
+    private final SizedStack<Integer> history;
+    private final Stack<Integer> buffer;
 
     public CharStream(final InputStream stream) throws IOException {
         this.stream = stream;

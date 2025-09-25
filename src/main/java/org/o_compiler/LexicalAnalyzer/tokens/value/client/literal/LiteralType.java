@@ -9,13 +9,19 @@ public enum LiteralType implements TokenDescription {
     BOOLEAN("true|false", Boolean::parseBoolean),
     INTEGER("[0-9]+", Integer::parseInt),
     REAL("[0-9]*\\.[0-9]+|[0-9]+\\.[0-9]*", Double::parseDouble),
-    STRING("\".*\"", str->str)
-    ;
+    STRING("\"["
+            + (char) 0 +
+            '-' +
+            (char) ('\"' - 1) +
+            (char) ('\"' + 1) +
+            '-' +
+            Character.MAX_VALUE
+            + "]*\"", str -> str);
 
     final String pattern;
     public final Function<String, ?> parser;
 
-    LiteralType(String pattern, Function<String, ?> parser){
+    LiteralType(String pattern, Function<String, ?> parser) {
         this.pattern = pattern;
         this.parser = parser;
     }
@@ -26,7 +32,9 @@ public enum LiteralType implements TokenDescription {
     }
 
     @Override
-    public int priority() { return 1; }
+    public int priority() {
+        return 1;
+    }
 
     @Override
     public TokenValue corresponding(String cumulated) {

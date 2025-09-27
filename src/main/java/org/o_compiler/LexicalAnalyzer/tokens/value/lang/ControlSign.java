@@ -21,8 +21,8 @@ public enum ControlSign implements TokenValue, TokenDescription {
     COMMENT("//...", "//["
             + (char) 0 +
             '-' +
-            (char) 9 +
-            (char) 11 +
+            (char) ('\n' - 1) +
+            (char) ('\n' + 1) +
             '-' +
             Character.MAX_VALUE
             + "]*\n"),
@@ -31,7 +31,8 @@ public enum ControlSign implements TokenValue, TokenDescription {
 
     final String literal;
     final String pattern;
-    ControlSign(String token, String pattern){
+
+    ControlSign(String token, String pattern) {
         literal = token;
         this.pattern = pattern;
     }
@@ -47,7 +48,9 @@ public enum ControlSign implements TokenValue, TokenDescription {
     }
 
     @Override
-    public int priority(){ return 2; }
+    public int priority() {
+        return 2;
+    }
 
     @Override
     public TokenValue corresponding(String cumulated) {

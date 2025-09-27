@@ -8,8 +8,8 @@ import java.util.function.Predicate;
 /*CAUTION: WRITE-ONLY CODE, todo refactor*/
 
 class PatternParser<T> {
-    final String pattern;
-    final Pair<Integer, T> value;  // the return value for accepting states
+    private final String pattern;
+    private final Pair<Integer, T> value;  // the return value for accepting states
 
     public PatternParser(String pattern, Pair<Integer, T> value) {
         this.pattern = pattern;

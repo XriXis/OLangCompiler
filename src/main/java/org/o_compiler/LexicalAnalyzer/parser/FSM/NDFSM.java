@@ -28,18 +28,73 @@ public class NDFSM<T> implements FSM<T> {
         return new _TraverseIterator<>(this);
     }
 
-    Set<State> epsilonClosure(State s) {
-        var res = new HashSet<State>();
-        var order = new Stack<State>();
-        order.add(s);
-        res.add(s);
-        while (!order.empty()) {
-            var consideredState = order.pop();
-            for (var th : consideredState.transitions) {
-                if (th.o1 == null && res.add(th.o2)) order.add(th.o2);
-            }
+    // Operations over FSMs according to TCS lecture book
+
+    public static <T> NDFSM<T> epsilon(Pair<Integer, T> value) {
+        State s1 = new State();
+        State s2 = new State();
+        s1.addTransition(null, s2);
+        return new NDFSM<>(s1, Map.of(s2, value));
+    }
+
+    public static <T> NDFSM<T> symbol(char c, Pair<Integer, T> value) {
+        State s1 = new State();
+        State s2 = new State();
+        s1.addTransition(ch -> ch == c, s2);
+        return new NDFSM<>(s1, Map.of(s2, value));
+    }
+
+    public static <T> NDFSM<T> wildcard(Pair<Integer, T> value) {
+        State s1 = new State();
+        State s2 = new State();
+        s1.addTransition(ch -> true, s2);
+        return new NDFSM<>(s1, Map.of(s2, value));
+    }
+
+    public static <T> NDFSM<T> charClass(Predicate<Character> pred, Pair<Integer, T> value) {
+        State s1 = new State();
+        State s2 = new State();
+        s1.addTransition(pred, s2);
+        return new NDFSM<>(s1, Map.of(s2, value));
+    }
+
+    public NDFSM<T> union(NDFSM<T> b) {
+        State start = new State();
+        Map<State, Pair<Integer, T>> finals = new HashMap<>();
+        start.addTransition(null, this.start);
+        start.addTransition(null, b.start);
+        finals.putAll(this.finals);
+        finals.putAll(b.finals);
+        return new NDFSM<>(start, finals);
+    }
+
+    public NDFSM<T> concat(NDFSM<T> b) {
+        for (State f : this.finals.keySet()) {
+            f.addTransition(null, b.start);
         }
-        return res;
+        return new NDFSM<>(this.start, b.finals);
+    }
+
+    public NDFSM<T> star() {
+        State start = new State();
+        State end = new State();
+        start.addTransition(null, this.start);
+        start.addTransition(null, end);
+        for (State f : this.finals.keySet()) {
+            f.addTransition(null, this.start);
+            f.addTransition(null, end);
+        }
+        Map<State, Pair<Integer, T>> finals = new HashMap<>(this.finals);
+        finals.put(end, mostPriorFinalValue());
+        return new NDFSM<>(start, finals);
+    }
+
+    public NDFSM<T> plus() {
+        return concat(star());
+    }
+
+    public NDFSM<T> optional() {
+        return union(epsilon(mostPriorFinalValue()));
     }
 
     private NDFSM(State start, Map<State, Pair<Integer, T>> finals) {
@@ -57,73 +112,18 @@ public class NDFSM<T> implements FSM<T> {
         return resultingRet;
     }
 
-    // Operations over FSMs according to TCS lecture book
-
-    static <T> NDFSM<T> epsilon(Pair<Integer, T> value) {
-        State s1 = new State();
-        State s2 = new State();
-        s1.addTransition(null, s2);
-        return new NDFSM<>(s1, Map.of(s2, value));
-    }
-
-    static <T> NDFSM<T> symbol(char c, Pair<Integer, T> value) {
-        State s1 = new State();
-        State s2 = new State();
-        s1.addTransition(ch -> ch == c, s2);
-        return new NDFSM<>(s1, Map.of(s2, value));
-    }
-
-    static <T> NDFSM<T> wildcard(Pair<Integer, T> value) {
-        State s1 = new State();
-        State s2 = new State();
-        s1.addTransition(ch -> true, s2);
-        return new NDFSM<>(s1, Map.of(s2, value));
-    }
-
-    static <T> NDFSM<T> charClass(Predicate<Character> pred, Pair<Integer, T> value) {
-        State s1 = new State();
-        State s2 = new State();
-        s1.addTransition(pred, s2);
-        return new NDFSM<>(s1, Map.of(s2, value));
-    }
-
-    NDFSM<T> union(NDFSM<T> b) {
-        State start = new State();
-        Map<State, Pair<Integer, T>> finals = new HashMap<>();
-        start.addTransition(null, this.start);
-        start.addTransition(null, b.start);
-        finals.putAll(this.finals);
-        finals.putAll(b.finals);
-        return new NDFSM<>(start, finals);
-    }
-
-    NDFSM<T> concat(NDFSM<T> b) {
-        for (State f : this.finals.keySet()) {
-            f.addTransition(null, b.start);
+    private Set<State> epsilonClosure(State s) {
+        var res = new HashSet<State>();
+        var order = new Stack<State>();
+        order.add(s);
+        res.add(s);
+        while (!order.empty()) {
+            var consideredState = order.pop();
+            for (var th : consideredState.transitions) {
+                if (th.o1 == null && res.add(th.o2)) order.add(th.o2);
+            }
         }
-        return new NDFSM<>(this.start, b.finals);
-    }
-
-    NDFSM<T> star() {
-        State start = new State();
-        State end = new State();
-        start.addTransition(null, this.start);
-        start.addTransition(null, end);
-        for (State f : this.finals.keySet()) {
-            f.addTransition(null, this.start);
-            f.addTransition(null, end);
-        }
-        Map<State, Pair<Integer, T>> finals = new HashMap<>(this.finals);
-        finals.put(end, mostPriorFinalValue());
-        return new NDFSM<>(start, finals);
-    }
-
-    NDFSM<T> plus() {
-        return concat(star());
-    }
-
-    NDFSM<T> optional() {
-        return union(epsilon(mostPriorFinalValue()));
+        return res;
     }
 
     // --- Inner helper classes ---

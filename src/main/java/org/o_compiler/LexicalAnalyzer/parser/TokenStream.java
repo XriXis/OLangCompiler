@@ -18,8 +18,8 @@ import java.util.*;
 import java.util.function.Function;
 
 public class TokenStream implements Iterator<Token>, Iterable<Token> {
-    final CharStream source;
-    final FSM<Function<String, TokenValue>> machine;
+    private final CharStream source;
+    private final FSM<Function<String, TokenValue>> machine;
     private int line, pos;
 
     public TokenStream(final InputStream target) {
@@ -69,16 +69,18 @@ public class TokenStream implements Iterator<Token>, Iterable<Token> {
         return extract(lastSeen, smth);
     }
 
-    private Token extract(Function<String,TokenValue> lastSeen, TraverseIterator<Function<String,TokenValue>> smth){
+    @Override
+    public Iterator<Token> iterator() {
+        return this;
+    }
+
+    private Token extract(
+            Function<String,TokenValue> lastSeen,
+            TraverseIterator<Function<String,TokenValue>> smth){
         if (lastSeen == null || Objects.equals(smth.pathTaken(), "")){
             //todo: proper exception
             throw new RuntimeException("Improper token met: " + smth.pathTaken() + " at " + line + ":" + pos);
         }
         return new Token(lastSeen.apply(smth.pathTaken()), line, pos);
-    }
-
-    @Override
-    public Iterator<Token> iterator() {
-        return this;
     }
 }

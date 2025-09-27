@@ -1,4 +1,4 @@
-package o_compiler;
+package org.o_compiler;
 
 import org.junit.jupiter.api.Test;
 import org.o_compiler.LexicalAnalyzer.parser.TokenStream;

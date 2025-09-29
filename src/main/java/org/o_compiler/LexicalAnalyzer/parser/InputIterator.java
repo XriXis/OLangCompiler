@@ -1,12 +1,8 @@
 package org.o_compiler.LexicalAnalyzer.parser;
 
-import org.o_compiler.RevertibleStream;
-import org.o_compiler.SizedStack;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
-import java.util.Stack;
 
 class InputIterator implements Iterator<Character> {
     private static final int EOF = -1;

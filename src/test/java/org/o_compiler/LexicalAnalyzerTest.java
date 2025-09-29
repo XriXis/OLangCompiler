@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class LexicalAnalyzerTest {
 
-    private Path directory = Paths.get("src/test/resources/tests/lexicographical");
+    private final Path directory = Paths.get("src/test/resources/tests/lexicographical");
 
     @Test
     public void testCorrectFiles() throws IOException {

@@ -44,7 +44,7 @@ public class LexicalAnalyzerTest {
 
     public boolean analyzeLexicographically(InputStream inputStream) {
         try {
-            for (var token : new TokenStream(inputStream)) {
+            for (var token : new IteratorSingleIterableAdapter<>(new TokenStream(inputStream))) {
                 System.out.print(token + " ");
             }
         } catch (Exception e) {

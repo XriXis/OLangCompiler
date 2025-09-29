@@ -11,20 +11,21 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.client.literal.LiteralType;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.Pair;
+import org.o_compiler.RevertibleStream;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.function.Function;
 
-public class TokenStream implements Iterator<Token>, Iterable<Token> {
-    private final CharStream source;
+public class TokenStream implements Iterator<Token> {
+    private final RevertibleStream<Character> source;
     private final FSM<Function<String, TokenValue>> machine;
     private int line, pos;
 
     public TokenStream(final InputStream target) {
         try {
-            source = new CharStream(target);
+            source = new RevertibleStream<>(new InputIterator(target), 5);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -50,16 +51,16 @@ public class TokenStream implements Iterator<Token>, Iterable<Token> {
     @Override
     public Token next() {
         var smth = machine.traverse();
-        Function<String,TokenValue> lastSeen = smth.result();
-        for (char c: source){
+        Function<String, TokenValue> lastSeen = smth.result();
+        for (char c = (char) -1; source.hasNext(); c = source.next()) {
             smth.feed(c);
-            if (c=='\n'){
+            if (c == '\n') {
                 line++;
                 pos = 0;
             } else if (c == '\t') {
                 pos += 3;
             }
-            if (smth.isEnd()){
+            if (smth.isEnd()) {
                 source.revert();
                 return extract(lastSeen, smth);
             }
@@ -69,15 +70,10 @@ public class TokenStream implements Iterator<Token>, Iterable<Token> {
         return extract(lastSeen, smth);
     }
 
-    @Override
-    public Iterator<Token> iterator() {
-        return this;
-    }
-
     private Token extract(
-            Function<String,TokenValue> lastSeen,
-            TraverseIterator<Function<String,TokenValue>> smth){
-        if (lastSeen == null || Objects.equals(smth.pathTaken(), "")){
+            Function<String, TokenValue> lastSeen,
+            TraverseIterator<Function<String, TokenValue>> smth) {
+        if (lastSeen == null || Objects.equals(smth.pathTaken(), "")) {
             //todo: proper exception
             throw new RuntimeException("Improper token met: " + smth.pathTaken() + " at " + line + ":" + pos);
         }

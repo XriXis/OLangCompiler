@@ -1,4 +1,4 @@
-package org.o_compiler.LexicalAnalyzer.parser;
+package org.o_compiler;
 
 import java.util.ArrayDeque;
 
@@ -28,5 +28,9 @@ public class SizedStack<T> {
 
     public int size(){
         return entry.size();
+    }
+
+    public boolean isEmpty() {
+        return entry.isEmpty();
     }
 }

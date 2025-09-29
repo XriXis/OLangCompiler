@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         try (InputStream target = new FileInputStream(args[0])){
             ArrayList<Token> res = new ArrayList<>();
-            var stream = new TokenStream(target);
+            var stream = new IteratorSingleIterableAdapter<>(new TokenStream(target));
 
             for (var token: stream){
                 res.add(token);

@@ -1,8 +1,15 @@
 package org.o_compiler.SyntaxAnalyzer.tree;
 
 
+import org.o_compiler.LexicalAnalyzer.tokens.Token;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
+
 public class BinaryTree<T extends Comparable<T>> {
     Node<T> root;
+
+    public static TreeBuilder getBuilder(Iterable<Token> stream){
+        return new TreeBuilder(stream);
+    }
 
 
     // insert

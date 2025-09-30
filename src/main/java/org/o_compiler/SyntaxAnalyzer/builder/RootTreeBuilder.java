@@ -9,11 +9,11 @@ import java.util.Iterator;
 import java.util.Stack;
 import java.util.stream.StreamSupport;
 
-public class TreeBuilder implements TreePart {
-    ArrayList<TreePart> children;
+public class RootTreeBuilder implements BuildTree {
+    ArrayList<BuildTree> children;
     Iterator<Token> source;
 
-    public TreeBuilder(Iterable<Token> stream) {
+    public RootTreeBuilder(Iterable<Token> stream) {
         source = StreamSupport
                 .stream(stream.spliterator(), false)
                 .filter((t) -> !t.isWhitespace())

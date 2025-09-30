@@ -1,5 +1,5 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
-public interface TreePart {
+public interface BuildTree {
     void build();
 }

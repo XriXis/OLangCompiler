@@ -52,7 +52,7 @@ public class TokenStream implements Iterator<Token> {
     public Token next() {
         var smth = machine.traverse();
         Function<String, TokenValue> lastSeen = smth.result();
-        for (char c = (char) -1; source.hasNext(); c = source.next()) {
+        for (char c = source.next(); source.hasNext(); c = source.next()) {
             smth.feed(c);
             if (c == '\n') {
                 line++;

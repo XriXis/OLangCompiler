@@ -1,15 +1,15 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
-import org.o_compiler.CompilerError;
+import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
-import org.o_compiler.SyntaxAnalyzer.tree.ClassMemberTree;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 public class ClassTreeBuilder implements BuildTree {
     String className;
@@ -28,6 +28,7 @@ public class ClassTreeBuilder implements BuildTree {
         // scan all classes members and add to HashMap
         while (source.hasNext()) {
             var classMemberBuilder = scanClassMember();
+            System.out.println(classMemberBuilder.name);
             classMembers.put(classMemberBuilder.name, classMemberBuilder);
         }
     }
@@ -54,33 +55,45 @@ public class ClassTreeBuilder implements BuildTree {
         if (!(varName.entry() instanceof Identifier)) {
             throw new CompilerError("Unexpected variable name: " + varName);
         }
-        System.out.println(varName);
-        var nextToken = source.next();
         // either params, or :, or is
-        ArrayList<ArrayList<Object>> parameters = new ArrayList<>();
-        // params
+        var nextToken = source.next();
+        ArrayList<ArrayList<Object>> parameters;
+        // parameters
         if (nextToken.entry().equals(ControlSign.PARENTHESIS_OPEN)) {
-
+            parameters = scanParameters();
+            nextToken = source.next();
+        } else {
+            parameters = new ArrayList<>();
         }
-//        // multiline, return void
-//        if (nextToken.entry().equals(Keyword.IS)) {
-//            // fill body
-//            ArrayList<Token> body = new ArrayList<>();
-//            nextToken = source.next();
-//            while (!nextToken.entry().equals(Keyword.END)) {
-//                body.add(nextToken);
-//                nextToken = source.next();
-//            }
-//            // remove first and last tokens \n
-//            body.removeFirst();
-//            body.removeLast();
-//
-//            return new MethodTreeBuilder(varName.entry().value(), getClass("Void"), this, body);
-//            // multiline, return type
-//        } else if (nextToken.entry().equals()) {
-//
-//        }
-        return null;
+        // : means return type next
+        ClassTreeBuilder returnType = getClass("Void");
+        if (nextToken.entry().equals(ControlSign.COLUMN)) {
+            var tokenReturnType = source.next();
+            if (!(tokenReturnType.entry() instanceof Identifier)) {
+                throw new CompilerError("Unexpected type name: " + tokenReturnType);
+            } else if (getClass(tokenReturnType.entry().value()) == null) {
+                throw new CompilerError("Class " + tokenReturnType.entry().value() + " not found");
+            }
+            returnType = getClass(tokenReturnType.entry().value());
+            nextToken = source.next();
+        }
+
+        ArrayList<Token> body;
+        // multiline body
+        if (nextToken.entry().equals(Keyword.IS)) {
+            body = scanMultilineBody();
+        } else if (nextToken.entry().equals(ControlSign.LAMBDA)) {
+            nextToken = source.next();
+            body = new ArrayList<>();
+            while (!nextToken.entry().equals(ControlSign.END_LINE)) {
+                body.add(nextToken);
+                nextToken = source.next();
+            }
+        } else {
+            throw new CompilerError("Body of method " + varName.entry().value() + " not found");
+        }
+
+        return new MethodTreeBuilder(varName.entry().value(), returnType, parameters, this, body);
     }
 
     private AttributeTreeBuilder scanAttribute() {
@@ -120,7 +133,64 @@ public class ClassTreeBuilder implements BuildTree {
     }
 
     private MethodTreeBuilder scanConstructor() {
-        return null
+        var nextToken = source.next();
+        if (!nextToken.entry().equals(ControlSign.PARENTHESIS_OPEN)) {
+            throw new CompilerError("Unexpected token: " + nextToken);
+        }
+        ArrayList<ArrayList<Object>> parameters = scanParameters();
+        nextToken = source.next();
+        if (!nextToken.entry().equals(Keyword.IS)) {
+            throw new CompilerError("Unexpected token: " + nextToken);
+        }
+
+        ArrayList<Token> body = scanMultilineBody();
+        return new MethodTreeBuilder("this", this, parameters, this, body);
+    }
+
+    private ArrayList<ArrayList<Object>> scanParameters() {
+        ArrayList<ArrayList<Object>> parameters = new ArrayList<>();
+        var nextToken = source.next();
+        // type of (arg: Type)
+        while (!nextToken.entry().equals(ControlSign.PARENTHESIS_CLOSED)) {
+            var param = nextToken;
+            if (!(param.entry() instanceof Identifier)) {
+                throw new CompilerError("Unexpected parameter name: " + param);
+            }
+            var column = source.next();
+            if (!(column.entry().equals(ControlSign.COLUMN))) {
+                throw new CompilerError("Unexpected token: " + column);
+            }
+            var type = source.next();
+            if (!(type.entry() instanceof Identifier)) {
+                throw new CompilerError("Unexpected parameter type: " + type);
+            } else if (getClass(type.entry().value()) == null) {
+                throw new CompilerError("Class " + type.entry().value() + " not found");
+            }
+
+            parameters.add(new ArrayList<>(List.of(param.entry().value(), type.entry().value())));
+            nextToken = source.next();
+        }
+        return parameters;
+    }
+
+    private ArrayList<Token> scanMultilineBody() {
+        ArrayList<Token> body = new ArrayList<>();
+        var curr_braces = 1;
+        var nextToken = source.next();
+        while (curr_braces != 0) {
+            if (nextToken.entry().equals(Keyword.IS)) {
+                curr_braces++;
+            } else if (nextToken.entry().equals(Keyword.END)) {
+                curr_braces--;
+            }
+            body.add(nextToken);
+            if (!source.hasNext()) {
+                throw new CompilerError("Unclosed method declaration found at " + nextToken.position());
+            }
+            nextToken = source.next();
+        }
+        body.removeLast();
+        return body;
     }
 
     public boolean encloseName(String name) {

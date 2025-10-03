@@ -11,4 +11,9 @@ public class ClassTreeBuilder implements BuildTree {
     public void build() {
 
     }
+
+    @Override
+    public boolean encloseName(String name) {
+        return false;
+    }
 }

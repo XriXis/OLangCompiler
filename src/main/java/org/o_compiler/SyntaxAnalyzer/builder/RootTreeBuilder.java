@@ -1,6 +1,6 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
-import org.o_compiler.CompilerError;
+import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 
@@ -29,6 +29,11 @@ public class RootTreeBuilder implements BuildTree {
             child.build();
     }
 
+    @Override
+    public boolean encloseName(String name) {
+        return false;
+    }
+
     private ClassTreeBuilder scanClass() {
         var classIdentifier = source.next();
         if (!(classIdentifier.entry() instanceof Keyword) || !classIdentifier.entry().equals(Keyword.CLASS))
@@ -50,6 +55,5 @@ public class RootTreeBuilder implements BuildTree {
         if (!bracesStack.empty())
             throw new CompilerError("Unclosed class declaration found at " + classIdentifier.position());
         return new ClassTreeBuilder(classCode);
-
     }
 }

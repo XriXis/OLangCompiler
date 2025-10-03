@@ -3,6 +3,10 @@ package org.o_compiler.LexicalAnalyzer.tokens.value.lang;
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenDescription;
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public enum Keyword implements TokenValue, TokenDescription {
     CLASS,
     METHOD,
@@ -15,8 +19,19 @@ public enum Keyword implements TokenValue, TokenDescription {
     WHILE,
     LOOP,
     VAR,
+    IF,
     ;
 
+    private static final HashSet<Keyword> blockOpen = new HashSet<>();
+    static {
+        blockOpen.addAll(List.of(new Keyword[]
+                {LOOP, THEN, IS}
+        ));
+    }
+
+    public boolean isBlockOpen(){
+        return blockOpen.contains(this);
+    }
 
     @Override
     public String value() {

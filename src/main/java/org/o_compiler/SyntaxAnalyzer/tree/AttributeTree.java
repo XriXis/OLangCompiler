@@ -19,5 +19,4 @@ public class AttributeTree extends ClassMemberTree {
         super(attribute_name, attribute_parent, attribute_type, source_code);
         value = attribute_value;
     }
-
 }

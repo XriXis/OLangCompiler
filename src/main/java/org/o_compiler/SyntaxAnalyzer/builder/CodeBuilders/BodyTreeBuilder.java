@@ -28,4 +28,9 @@ public class BodyTreeBuilder extends BlockBuilder {
     public boolean encloseName(String name) {
         return namespace.containsKey(name);
     }
+
+    @Override
+    public BuildTree getParent() {
+        return null;
+    }
 }

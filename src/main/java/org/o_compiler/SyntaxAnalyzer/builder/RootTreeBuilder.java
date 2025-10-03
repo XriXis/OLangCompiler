@@ -1,16 +1,14 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
-import org.o_compiler.CompilerError;
+import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.parser.TokenStream;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
-import org.o_compiler.SyntaxAnalyzer.tree.ClassTree;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;

@@ -21,4 +21,9 @@ public class AssignmentBuilder implements BuildTree {
     public boolean encloseName(String name) {
         return false;
     }
+
+    @Override
+    public BuildTree getParent() {
+        return null;
+    }
 }

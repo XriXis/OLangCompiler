@@ -28,7 +28,6 @@ public class ClassTreeBuilder implements BuildTree {
         // scan all classes members and add to HashMap
         while (source.hasNext()) {
             var classMemberBuilder = scanClassMember();
-            System.out.println(classMemberBuilder.name);
             classMembers.put(classMemberBuilder.name, classMemberBuilder);
         }
     }
@@ -178,7 +177,7 @@ public class ClassTreeBuilder implements BuildTree {
         var curr_braces = 1;
         var nextToken = source.next();
         while (curr_braces != 0) {
-            if (nextToken.entry().equals(Keyword.IS)) {
+            if (nextToken.entry().equals(Keyword.IS) || nextToken.entry().equals(Keyword.LOOP)) {
                 curr_braces++;
             } else if (nextToken.entry().equals(Keyword.END)) {
                 curr_braces--;

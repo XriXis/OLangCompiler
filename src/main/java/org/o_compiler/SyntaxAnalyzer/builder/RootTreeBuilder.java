@@ -46,6 +46,12 @@ public class RootTreeBuilder implements BuildTree {
         // scan all classes and add to children
         while (source.hasNext()) {
             var classBuilder = scanClass();
+//            System.out.println(classBuilder.className);
+//            for (Iterator<Token> it = classBuilder.source; it.hasNext(); ) {
+//                var token = it.next();
+//                System.out.println(token + " ");
+//            }
+//            System.out.println();
             classes.put(classBuilder.className, classBuilder);
         }
         // scan all class members
@@ -74,12 +80,13 @@ public class RootTreeBuilder implements BuildTree {
         // get class identifier
         var classIdentifier = source.next();
         // ensure identifier not \n
+        // TODO comment
         while (classIdentifier.entry().equals(ControlSign.END_LINE))
             classIdentifier = source.next();
 
         // ensure identifier is class
         if (!(classIdentifier.entry() instanceof Keyword) || !classIdentifier.entry().equals(Keyword.CLASS))
-            throw new CompilerError("Top level declarations could be only classes. Improper token met at " + classIdentifier.position());
+            throw new CompilerError("Top level declarations could be only classes. Improper token " + classIdentifier.entry().value() + " met at " + classIdentifier.position());
 
         // get class name
         Token tokenClassName = source.next();
@@ -98,7 +105,7 @@ public class RootTreeBuilder implements BuildTree {
         bracesStack.add(null);
         while (!bracesStack.empty() && source.hasNext()) {
             var cur = source.next();
-            if (cur.entry().equals(Keyword.IS)) {
+            if (cur.entry().equals(Keyword.IS) || cur.entry().equals(Keyword.LOOP)) {
                 bracesStack.add(cur);
             }
             if (cur.entry().equals(Keyword.END)) {

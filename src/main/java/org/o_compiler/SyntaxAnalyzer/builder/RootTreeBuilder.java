@@ -82,13 +82,14 @@ public class RootTreeBuilder implements BuildTree {
             throw new CompilerError("Top level declarations could be only classes. Improper token met at " + classIdentifier.position());
 
         // get class name
-        Token TokenClassName = source.next();
+        Token tokenClassName = source.next();
+        String stringClassName = tokenClassName.entry().value();
         // ensure class name is identifier
-        if (!(TokenClassName.entry() instanceof Identifier)) {
-            throw new CompilerError("Class name expected at " + TokenClassName.position() + ", got " + TokenClassName.toString());
+        if (!(tokenClassName.entry() instanceof Identifier)) {
+            throw new CompilerError("Class name expected at " + tokenClassName.position() + ", got " + tokenClassName.toString());
+        } else if (getClass(stringClassName) != null) {
+            throw new CompilerError("Class name " + stringClassName + " already exists");
         }
-        // get class name
-        String StringClassName = TokenClassName.entry().value();
 
         // internal class code
         var classCode = new ArrayList<Token>();
@@ -114,7 +115,7 @@ public class RootTreeBuilder implements BuildTree {
         if (!bracesStack.empty())
             throw new CompilerError("Unclosed class declaration found at " + classIdentifier.position());
         // return new class
-        return new ClassTreeBuilder(StringClassName, classCode, this);
+        return new ClassTreeBuilder(stringClassName, classCode, this);
     }
 
     @Override

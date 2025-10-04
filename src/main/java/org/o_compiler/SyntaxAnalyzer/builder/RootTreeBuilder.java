@@ -65,6 +65,7 @@ public class RootTreeBuilder implements BuildTree {
         classes.put("Array", new ClassTreeBuilder("Array", new ArrayList<Token>(), this));
         classes.put("List", new ClassTreeBuilder("List", new ArrayList<Token>(), this));
         classes.put("Void", new ClassTreeBuilder("Void", new ArrayList<Token>(), this));
+        classes.put("Console", new ClassTreeBuilder("Void", new ArrayList<Token>(), this));
     }
 
     private ClassTreeBuilder scanClass() {

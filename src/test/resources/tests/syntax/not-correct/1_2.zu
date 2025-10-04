@@ -1,0 +1,6 @@
+class Main
+    this() is
+        var example : SumExample(5)
+        Console().print(example.Get().ToString())
+    end
+end

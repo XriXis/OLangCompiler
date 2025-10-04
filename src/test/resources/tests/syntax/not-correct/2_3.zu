@@ -1,0 +1,18 @@
+class Main is
+    var a : Integer(10)
+    var b : Integer(20)
+
+    method add() : Integer is
+        return a.Plus(b)
+    end
+end
+
+class Main is
+    this() is
+        var obj : MyClass
+        obj := MyClass()
+        var result : Integer
+        result := obj.add()
+    end
+end
+

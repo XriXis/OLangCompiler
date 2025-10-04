@@ -1,0 +1,23 @@
+class Main is
+    var a : Integer(10)
+    var b : Integer(20)
+
+    method this(obj: Biba) is
+        var result : Integer
+        result := obj.add()
+    end
+
+    method add() : Integer is
+        return a.Plus(b)
+    end
+end
+
+class MyClass is
+    this() is
+        var obj : MyClass
+        obj := MyClass()
+        var result : Integer
+        result := obj.add()
+    end
+end
+

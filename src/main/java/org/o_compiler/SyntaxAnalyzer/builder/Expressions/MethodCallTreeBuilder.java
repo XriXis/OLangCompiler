@@ -34,7 +34,8 @@ public class MethodCallTreeBuilder extends CallExpressionTreeBuilder {
                 cur == 1
                         ? expressionFactory(chain.getFirst().iterator(), context)
                         : initFromChain(chain, context, cur - 1);
-        for (var child : res.children) child.parent = res;
+        if (res instanceof CallExpressionTreeBuilder resWithArgs)
+            for (var child : resWithArgs.args) child.parent = res;
         if (!(chain.get(cur).getFirst().entry() instanceof Identifier))
             throw new CompilerError("Unexpected token met:" + chain.get(cur).getFirst() + ". Method identifier expected");
         var methodName = chain.get(cur).getFirst().entry().value();

@@ -8,12 +8,12 @@ import org.o_compiler.SyntaxAnalyzer.builder.MethodTreeBuilder;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 public abstract class CallExpressionTreeBuilder extends ExpressionTreeBuilder {
     // [(], ?{[arg1 expr], [,], [arg2 expr] ...}, [)]
     Iterator<Token> unparsedArgs;
     MethodTreeBuilder it;
+    ArrayList<ExpressionTreeBuilder> args;
 
     @Override
     public void build() {
@@ -34,8 +34,9 @@ public abstract class CallExpressionTreeBuilder extends ExpressionTreeBuilder {
         var parser = new EntityScanner(representation.iterator(), this)
                 .scanChain((v)->v.equals(ControlSign.SEPARATOR));
         for (ArrayList<Token> cur: parser) {
-            children.add(expressionFactory(cur.iterator(), this));
-            children.getLast().build();
+            args.add(expressionFactory(cur.iterator(), this));
+            args.getLast().build();
         }
+        // todo: check @args types for correspondence to @it signature
     }
 }

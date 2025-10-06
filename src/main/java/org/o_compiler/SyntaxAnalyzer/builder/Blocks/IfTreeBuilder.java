@@ -1,4 +1,4 @@
-package org.o_compiler.SyntaxAnalyzer.builder.CodeBuilders;
+package org.o_compiler.SyntaxAnalyzer.builder.Blocks;
 
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
@@ -6,13 +6,14 @@ import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class WhileTreeBuilder implements BuildTree {
+public class IfTreeBuilder implements BuildTree {
     Iterator<Token> code;
     ArrayList<BuildTree> children;
     BuildTree parent;
 
-    public WhileTreeBuilder(Iterable<Token> source) {
+    public IfTreeBuilder(Iterable<Token> source, BuildTree parent) {
         code = source.iterator();
+        this.parent = parent;
     }
 
     @Override
@@ -27,6 +28,6 @@ public class WhileTreeBuilder implements BuildTree {
 
     @Override
     public BuildTree getParent() {
-        return null;
+        return parent;
     }
 }

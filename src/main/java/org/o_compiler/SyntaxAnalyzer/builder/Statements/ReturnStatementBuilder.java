@@ -1,4 +1,4 @@
-package org.o_compiler.SyntaxAnalyzer.builder.CodeBuilders;
+package org.o_compiler.SyntaxAnalyzer.builder.Statements;
 
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
@@ -8,9 +8,12 @@ import java.util.Iterator;
 
 public class ReturnStatementBuilder implements BuildTree {
     Iterator<Token> code;
-    ArrayList<Token> children;
-    public ReturnStatementBuilder(Iterable<Token> source){
+    ArrayList<BuildTree> children;
+    BuildTree parent;
+
+    public ReturnStatementBuilder(Iterable<Token> source, BuildTree parent){
         code = source.iterator();
+        this.parent = parent;
     }
 
     @Override

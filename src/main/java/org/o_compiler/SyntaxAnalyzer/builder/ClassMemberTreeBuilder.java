@@ -19,11 +19,6 @@ public abstract class ClassMemberTreeBuilder implements BuildTree {
     }
 
     @Override
-    public boolean encloseName(String name) {
-        return false;
-    }
-
-    @Override
     public BuildTree getParent() {
         return parent;
     }

@@ -17,6 +17,7 @@ public enum Keyword implements TokenValue, TokenDescription {
     THIS,
     THEN,
     WHILE,
+    ELSE,
     LOOP,
     VAR,
     IF,

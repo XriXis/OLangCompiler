@@ -1,16 +1,19 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
+import jdk.jshell.spi.ExecutionControl;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
+import org.o_compiler.SyntaxAnalyzer.builder.Expressions.MethodCallTreeBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+// todo: Inheritance support
 public class ClassTreeBuilder implements BuildTree {
     String className;
     Iterator<Token> source;
@@ -30,6 +33,13 @@ public class ClassTreeBuilder implements BuildTree {
             var classMemberBuilder = scanClassMember();
             classMembers.put(classMemberBuilder.name, classMemberBuilder);
         }
+    }
+
+    // this implementation kills the possibility of overloads, so should be changed, if such feature
+    // supposed to be implemented. For such an option exposed out of the @getEnclosedName
+    // To Arthur - you could think about better or more unique implementation without infinite behaviour growth
+    public MethodTreeBuilder getMethodByName(String name) {
+        throw new RuntimeException(new ExecutionControl.NotImplementedException(""));
     }
 
     public ClassMemberTreeBuilder scanClassMember() {
@@ -192,8 +202,14 @@ public class ClassTreeBuilder implements BuildTree {
         return body;
     }
 
+    @Override
     public boolean encloseName(String name) {
         return classMembers.containsKey(name);
+    }
+
+    @Override
+    public ClassMemberTreeBuilder getEnclosedName(String name){
+        return classMembers.get(name);
     }
 
     @Override

@@ -127,6 +127,11 @@ public class RootTreeBuilder implements BuildTree {
 
     @Override
     public ClassTreeBuilder getClass(String name) {
+        return getEnclosedName(name);
+    }
+
+    @Override
+    public ClassTreeBuilder getEnclosedName(String name) {
         return classes.get(name);
     }
 

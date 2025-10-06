@@ -3,6 +3,7 @@ package org.o_compiler.LexicalAnalyzer.parser;
 import org.o_compiler.LexicalAnalyzer.parser.FSM.FSM;
 import org.o_compiler.LexicalAnalyzer.parser.FSM.NDFSM;
 import org.o_compiler.LexicalAnalyzer.parser.FSM.TraverseIterator;
+import org.o_compiler.LexicalAnalyzer.tokens.Span;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenDescription;
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
@@ -21,7 +22,8 @@ import java.util.function.Function;
 public class TokenStream implements Iterator<Token> {
     private final RevertibleStream<Character> source;
     private final FSM<Function<String, TokenValue>> machine;
-    private int line, pos;
+    private int line = 1, pos = 0;
+    private char lastRead;
 
     public TokenStream(final InputStream target) {
         try {
@@ -45,38 +47,45 @@ public class TokenStream implements Iterator<Token> {
 
     @Override
     public boolean hasNext() {
-        return source.hasNext();
+        return source.hasNext() || lastRead != '\n';
     }
 
     @Override
     public Token next() {
-        var smth = machine.traverse();
-        Function<String, TokenValue> lastSeen = smth.result();
+        if (!source.hasNext() && lastRead != '\n') {
+            lastRead = '\n';
+            return new Token(ControlSign.END_LINE, line, pos + 1);
+        }
+        var regexEngine = machine.traverse();
+        Function<String, TokenValue> lastSeen = regexEngine.result();
         for (char c = source.next(); source.hasNext(); c = source.next()) {
-            smth.feed(c);
+            lastRead = c;
+            regexEngine.feed(c);
             if (c == '\n') {
                 line++;
                 pos = 0;
             } else if (c == '\t') {
                 pos += 3;
             }
-            if (smth.isEnd()) {
+            if (regexEngine.isEnd()) {
                 source.revert();
-                return extract(lastSeen, smth);
+                if (lastRead == '\n') line--;
+                if (lastRead=='\t') pos-=3;
+                return extract(lastSeen, regexEngine);
             }
             pos++;
-            lastSeen = smth.result();
+            lastSeen = regexEngine.result();
         }
-        return extract(lastSeen, smth);
+        return extract(lastSeen, regexEngine);
     }
 
     private Token extract(
             Function<String, TokenValue> lastSeen,
-            TraverseIterator<Function<String, TokenValue>> smth) {
-        if (lastSeen == null || Objects.equals(smth.pathTaken(), "")) {
+            TraverseIterator<Function<String, TokenValue>> regexEngine) {
+        if (lastSeen == null || Objects.equals(regexEngine.pathTaken(), "")) {
             //todo: proper exception
-            throw new RuntimeException("Improper token met: " + smth.pathTaken() + " at " + line + ":" + pos);
+            throw new RuntimeException("Improper token met: " + regexEngine.pathTaken() + " at " + new Span(line, pos));
         }
-        return new Token(lastSeen.apply(smth.pathTaken()), line, pos);
+        return new Token(lastSeen.apply(regexEngine.pathTaken()), line, pos);
     }
 }

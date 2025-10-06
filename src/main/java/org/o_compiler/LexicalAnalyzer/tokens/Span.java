@@ -11,6 +11,6 @@ public class Span {
 
     @Override
     public String toString() {
-        return "line: " + line + " col: " + pos + "(" + line + ":" + pos + ")";
+        return "line " + line + ", col " + pos + " (" + line + ":" + pos + ")";
     }
 }

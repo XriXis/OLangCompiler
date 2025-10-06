@@ -10,9 +10,8 @@ import org.o_compiler.SyntaxAnalyzer.builder.Statements.DeclarationBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
-public abstract class BlockBuilder implements BuildTree {
+public class BlockBuilder implements BuildTree {
     RevertibleStream<Token> code;
     ArrayList<BuildTree> children = new ArrayList<>();
     HashMap<String, DeclarationBuilder> namespace = new HashMap<>();

@@ -1,12 +1,11 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
 import jdk.jshell.spi.ExecutionControl;
-import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
-import org.o_compiler.SyntaxAnalyzer.builder.Expressions.MethodCallTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,11 +130,12 @@ public class ClassTreeBuilder implements BuildTree {
         // get value
         var valueSourceCode = new ArrayList<Token>();
         valueSourceCode.add(tokenTypeOfAttribute);
-        var nextToken = source.next();
+
         // read until end of line
-        while (!nextToken.entry().equals(ControlSign.END_LINE)) {
-            valueSourceCode.add(nextToken);
+        Token nextToken = null;
+        while (source.hasNext() && (nextToken == null || !ControlSign.END_LINE.equals(nextToken.entry()))) {
             nextToken = source.next();
+            valueSourceCode.add(nextToken);
         }
 
         return new AttributeTreeBuilder(varName.entry().value(), treeTypeOfAttribute, this, valueSourceCode);
@@ -208,7 +208,7 @@ public class ClassTreeBuilder implements BuildTree {
     }
 
     @Override
-    public ClassMemberTreeBuilder getEnclosedName(String name){
+    public ClassMemberTreeBuilder getEnclosedName(String name) {
         return classMembers.get(name);
     }
 

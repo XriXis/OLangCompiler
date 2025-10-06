@@ -1,33 +1,23 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Blocks;
 
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
+import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
+import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-public class IfTreeBuilder implements BuildTree {
-    Iterator<Token> code;
-    ArrayList<BuildTree> children;
-    BuildTree parent;
-
+public class IfTreeBuilder extends ConditionalBlock {
     public IfTreeBuilder(Iterable<Token> source, BuildTree parent) {
-        code = source.iterator();
-        this.parent = parent;
+        super(source, parent);
     }
 
     @Override
-    public void build() {
-
+    protected boolean isProperOpen(TokenValue t) {
+        return t.equals(Keyword.IF);
     }
 
     @Override
-    public boolean encloseName(String name) {
-        return false;
+    protected boolean isStartBlock(TokenValue t) {
+        return t.equals(Keyword.THEN);
     }
 
-    @Override
-    public BuildTree getParent() {
-        return parent;
-    }
 }

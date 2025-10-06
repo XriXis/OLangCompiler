@@ -6,6 +6,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.RevertibleStream;
+import org.o_compiler.SyntaxAnalyzer.Exceptions.UnclosedBlockException;
 import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
 
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class EntityScanner {
                 bracesStack.add(cur);
             if (isClosed.test(cur.entry())) {
                 if (bracesStack.peek() == null)
-                    throw new CompilerError("Closing unopened block found at " + cur.position());
+                    throw new UnclosedBlockException("Closing unopened block found at " + cur.position());
                 bracesStack.pop();
             }
             if (isEnd.test(cur.entry()) && bracesStack.peek() == null) {

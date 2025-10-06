@@ -40,6 +40,10 @@ public abstract class ExpressionTreeBuilder implements BuildTree {
         return new VariableValueAccessTreeBuild(val, context);
     }
 
+    public ClassTreeBuilder getType(){
+        return type;
+    }
+
     @Override
     public BuildTree getParent() {
         return parent;

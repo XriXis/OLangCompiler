@@ -10,8 +10,10 @@ import org.o_compiler.SyntaxAnalyzer.Exceptions.InternalCommunicationError;
 import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.EntityScanner;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Expressions.MethodCallTreeBuilder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public abstract class ConditionalBlock extends BlockBuilder {
     ExpressionTreeBuilder condition;
@@ -28,6 +30,12 @@ public abstract class ConditionalBlock extends BlockBuilder {
     @Override
     public void build() {
         condition = parseHead();
+        // todo: transfer names of base classes into global constants
+        var boolCastMethod = condition.getType().getMethodByName("asBool");
+        if (condition.getType() != getClass("Boolean") || boolCastMethod == null)
+            throw new CompilerError("Conditional block with not boolean condition at " + code.lastRead().position());
+        if (condition.getType() != getClass("Boolean"))
+            condition = new MethodCallTreeBuilder(boolCastMethod, condition, Collections.emptyIterator());
         var buffer = new EntityScanner(code, this).scanFreeBlock(
                 (v) -> (v instanceof Keyword) && ((Keyword) v).isBlockOpen(),
                 (v) -> v.equals(Keyword.END) || v.equals(Keyword.ELSE),
@@ -38,14 +46,16 @@ public abstract class ConditionalBlock extends BlockBuilder {
         // End of the block is not included into the scanFreeBlock result
         code.revert();
 
-        // ugly piece code to reuse written implementation. Main block (if condition is positive) is the conditional block itself
+        // ugly piece code to reuse written implementation. Main block (if condition is positive) is the conditional
+        // block itself
         var temp = code;
         code = new RevertibleStream<>(buffer.iterator(), 3);
         super.build();
         code = temp;
 
         switch (code.next().entry()) {
-            case Keyword.END -> {}
+            case Keyword.END -> {
+            }
             case Keyword.ELSE -> {
                 var elseCodeBuffer = new ArrayList<Token>();
                 while (code.hasNext()) elseCodeBuffer.add(code.next());
@@ -54,7 +64,8 @@ public abstract class ConditionalBlock extends BlockBuilder {
                     throw new InternalCommunicationError("Attempt to parse conditional block, that ends with no END keyword. End of parsed block " + elseCodeBuffer.getLast().position());
                 elseBranch = new BlockBuilder(new IteratorSingleIterableAdapter<>(code), this);
             }
-            default -> throw new CompilerError("Unclosed Conditional Block from " + buffer.getFirst().position() + " up to " + buffer.getLast().position());
+            default ->
+                    throw new CompilerError("Unclosed Conditional Block from " + buffer.getFirst().position() + " up to " + buffer.getLast().position());
         }
     }
 

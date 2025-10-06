@@ -13,9 +13,10 @@ import java.util.Iterator;
 public class MethodCallTreeBuilder extends CallExpressionTreeBuilder {
     ExpressionTreeBuilder of;
 
-    private MethodCallTreeBuilder(MethodTreeBuilder what, ExpressionTreeBuilder of, Iterator<Token> callSource) {
+    public MethodCallTreeBuilder(MethodTreeBuilder what, ExpressionTreeBuilder of, Iterator<Token> callSource) {
         this.it = what;
         this.of = of;
+        of.parent = this;
         this.unparsedArgs = callSource;
     }
 

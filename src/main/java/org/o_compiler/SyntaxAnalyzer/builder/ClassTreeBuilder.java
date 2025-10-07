@@ -8,6 +8,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 
 import javax.swing.tree.TreePath;
+import javax.xml.stream.FactoryConfigurationError;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -76,13 +77,13 @@ public class ClassTreeBuilder implements BuildTree {
         }
         // either params, or :, or is
         var nextToken = source.next();
-        HashMap<String, Variable> parameters;
+        ArrayList<Variable> parameters;
         // parameters
         if (nextToken.entry().equals(ControlSign.PARENTHESIS_OPEN)) {
             parameters = scanParameters();
             nextToken = source.next();
         } else {
-            parameters = new HashMap<>();
+            parameters = new ArrayList<>();
         }
         // : means return type next
         ClassTreeBuilder returnType = getClass("Void");
@@ -157,7 +158,7 @@ public class ClassTreeBuilder implements BuildTree {
         if (!nextToken.entry().equals(ControlSign.PARENTHESIS_OPEN)) {
             throw new CompilerError("Unexpected token: " + nextToken);
         }
-        HashMap<String, Variable> parameters = scanParameters();
+        ArrayList<Variable> parameters = scanParameters();
         nextToken = source.next();
         if (!nextToken.entry().equals(Keyword.IS)) {
             throw new CompilerError("Unexpected token: " + nextToken);
@@ -167,8 +168,8 @@ public class ClassTreeBuilder implements BuildTree {
         return new MethodTreeBuilder("this", this, parameters, this, body);
     }
 
-    private HashMap<String, Variable> scanParameters() {
-        HashMap<String, Variable> parameters = new HashMap<>();
+    private ArrayList<Variable> scanParameters() {
+        ArrayList<Variable> parameters = new ArrayList<>();
         var nextToken = source.next();
         // type of (arg: Type)
         while (!nextToken.entry().equals(ControlSign.PARENTHESIS_CLOSED)) {
@@ -187,7 +188,7 @@ public class ClassTreeBuilder implements BuildTree {
                 throw new CompilerError("Class " + type.entry().value() + " not found");
             }
 
-            parameters.put(param.entry().value(), new Variable(param.entry().value(), getClass(type.entry().value())));
+            parameters.add(new Variable(param.entry().value(), getClass(type.entry().value())));
             nextToken = source.next();
         }
         return parameters;
@@ -220,7 +221,13 @@ public class ClassTreeBuilder implements BuildTree {
 
     @Override
     public ClassMemberTreeBuilder getEnclosedName(String name) {
-        return classMembers.get(name);
+        if (classMembers.containsKey(name)) {
+            return classMembers.get(name);
+        } else if (classInheritanceParent != null) {
+            return classInheritanceParent.getEnclosedName(name);
+        } else {
+            return null;
+        }
     }
 
     @Override

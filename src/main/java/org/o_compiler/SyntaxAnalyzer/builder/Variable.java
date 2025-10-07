@@ -10,7 +10,8 @@ public class Variable implements Valuable, BuildTree {
     }
 
     @Override
-    public void getValue() {
+    public Variable getVariable() {
+        return this;
     }
 
     @Override

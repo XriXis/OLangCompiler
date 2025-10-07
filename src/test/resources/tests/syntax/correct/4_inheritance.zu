@@ -1,0 +1,17 @@
+class Main is
+    this() is
+        var dog : Dog()
+        dog.Speak()
+    end
+end
+
+class Animal is
+    method Speak : Boolean => Boolean(false)
+end
+
+class Dog extends Animal is
+    method Speak : Boolean is
+        Console().print(true.ToString())
+        return Boolean(true)
+    end
+end

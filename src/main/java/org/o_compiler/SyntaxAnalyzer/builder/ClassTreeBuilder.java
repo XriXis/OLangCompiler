@@ -7,26 +7,37 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 
+import javax.swing.tree.TreePath;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-// todo: Inheritance support
 public class ClassTreeBuilder implements BuildTree {
     String className;
     Iterator<Token> source;
     RootTreeBuilder parent;
+    Token tokenInheritanceParent;
+    ClassTreeBuilder classInheritanceParent = null;
     HashMap<String, ClassMemberTreeBuilder> classMembers;
 
-    public ClassTreeBuilder(String className, Iterable<Token> source, RootTreeBuilder parent) {
+    public ClassTreeBuilder(String className, Iterable<Token> source, RootTreeBuilder parent, Token inheritanceParent) {
         this.className = className;
         this.source = source.iterator();
         this.parent = parent;
+        this.tokenInheritanceParent = inheritanceParent;
         classMembers = new HashMap<>();
     }
 
     public void scanClassMembers() {
+        if (tokenInheritanceParent != null) {
+            if (getClass(tokenInheritanceParent.entry().value()) == null) {
+                throw new CompilerError("Inherited class " + tokenInheritanceParent.entry().value() + " not found");
+            } else {
+                classInheritanceParent = getClass(tokenInheritanceParent.entry().value());
+            }
+        }
+
         // scan all classes members and add to HashMap
         while (source.hasNext()) {
             var classMemberBuilder = scanClassMember();
@@ -65,13 +76,13 @@ public class ClassTreeBuilder implements BuildTree {
         }
         // either params, or :, or is
         var nextToken = source.next();
-        ArrayList<ArrayList<Object>> parameters;
+        HashMap<String, Variable> parameters;
         // parameters
         if (nextToken.entry().equals(ControlSign.PARENTHESIS_OPEN)) {
             parameters = scanParameters();
             nextToken = source.next();
         } else {
-            parameters = new ArrayList<>();
+            parameters = new HashMap<>();
         }
         // : means return type next
         ClassTreeBuilder returnType = getClass("Void");
@@ -146,7 +157,7 @@ public class ClassTreeBuilder implements BuildTree {
         if (!nextToken.entry().equals(ControlSign.PARENTHESIS_OPEN)) {
             throw new CompilerError("Unexpected token: " + nextToken);
         }
-        ArrayList<ArrayList<Object>> parameters = scanParameters();
+        HashMap<String, Variable> parameters = scanParameters();
         nextToken = source.next();
         if (!nextToken.entry().equals(Keyword.IS)) {
             throw new CompilerError("Unexpected token: " + nextToken);
@@ -156,8 +167,8 @@ public class ClassTreeBuilder implements BuildTree {
         return new MethodTreeBuilder("this", this, parameters, this, body);
     }
 
-    private ArrayList<ArrayList<Object>> scanParameters() {
-        ArrayList<ArrayList<Object>> parameters = new ArrayList<>();
+    private HashMap<String, Variable> scanParameters() {
+        HashMap<String, Variable> parameters = new HashMap<>();
         var nextToken = source.next();
         // type of (arg: Type)
         while (!nextToken.entry().equals(ControlSign.PARENTHESIS_CLOSED)) {
@@ -176,7 +187,7 @@ public class ClassTreeBuilder implements BuildTree {
                 throw new CompilerError("Class " + type.entry().value() + " not found");
             }
 
-            parameters.add(new ArrayList<>(List.of(param.entry().value(), type.entry().value())));
+            parameters.put(param.entry().value(), new Variable(param.entry().value(), getClass(type.entry().value())));
             nextToken = source.next();
         }
         return parameters;

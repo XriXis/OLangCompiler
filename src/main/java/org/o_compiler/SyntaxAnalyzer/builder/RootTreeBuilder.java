@@ -52,7 +52,9 @@ public class RootTreeBuilder implements BuildTree {
 //                System.out.println(token + " ");
 //            }
 //            System.out.println();
-            classes.put(classBuilder.className, classBuilder);
+            if (classBuilder != null) {
+                classes.put(classBuilder.className, classBuilder);
+            }
         }
         // scan all class members
         for (var classBuilder : classes.values()) {
@@ -65,24 +67,25 @@ public class RootTreeBuilder implements BuildTree {
     }
 
     private void includePredeclaredClasses() {
-        classes.put("Integer", new ClassTreeBuilder("Integer", new ArrayList<Token>(), this));
-        classes.put("Real", new ClassTreeBuilder("Real", new ArrayList<Token>(), this));
-        classes.put("Boolean", new ClassTreeBuilder("Boolean", new ArrayList<Token>(), this));
-        classes.put("Array", new ClassTreeBuilder("Array", new ArrayList<Token>(), this));
-        classes.put("List", new ClassTreeBuilder("List", new ArrayList<Token>(), this));
-        classes.put("Void", new ClassTreeBuilder("Void", new ArrayList<Token>(), this));
-        classes.put("Console", new ClassTreeBuilder("Void", new ArrayList<Token>(), this));
+        classes.put("Integer", new ClassTreeBuilder("Integer", new ArrayList<Token>(), this, null));
+        classes.put("Real", new ClassTreeBuilder("Real", new ArrayList<Token>(), this, null));
+        classes.put("Boolean", new ClassTreeBuilder("Boolean", new ArrayList<Token>(), this, null));
+        classes.put("Array", new ClassTreeBuilder("Array", new ArrayList<Token>(), this, null));
+        classes.put("List", new ClassTreeBuilder("List", new ArrayList<Token>(), this, null));
+        classes.put("Void", new ClassTreeBuilder("Void", new ArrayList<Token>(), this, null));
+        classes.put("Console", new ClassTreeBuilder("Void", new ArrayList<Token>(), this, null));
     }
 
     private ClassTreeBuilder scanClass() {
-        // TODO: inheritance
-
         // get class identifier
         var classIdentifier = source.next();
         // ensure identifier not \n
         // TODO comment
-        while (classIdentifier.entry().equals(ControlSign.END_LINE))
+        while (classIdentifier.entry().equals(ControlSign.END_LINE) && source.hasNext())
             classIdentifier = source.next();
+        if (!source.hasNext()) {
+            return null;
+        }
 
         // ensure identifier is class
         if (!(classIdentifier.entry() instanceof Keyword) || !classIdentifier.entry().equals(Keyword.CLASS))
@@ -98,13 +101,23 @@ public class RootTreeBuilder implements BuildTree {
             throw new CompilerError("Class name " + stringClassName + " already exists");
         }
 
+        // check for inheritance
+        var cur = source.next();
+        Token inheritedClassName = null;
+        if (cur.entry().equals(Keyword.EXTENDS)) {
+            inheritedClassName = source.next();
+            if (!(inheritedClassName.entry() instanceof Identifier)) {
+                throw new CompilerError("Class name expected at " + inheritedClassName.position() + ", got " + inheritedClassName.toString());
+            }
+            cur = source.next();
+        }
+
         // internal class code
         var classCode = new ArrayList<Token>();
         // stack for class boundaries
         var bracesStack = new Stack<Token>();
         bracesStack.add(null);
         while (!bracesStack.empty() && source.hasNext()) {
-            var cur = source.next();
             if (cur.entry().equals(Keyword.IS) || cur.entry().equals(Keyword.LOOP)) {
                 bracesStack.add(cur);
             }
@@ -113,6 +126,7 @@ public class RootTreeBuilder implements BuildTree {
                 while (!bracesStack.empty() && bracesStack.peek() == null);
             }
             classCode.add(cur);
+            cur = source.next();
         }
         // remove first is and last end
         classCode.removeFirst();
@@ -122,7 +136,7 @@ public class RootTreeBuilder implements BuildTree {
         if (!bracesStack.empty())
             throw new CompilerError("Unclosed class declaration found at " + classIdentifier.position());
         // return new class
-        return new ClassTreeBuilder(stringClassName, classCode, this);
+        return new ClassTreeBuilder(stringClassName, classCode, this, inheritedClassName);
     }
 
     @Override

@@ -3,7 +3,7 @@ package org.o_compiler.SyntaxAnalyzer.builder;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
 
-public class AttributeTreeBuilder extends ClassMemberTreeBuilder  {
+public class AttributeTreeBuilder extends ClassMemberTreeBuilder implements Valuable  {
     ExpressionTreeBuilder init;
     AttributeTreeBuilder(String name, ClassTreeBuilder type, ClassTreeBuilder parent, Iterable<Token> sourceCode) {
         super(name, type, parent, sourceCode);
@@ -13,5 +13,9 @@ public class AttributeTreeBuilder extends ClassMemberTreeBuilder  {
     public void build() {
         init = ExpressionTreeBuilder.expressionFactory(sourceCode, this);
         init.build();
+    }
+
+    @Override
+    public void getValue() {
     }
 }

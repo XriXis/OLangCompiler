@@ -13,10 +13,6 @@ import java.util.Iterator;
 public class AssignmentBuilder implements BuildTree {
     Iterator<Token> code;
     ExpressionTreeBuilder value;
-    // todo: unify declaration and attribute types.
-    //  Suggestion: create a type "Variable", that will be encapsulated (composed) into the both types. That could helps
-    //  on code generation phase to keep track of the memory addresses. Unification itself could be done via interface
-    //  "Valuable" or smth similar, that could provide this variable value
     DeclarationBuilder var;
     BuildTree parent;
     public AssignmentBuilder(Iterable<Token> source, BuildTree parent){

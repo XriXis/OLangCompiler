@@ -7,6 +7,7 @@ import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class ReturnStatementBuilder implements BuildTree {
     Iterator<Token> code;
@@ -21,7 +22,7 @@ public class ReturnStatementBuilder implements BuildTree {
     @Override
     public void build() {
         var res = code.next();
-        if (res.entry().equals(Keyword.RETURN))
+        if (!res.entry().equals(Keyword.RETURN))
             throw new InternalCommunicationError("Attempt to parse return statement, that not starts with \"return\" at " + res.position());
         result = ExpressionTreeBuilder.expressionFactory(code, this);
     }
@@ -29,5 +30,10 @@ public class ReturnStatementBuilder implements BuildTree {
     @Override
     public BuildTree getParent() {
         return parent;
+    }
+
+    @Override
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return BuildTree.appendTo(to, depth, "Return statement", List.of(result));
     }
 }

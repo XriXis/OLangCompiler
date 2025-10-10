@@ -12,6 +12,7 @@ public class ConstructorInvocationTreeBuilder extends CallExpressionTreeBuilder 
         this.parent = parent;
         this.type = type;
         this.unparsedArgs = callSource;
+        this.it = type.getMethodByName("this");
     }
 
     public ConstructorInvocationTreeBuilder(ClassTreeBuilder type, Iterable<Token> callSource, BuildTree parent){
@@ -25,5 +26,10 @@ public class ConstructorInvocationTreeBuilder extends CallExpressionTreeBuilder 
             return;
         }
         super.build();
+    }
+
+    @Override
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return BuildTree.appendTo(to, depth, it + " call", args);
     }
 }

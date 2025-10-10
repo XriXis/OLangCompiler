@@ -108,7 +108,7 @@ public class RootTreeBuilder implements BuildTree {
             while (!cur.entry().equals(ControlSign.BRACKET_CLOSED)) {
                 cur = source.next();
                 if (!(cur.entry() instanceof Identifier)) {
-                    throw new CompilerError("Class name expected at " + cur.position() + ", got " + cur.toString());
+                    throw new CompilerError("Class name expected at " + cur.position() + ", got " + cur);
                 } else if (encloseName(cur.entry().value()) || polymorphicClasses.contains(cur)) {
                     throw new CompilerError("Class name " + cur.entry().value() + " already exists");
                 }
@@ -117,7 +117,7 @@ public class RootTreeBuilder implements BuildTree {
                 if (cur.entry().equals(ControlSign.SEPARATOR)) {
                     cur = source.next();
                 } else if (!cur.entry().equals(ControlSign.BRACKET_CLOSED)) {
-                    throw  new CompilerError("Unexpected token met " + cur.toString() + " at " + cur.position());
+                    throw  new CompilerError("Unexpected token met " + cur + " at " + cur.position());
                 }
             }
             cur = source.next();
@@ -129,7 +129,7 @@ public class RootTreeBuilder implements BuildTree {
         if (cur.entry().equals(Keyword.EXTENDS)) {
             inheritedClassName = source.next();
             if (!(inheritedClassName.entry() instanceof Identifier)) {
-                throw new CompilerError("Class name expected at " + inheritedClassName.position() + ", got " + inheritedClassName.toString());
+                throw new CompilerError("Class name expected at " + inheritedClassName.position() + ", got " + inheritedClassName);
             }
             cur = source.next();
         }
@@ -172,13 +172,23 @@ public class RootTreeBuilder implements BuildTree {
         return classes.get(name);
     }
 
+    @Override
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return BuildTree.appendTo(to, depth, "Program init", classes.values());
+    }
+
+    @Override
+    public String toString(){
+        return toString_();
+    }
+
     public static void main(String[] args) {
         try {
             RootTreeBuilder rootTreeBuilder = new RootTreeBuilder(
                     new IteratorSingleIterableAdapter<>(new TokenStream(Files.newInputStream(Path.of("data/test.o")))));
 
             rootTreeBuilder.build();
-
+            System.out.println(rootTreeBuilder);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

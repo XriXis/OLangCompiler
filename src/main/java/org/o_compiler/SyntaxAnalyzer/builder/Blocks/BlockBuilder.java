@@ -49,6 +49,11 @@ public class BlockBuilder implements BuildTree {
     }
 
     @Override
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return BuildTree.appendTo(to, depth, "Code enclosed in block", children);
+    }
+
+    @Override
     public BuildTree getParent(){
         return parent;
     }

@@ -3,6 +3,8 @@ package org.o_compiler.SyntaxAnalyzer.builder.Expressions;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.literal.Literal;
 import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
 
+import java.util.List;
+
 public class LiteralAccessExpression<T> extends ExpressionTreeBuilder{
     Literal<T> value;
     public LiteralAccessExpression(Literal<T> value, BuildTree parent) {
@@ -15,5 +17,10 @@ public class LiteralAccessExpression<T> extends ExpressionTreeBuilder{
     @Override
     public void build() {
 
+    }
+
+    @Override
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return BuildTree.appendTo(to, depth, "Usage of the literal value: " + value.value(), List.of());
     }
 }

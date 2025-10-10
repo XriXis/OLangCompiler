@@ -12,7 +12,9 @@ class Counter is
         value := value.Plus(1)
     end
 
-    method Get : Integer => value
+    method Get : Integer is
+        return value
+    end
 end
 
 class SumExample is

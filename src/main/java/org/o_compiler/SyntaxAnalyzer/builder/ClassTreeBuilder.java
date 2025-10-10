@@ -1,18 +1,17 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
-import jdk.jshell.spi.ExecutionControl;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 
-import javax.swing.tree.TreePath;
-import javax.xml.stream.FactoryConfigurationError;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+
+// todo: smth with default constructor (or require explicit one, or auto-generate default
+//  ?[in case of absence of any another one])
 
 public class ClassTreeBuilder implements BuildTree {
     String className;
@@ -49,11 +48,16 @@ public class ClassTreeBuilder implements BuildTree {
         }
     }
 
+    //todo
     // this implementation kills the possibility of overloads, so should be changed, if such feature
     // supposed to be implemented. For such an option exposed out of the @getEnclosedName
     // To Arthur - you could think about better or more unique implementation without infinite behaviour growth
     public MethodTreeBuilder getMethodByName(String name) {
-        throw new RuntimeException(new ExecutionControl.NotImplementedException(""));
+        var m = getEnclosedName(name);
+        if (m instanceof MethodTreeBuilder method)
+            return method;
+        return null;
+//        throw new RuntimeException(new ExecutionControl.NotImplementedException(""));
     }
 
     public ClassMemberTreeBuilder scanClassMember() {
@@ -105,7 +109,7 @@ public class ClassTreeBuilder implements BuildTree {
             nextToken = source.next();
         }
 
-        ArrayList<Token> body = new ArrayList<>();;
+        ArrayList<Token> body = new ArrayList<>();
         // multiline body
         if (nextToken.entry().equals(Keyword.IS)) {
             body = scanMultilineBody();
@@ -177,6 +181,7 @@ public class ClassTreeBuilder implements BuildTree {
         return new MethodTreeBuilder("this", this, parameters, this, body);
     }
 
+    // todo: add method object propagation as parent of parameters
     private ArrayList<Variable> scanParameters() {
         ArrayList<Variable> parameters = new ArrayList<>();
         var nextToken = source.next();
@@ -264,23 +269,33 @@ public class ClassTreeBuilder implements BuildTree {
     }
 
     @Override
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return BuildTree.appendTo(to, depth, "Class "+ className, classMembers.values());
+    }
+
+    @Override
     public BuildTree getParent() {
         return parent;
     }
 
     @Override
     public void build() {
-        for (var classMember : classMembers.values()) {
-            classMember.build();
-        }
+        var attrs = classMembers.values()
+                .stream()
+                .filter((m)-> (m instanceof AttributeTreeBuilder))
+                .toList();
+        var methods = classMembers.values()
+                .stream()
+                .filter((m)-> (m instanceof MethodTreeBuilder))
+                .toList();
+        for (var attr : attrs)
+            attr.build();
+        for (var method: methods)
+            method.build();
     }
 
     @Override
-    public ClassTreeBuilder getClass(String name) {
-        BuildTree current = this;
-        while (current.getParent() != null) {
-            current = current.getParent();
-        }
-        return (ClassTreeBuilder) current.getEnclosedName(name);
+    public String toString(){
+        return "[O-Lang class: "+className+"]";
     }
 }

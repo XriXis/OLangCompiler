@@ -3,6 +3,7 @@ package org.o_compiler.SyntaxAnalyzer.builder.Blocks;
 import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
+import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.RevertibleStream;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
@@ -32,7 +33,8 @@ public abstract class ConditionalBlock extends BlockBuilder {
         condition = parseHead();
         // todo: transfer names of base classes into global constants
         var boolCastMethod = condition.getType().getMethodByName("asBool");
-        if (condition.getType() != getClass("Boolean") || boolCastMethod == null)
+        System.out.println();
+        if (condition.getType() != getClass("Boolean") && boolCastMethod == null)
             throw new CompilerError("Conditional block with not boolean condition at " + code.lastRead().position());
         if (condition.getType() != getClass("Boolean"))
             condition = new MethodCallTreeBuilder(boolCastMethod, condition, Collections.emptyIterator());
@@ -50,6 +52,9 @@ public abstract class ConditionalBlock extends BlockBuilder {
         // block itself
         var temp = code;
         code = new RevertibleStream<>(buffer.iterator(), 3);
+        code.next();
+        if (!code.next().entry().equals(ControlSign.END_LINE))
+            code.revert();
         super.build();
         code = temp;
 
@@ -74,11 +79,11 @@ public abstract class ConditionalBlock extends BlockBuilder {
         if (!isProperOpen(open.entry()))
             throw new InternalCommunicationError("Attempt to parse conditional block with head token " + open.entry().value() + " at " + open.position());
         var buffer = new ArrayList<Token>();
-        while (!isStartBlock(buffer.getLast().entry())) {
+        do {
             if (!code.hasNext())
                 throw new CompilerError("Unexpected end of statement at " + open.position() + (buffer.isEmpty() ? "" : " up to " + buffer.getLast().position()));
             buffer.add(code.next());
-        }
+        } while (!isStartBlock(buffer.getLast().entry()));
         code.revert();
         buffer.removeLast();
         return ExpressionTreeBuilder.expressionFactory(buffer.iterator(), this);

@@ -7,13 +7,15 @@ import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.InternalCommunicationError;
 import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class AssignmentBuilder implements BuildTree {
     Iterator<Token> code;
     ExpressionTreeBuilder value;
-    DeclarationBuilder var;
+    Valuable var;
     BuildTree parent;
     public AssignmentBuilder(Iterable<Token> source, BuildTree parent){
         code = source.iterator();
@@ -28,11 +30,13 @@ public class AssignmentBuilder implements BuildTree {
         if (name == null)
             throw new CompilerError("Assignment to undeclared variable " + variableToken.entry().value() + " at " + variableToken.position());
         // todo: related to "todo" block above. (High Coupling architecture consequences)
-        if (!(name instanceof DeclarationBuilder))
+        if (!(name instanceof Valuable))
             throw new CompilerError("Attempt of assignment to not-value entity at " + variableToken.position());
+        var = (Valuable) name;
         var assignmentSign = code.next();
-        if (!(assignmentSign.entry().equals(ControlSign.ASSIGN)))
+        if (!(assignmentSign.entry().equals(ControlSign.ASSIGN))) {
             throw new InternalCommunicationError("Attempt to parse assignment with no assignment sign at " + assignmentSign.position());
+        }
         value = ExpressionTreeBuilder.expressionFactory(code, this);
     }
 
@@ -40,5 +44,10 @@ public class AssignmentBuilder implements BuildTree {
     @Override
     public BuildTree getParent() {
         return parent;
+    }
+
+    @Override
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return BuildTree.appendTo(to, depth, "Assignment value to the " + var.getVariable(), List.of(value));
     }
 }

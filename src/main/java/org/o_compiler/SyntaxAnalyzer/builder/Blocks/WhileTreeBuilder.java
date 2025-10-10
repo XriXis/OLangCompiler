@@ -19,4 +19,9 @@ public class WhileTreeBuilder extends ConditionalBlock {
     protected boolean isStartBlock(TokenValue t) {
         return t.equals(Keyword.LOOP);
     }
+
+    @Override
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return BuildTree.appendTo(to, depth, "While block", children);
+    }
 }

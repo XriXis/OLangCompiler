@@ -9,15 +9,19 @@ import org.o_compiler.SyntaxAnalyzer.Exceptions.InternalCommunicationError;
 import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
 import org.o_compiler.SyntaxAnalyzer.builder.ClassTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ConstructorInvocationTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
+import org.o_compiler.SyntaxAnalyzer.builder.Variable;
 
 import java.util.Iterator;
+import java.util.List;
 
-public class DeclarationBuilder implements BuildTree {
+public class DeclarationBuilder implements BuildTree, Valuable {
     Iterator<Token> source;
     ConstructorInvocationTreeBuilder init;
     String name;
     ClassTreeBuilder type;
     BuildTree parent;
+    Variable var;
 
     // source - should be already a line
     public DeclarationBuilder(Iterable<Token> source, BuildTree parent) {
@@ -51,6 +55,7 @@ public class DeclarationBuilder implements BuildTree {
         this.name = name.entry().value();
         this.type = typeTree;
         init = new ConstructorInvocationTreeBuilder(this.type, source,this);
+        this.var = new Variable(this.name, this.type, this);
     }
 
     @Override
@@ -58,7 +63,17 @@ public class DeclarationBuilder implements BuildTree {
         return parent;
     }
 
+    @Override
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return BuildTree.appendTo(to, depth, "Declaration of the variable " + name, List.of(init));
+    }
+
     public String getName(){
         return name;
+    }
+
+    @Override
+    public Variable getVariable() {
+        return var;
     }
 }

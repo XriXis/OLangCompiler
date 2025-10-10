@@ -4,7 +4,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.BodyTreeBuilder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 
 public class MethodTreeBuilder extends ClassMemberTreeBuilder implements BuildTree {
@@ -15,6 +15,10 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder implements BuildTr
         super(name, type, parent, sourceCode);
         this.parameters = parameters;
         body = new BodyTreeBuilder(sourceCode, this);
+    }
+
+    public ClassTreeBuilder getType(){
+        return this.type;
     }
 
     @Override
@@ -30,5 +34,15 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder implements BuildTr
             }
         }
         return null;
+    }
+
+    @Override
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return BuildTree.appendTo(to, depth, toString(), List.of(body));
+    }
+
+    @Override
+    public String toString(){
+        return parent.className + " class method " + name;
     }
 }

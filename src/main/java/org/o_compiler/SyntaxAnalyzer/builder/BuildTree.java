@@ -1,5 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
+import java.util.Collection;
+
 public interface BuildTree {
     void build();
 
@@ -33,5 +35,19 @@ public interface BuildTree {
             current = current.getParent();
         }
         return null;
+    }
+
+    StringBuilder appendTo(StringBuilder to, int depth);
+
+    default String toString_(){
+        return appendTo(new StringBuilder(), 0).toString();
+    }
+
+    static StringBuilder appendTo(StringBuilder to, int depth, String header, Collection<? extends BuildTree> children){
+        to.append("\t".repeat(Math.max(0, depth))).append(header).append('\n');
+        for (var child: children){
+            child.appendTo(to, depth + 1);
+        }
+        return to;
     }
 }

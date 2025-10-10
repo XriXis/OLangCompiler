@@ -13,7 +13,7 @@ public abstract class CallExpressionTreeBuilder extends ExpressionTreeBuilder {
     // [(], ?{[arg1 expr], [,], [arg2 expr] ...}, [)]
     Iterator<Token> unparsedArgs;
     MethodTreeBuilder it;
-    ArrayList<ExpressionTreeBuilder> args;
+    ArrayList<ExpressionTreeBuilder> args = new ArrayList<>();
 
     @Override
     public void build() {
@@ -25,7 +25,11 @@ public abstract class CallExpressionTreeBuilder extends ExpressionTreeBuilder {
             throw new CompilerError("Call of " + it + " expected at " + brace.position());
         var representation = new ArrayList<Token>();
         while (unparsedArgs.hasNext()) representation.add(unparsedArgs.next());
-        if (representation.getLast().entry().equals(ControlSign.PARENTHESIS_CLOSED))
+        // todo: check @args types for correspondence to @it empty signature
+        if (representation.isEmpty()) return;
+        while (representation.getLast().entry().equals(ControlSign.END_LINE)) representation.removeLast();
+        if (representation.isEmpty()) return;
+        if (!representation.getLast().entry().equals(ControlSign.PARENTHESIS_CLOSED))
             throw new CompilerError("Unclosed call expression from " + brace.position() + " to " + representation.getLast().position());
         // for unification and EntityScanner usage. Each argument could be expression, so parsing arguments one by one
         // could be considered as parsing expressions (with "(" and ")" as inner blocking and "," as end of one argument

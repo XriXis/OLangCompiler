@@ -31,4 +31,5 @@ class Integer extends AnyValue is
     method GreaterEqual(p: Real) : Boolean
     method Equal(p: Integer) : Boolean
     method Equal(p: Real) : Boolean
+    method ToString() : String
 end

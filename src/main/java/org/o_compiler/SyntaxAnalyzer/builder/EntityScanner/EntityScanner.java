@@ -84,10 +84,12 @@ public class EntityScanner {
                             (val) -> val.equals(ControlSign.PARENTHESIS_CLOSED),
                             end
                     );
-            if (!cur.isEmpty())
+            if (!cur.isEmpty()) {
+                if (cur.getLast().entry().equals(ControlSign.END_LINE))
+                    cur.removeLast();
                 callChain.add(cur);
-        }
-        while (!cur.isEmpty());
+            }
+        } while (!cur.isEmpty());
         return callChain;
     }
 

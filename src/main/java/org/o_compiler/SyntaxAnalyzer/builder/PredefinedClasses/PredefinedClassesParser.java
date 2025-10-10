@@ -44,3 +44,7 @@ public class PredefinedClassesParser {
         }
     }
 }
+
+
+// todo: it is not actual todo, but it seems strange, that overloads are not implemented (not supposed), but you use
+//  them in the source code (@Integer::LessThan(Real)  @Integer::LessThan(Integer) and many others)

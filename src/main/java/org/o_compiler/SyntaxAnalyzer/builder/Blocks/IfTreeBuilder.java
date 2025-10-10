@@ -20,4 +20,8 @@ public class IfTreeBuilder extends ConditionalBlock {
         return t.equals(Keyword.THEN);
     }
 
+    @Override
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return BuildTree.appendTo(to, depth, "While block", children);
+    }
 }

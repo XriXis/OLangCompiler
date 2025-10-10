@@ -1,0 +1,3 @@
+class AnyRef extends Class is
+
+end

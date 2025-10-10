@@ -21,12 +21,14 @@ public class ClassTreeBuilder implements BuildTree {
     Token tokenInheritanceParent;
     ClassTreeBuilder classInheritanceParent = null;
     HashMap<String, ClassMemberTreeBuilder> classMembers;
+    ArrayList<Token> polymorphicClasses;
 
-    public ClassTreeBuilder(String className, Iterable<Token> source, RootTreeBuilder parent, Token inheritanceParent) {
+    public ClassTreeBuilder(String className, Iterable<Token> source, RootTreeBuilder parent, Token inheritanceParent, ArrayList<Token> polymorphicClasses) {
         this.className = className;
         this.source = source.iterator();
         this.parent = parent;
         this.tokenInheritanceParent = inheritanceParent;
+        this.polymorphicClasses = polymorphicClasses;
         classMembers = new HashMap<>();
     }
 
@@ -42,7 +44,8 @@ public class ClassTreeBuilder implements BuildTree {
         // scan all classes members and add to HashMap
         while (source.hasNext()) {
             var classMemberBuilder = scanClassMember();
-            classMembers.put(classMemberBuilder.name, classMemberBuilder);
+            if (classMemberBuilder != null)
+                classMembers.put(classMemberBuilder.name, classMemberBuilder);
         }
     }
 
@@ -57,7 +60,11 @@ public class ClassTreeBuilder implements BuildTree {
         // get field type: var, method, this
         Token fieldType;
         do fieldType = source.next();
-        while (fieldType.entry().equals(ControlSign.END_LINE));
+        while (fieldType.entry().equals(ControlSign.END_LINE) && source.hasNext());
+
+        if (!source.hasNext()) {
+            return null;
+        }
 
         // scan field
         return switch (fieldType.entry()) {
@@ -91,25 +98,24 @@ public class ClassTreeBuilder implements BuildTree {
             var tokenReturnType = source.next();
             if (!(tokenReturnType.entry() instanceof Identifier)) {
                 throw new CompilerError("Unexpected type name: " + tokenReturnType);
-            } else if (getClass(tokenReturnType.entry().value()) == null) {
+            } else if (getClass(tokenReturnType.entry().value()) == null && !enclosePolymorphicName(tokenReturnType.entry().value())) {
                 throw new CompilerError("Class " + tokenReturnType.entry().value() + " not found");
             }
             returnType = getClass(tokenReturnType.entry().value());
             nextToken = source.next();
         }
 
-        ArrayList<Token> body;
+        ArrayList<Token> body = new ArrayList<>();;
         // multiline body
         if (nextToken.entry().equals(Keyword.IS)) {
             body = scanMultilineBody();
         } else if (nextToken.entry().equals(ControlSign.LAMBDA)) {
             nextToken = source.next();
-            body = new ArrayList<>();
             while (!nextToken.entry().equals(ControlSign.END_LINE)) {
                 body.add(nextToken);
                 nextToken = source.next();
             }
-        } else {
+        } else if (!nextToken.entry().equals(ControlSign.END_LINE)) {
             throw new CompilerError("Body of method " + varName.entry().value() + " not found");
         }
 
@@ -160,11 +166,14 @@ public class ClassTreeBuilder implements BuildTree {
         }
         ArrayList<Variable> parameters = scanParameters();
         nextToken = source.next();
-        if (!nextToken.entry().equals(Keyword.IS)) {
+
+        ArrayList<Token> body = new ArrayList<>();
+        if (nextToken.entry().equals(Keyword.IS) ) {
+            body = scanMultilineBody();
+        } else if (!nextToken.entry().equals(ControlSign.END_LINE)) {
             throw new CompilerError("Unexpected token: " + nextToken);
         }
 
-        ArrayList<Token> body = scanMultilineBody();
         return new MethodTreeBuilder("this", this, parameters, this, body);
     }
 
@@ -175,7 +184,7 @@ public class ClassTreeBuilder implements BuildTree {
         while (!nextToken.entry().equals(ControlSign.PARENTHESIS_CLOSED)) {
             var param = nextToken;
             if (!(param.entry() instanceof Identifier)) {
-                throw new CompilerError("Unexpected parameter name: " + param);
+                throw new CompilerError("Unexpected parameter name: " + param + " at " + param.position());
             }
             var column = source.next();
             if (!(column.entry().equals(ControlSign.COLUMN))) {
@@ -184,12 +193,31 @@ public class ClassTreeBuilder implements BuildTree {
             var type = source.next();
             if (!(type.entry() instanceof Identifier)) {
                 throw new CompilerError("Unexpected parameter type: " + type);
-            } else if (getClass(type.entry().value()) == null) {
+            } else if (getClass(type.entry().value()) == null && !enclosePolymorphicName(type.entry().value())) {
                 throw new CompilerError("Class " + type.entry().value() + " not found");
             }
-
-            parameters.add(new Variable(param.entry().value(), getClass(type.entry().value())));
+            var classParameterType = getClass(type.entry().value());
             nextToken = source.next();
+            // check polymorphism
+            Token polyClassName = null;
+            if (nextToken.entry().equals(ControlSign.BRACKET_OPEN)) {
+                polyClassName = source.next();
+                if (getClass(polyClassName.entry().value()) == null && this.polymorphicClasses.size() != 1) {
+                    throw new CompilerError("Unknown parameter type " + polyClassName + " met at " + polyClassName.position());
+                }
+                nextToken = source.next();
+                if (!nextToken.entry().equals(ControlSign.BRACKET_CLOSED)) {
+                    throw new CompilerError("BRACKET_CLOSED expected, met " + nextToken + " at " + nextToken.position());
+                }
+                nextToken = source.next();
+            }
+            parameters.add(new Variable(param.entry().value(), classParameterType, polyClassName));
+
+            if (!nextToken.entry().equals(ControlSign.SEPARATOR) && !nextToken.entry().equals(ControlSign.PARENTHESIS_CLOSED)) {
+                throw new CompilerError("Unexpected token: " + nextToken);
+            } else if (nextToken.entry().equals(ControlSign.SEPARATOR)) {
+                nextToken = source.next();
+            }
         }
         return parameters;
     }
@@ -219,6 +247,11 @@ public class ClassTreeBuilder implements BuildTree {
         return classMembers.containsKey(name);
     }
 
+    public boolean enclosePolymorphicName(String name) {
+        return polymorphicClasses.stream()
+                .anyMatch(c -> c.entry().value().contains(name));
+    }
+
     @Override
     public ClassMemberTreeBuilder getEnclosedName(String name) {
         if (classMembers.containsKey(name)) {
@@ -237,5 +270,17 @@ public class ClassTreeBuilder implements BuildTree {
 
     @Override
     public void build() {
+        for (var classMember : classMembers.values()) {
+            classMember.build();
+        }
+    }
+
+    @Override
+    public ClassTreeBuilder getClass(String name) {
+        BuildTree current = this;
+        while (current.getParent() != null) {
+            current = current.getParent();
+        }
+        return (ClassTreeBuilder) current.getEnclosedName(name);
     }
 }

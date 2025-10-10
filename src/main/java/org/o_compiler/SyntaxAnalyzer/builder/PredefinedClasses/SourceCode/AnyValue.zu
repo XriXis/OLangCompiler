@@ -1,0 +1,3 @@
+class AnyValue extends Class is
+
+end

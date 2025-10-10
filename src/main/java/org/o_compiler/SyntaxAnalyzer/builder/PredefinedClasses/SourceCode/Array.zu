@@ -1,0 +1,11 @@
+class Array[T] extends AnyRef is
+    // Constructor
+    this(l: Integer)
+    // Conversion
+    method toList : List
+    // Features
+    method Length : Integer
+    // Access to elements
+    method get(i: Integer) : T
+    method set(i: Integer, v: T)
+end

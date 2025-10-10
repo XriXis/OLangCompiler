@@ -1,0 +1,34 @@
+class Integer extends AnyValue is
+    // Constructors
+    this(p: Integer)
+    this(p: Real)
+    // Features
+    var Min : Integer
+    var Max : Integer
+    // Conversions
+    method toReal : Real
+    method toBoolean : Boolean
+    // Unary operators
+    method UnaryMinus : Integer
+    // Integer binary arithmetics
+    method Plus(p:Integer) : Integer
+    method Plus(p:Real) : Real
+    method Minus(p: Integer) : Integer
+    method Minus(p: Real) : Real
+    method Mult(p: Integer) : Integer
+    method Mult(p: Real) : Real
+    method Div(p: Integer) : Integer
+    method Div(p: Real) : Real
+    method Rem(p: Integer) : Integer
+    // Relations
+    method Less(p: Integer) : Boolean
+    method Less(p: Real) : Boolean
+    method LessEqual(p: Integer) : Boolean
+    method LessEqual(p: Real) : Boolean
+    method Greater(p: Integer) : Boolean
+    method Greater(p: Real) : Boolean
+    method GreaterEqual(p: Integer) : Boolean
+    method GreaterEqual(p: Real) : Boolean
+    method Equal(p: Integer) : Boolean
+    method Equal(p: Real) : Boolean
+end

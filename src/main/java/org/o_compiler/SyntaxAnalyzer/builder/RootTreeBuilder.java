@@ -7,6 +7,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
+import org.o_compiler.SyntaxAnalyzer.builder.PredefinedClasses.PredefinedClassesParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,13 +46,7 @@ public class RootTreeBuilder implements BuildTree {
 
         // scan all classes and add to children
         while (source.hasNext()) {
-            var classBuilder = scanClass();
-//            System.out.println(classBuilder.className);
-//            for (Iterator<Token> it = classBuilder.source; it.hasNext(); ) {
-//                var token = it.next();
-//                System.out.println(token + " ");
-//            }
-//            System.out.println();
+            var classBuilder = scanClass(source);
             if (classBuilder != null) {
                 classes.put(classBuilder.className, classBuilder);
             }
@@ -61,22 +56,28 @@ public class RootTreeBuilder implements BuildTree {
             classBuilder.scanClassMembers();
         }
         // build all class members
-//        for (var classBuilder : classes.values()) {
-//            classBuilder.buildClassMembers();
-//        }
+        for (var classBuilder : classes.values()) {
+            classBuilder.build();
+        }
     }
 
     private void includePredeclaredClasses() {
-        classes.put("Integer", new ClassTreeBuilder("Integer", new ArrayList<Token>(), this, null));
-        classes.put("Real", new ClassTreeBuilder("Real", new ArrayList<Token>(), this, null));
-        classes.put("Boolean", new ClassTreeBuilder("Boolean", new ArrayList<Token>(), this, null));
-        classes.put("Array", new ClassTreeBuilder("Array", new ArrayList<Token>(), this, null));
-        classes.put("List", new ClassTreeBuilder("List", new ArrayList<Token>(), this, null));
-        classes.put("Void", new ClassTreeBuilder("Void", new ArrayList<Token>(), this, null));
-        classes.put("Console", new ClassTreeBuilder("Void", new ArrayList<Token>(), this, null));
+        var stream = PredefinedClassesParser.getPredefinedClassesStream();
+
+        // scan all classes and add to children
+        while (stream.hasNext()) {
+            var classBuilder = scanClass(stream);
+            if (classBuilder != null) {
+                classes.put(classBuilder.className, classBuilder);
+            }
+        }
+        // scan all class members
+        for (var classBuilder : classes.values()) {
+            classBuilder.scanClassMembers();
+        }
     }
 
-    private ClassTreeBuilder scanClass() {
+    private ClassTreeBuilder scanClass(Iterator<Token> source) {
         // get class identifier
         var classIdentifier = source.next();
         // ensure identifier not \n
@@ -96,13 +97,34 @@ public class RootTreeBuilder implements BuildTree {
         String stringClassName = tokenClassName.entry().value();
         // ensure class name is identifier
         if (!(tokenClassName.entry() instanceof Identifier)) {
-            throw new CompilerError("Class name expected at " + tokenClassName.position() + ", got " + tokenClassName.toString());
+            throw new CompilerError("Class name expected at " + tokenClassName.position() + ", got " + tokenClassName);
         } else if (getClass(stringClassName) != null) {
             throw new CompilerError("Class name " + stringClassName + " already exists");
         }
+        // check for polymorphism
+        var cur = source.next();
+        var polymorphicClasses = new ArrayList<Token>();
+        if (cur.entry().equals(ControlSign.BRACKET_OPEN)) {
+            while (!cur.entry().equals(ControlSign.BRACKET_CLOSED)) {
+                cur = source.next();
+                if (!(cur.entry() instanceof Identifier)) {
+                    throw new CompilerError("Class name expected at " + cur.position() + ", got " + cur.toString());
+                } else if (encloseName(cur.entry().value()) || polymorphicClasses.contains(cur)) {
+                    throw new CompilerError("Class name " + cur.entry().value() + " already exists");
+                }
+                polymorphicClasses.add(cur);
+                cur = source.next();
+                if (cur.entry().equals(ControlSign.SEPARATOR)) {
+                    cur = source.next();
+                } else if (!cur.entry().equals(ControlSign.BRACKET_CLOSED)) {
+                    throw  new CompilerError("Unexpected token met " + cur.toString() + " at " + cur.position());
+                }
+            }
+            cur = source.next();
+        }
+
 
         // check for inheritance
-        var cur = source.next();
         Token inheritedClassName = null;
         if (cur.entry().equals(Keyword.EXTENDS)) {
             inheritedClassName = source.next();
@@ -133,10 +155,11 @@ public class RootTreeBuilder implements BuildTree {
         classCode.removeLast();
 
         // check for all closed braces
-        if (!bracesStack.empty())
+        if (!bracesStack.empty()) {
             throw new CompilerError("Unclosed class declaration found at " + classIdentifier.position());
+        }
         // return new class
-        return new ClassTreeBuilder(stringClassName, classCode, this, inheritedClassName);
+        return new ClassTreeBuilder(stringClassName, classCode, this, inheritedClassName, polymorphicClasses);
     }
 
     @Override

@@ -1,0 +1,34 @@
+class Real extends AnyValue is
+    // Constructors
+    this(p: Real)
+    this(p: Integer)
+    // Features
+    var Min : Real
+    var Max : Real
+    var Epsilon : Real
+    // Conversions
+    method toInteger : Integer
+    // Unary operators
+    method UnaryMinus : Real
+    // Real binary arithmetics
+    method Plus(p:Real) : Real
+    method Plus(p:Integer) : Real
+    method Minus(p: Real) : Real
+    method Minus(p: Integer) : Real
+    method Mult(p: Real) : Real
+    method Mult(p: Integer) : Real
+    method Div(p: Integer) : Real
+    method Div(p: Real) : Real
+    method Rem(p: Integer) : Real
+    // Relations
+    method Less(p: Real) : Boolean
+    method Less(p: Integer) : Boolean
+    method LessEqual(p: Real) : Boolean
+    method LessEqual(p: Integer) : Boolean
+    method Greater(p: Real) : Boolean
+    method Greater(p: Integer) : Boolean
+    method GreaterEqual(p: Real) : Boolean
+    method GreaterEqual(p: Integer) : Boolean
+    method Equal(p: Real) : Boolean
+    method Equal(p: Integer) : Boolean
+end

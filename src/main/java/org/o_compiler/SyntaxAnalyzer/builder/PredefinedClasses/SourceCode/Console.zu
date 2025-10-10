@@ -1,0 +1,6 @@
+class Console is
+    // Constructors
+    this()
+    // Operators
+    method print(s: Array[Integer])
+end

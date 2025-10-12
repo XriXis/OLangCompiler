@@ -11,7 +11,7 @@ public class LiteralAccessExpression<T> extends ExpressionTreeBuilder{
         this.value = value;
         this.parent = parent;
         // todo: conversion of java type of T to proper type of o_lang
-        // this.type = RootTreeBuilder.translateType(T) // improper syntax, but smth similar is expected
+        //  this.type = RootTreeBuilder.translateType(T) // improper syntax, but smth similar is expected
     }
 
     @Override

@@ -47,7 +47,7 @@ public class NDFSM<T> implements FSM<T> {
     public static <T> NDFSM<T> wildcard(Pair<Integer, T> value) {
         State s1 = new State();
         State s2 = new State();
-        s1.addTransition(ch -> true, s2);
+        s1.addTransition(_ -> true, s2);
         return new NDFSM<>(s1, Map.of(s2, value));
     }
 
@@ -132,7 +132,7 @@ public class NDFSM<T> implements FSM<T> {
         static final State sink = new State();
 
         static {
-            sink.addTransition(c -> true, sink);
+            sink.addTransition(_ -> true, sink);
         }
 
         List<Pair<Predicate<Character>, State>> transitions = new ArrayList<>();
@@ -172,7 +172,6 @@ public class NDFSM<T> implements FSM<T> {
             return current.isEmpty();
         }
 
-        // todo: handle overlapping of the identifier and keyword
         public T result() {
             Pair<Integer, T> res = null;
             for (var item : current) {

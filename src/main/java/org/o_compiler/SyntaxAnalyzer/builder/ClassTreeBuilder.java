@@ -81,6 +81,7 @@ public class ClassTreeBuilder implements BuildTree {
     }
 
     public boolean isSubclassOf(ClassTreeBuilder another) {
+        if (equals(another)) return true;
         var queuedParent = classInheritanceParent;
         while (queuedParent != null) {
             if (another.equals(queuedParent)) return true;
@@ -200,9 +201,9 @@ public class ClassTreeBuilder implements BuildTree {
 
         return new MethodTreeBuilder("this", this, parameters, this, body);
     }
-    // todo: add method object propagation as parent of parameters
 
     private ArrayList<Variable> scanParameters() {
+        // todo: add method object propagation as parent of parameters
         ArrayList<Variable> parameters = new ArrayList<>();
         var nextToken = source.next();
         // type of (arg: Type)

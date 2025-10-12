@@ -1,5 +1,6 @@
 package org.o_compiler.LexicalAnalyzer.parser;
 
+import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.parser.FSM.FSM;
 import org.o_compiler.LexicalAnalyzer.parser.FSM.NDFSM;
 import org.o_compiler.LexicalAnalyzer.parser.FSM.TraverseIterator;
@@ -16,14 +17,16 @@ import org.o_compiler.RevertibleStream;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.StreamSupport;
 
 public class TokenStream implements Iterator<Token> {
     private final RevertibleStream<Character> source;
     private final FSM<Function<String, TokenValue>> machine;
-    private int line = 1, pos = 0;
-    private char lastRead;
+    private Span pos = new Span(1, 0);
 
     public TokenStream(final InputStream target) {
         try {
@@ -47,33 +50,24 @@ public class TokenStream implements Iterator<Token> {
 
     @Override
     public boolean hasNext() {
-        return source.hasNext() || lastRead != '\n';
+        if (!source.hasNext() && source.lastRead() != '\n')
+            source.imitateNext('\n');
+        return source.hasNext();
     }
 
     @Override
     public Token next() {
-        if (!source.hasNext() && lastRead != '\n') {
-            lastRead = '\n';
-            return new Token(ControlSign.END_LINE, line, pos + 1);
-        }
         var regexEngine = machine.traverse();
         Function<String, TokenValue> lastSeen = regexEngine.result();
-        for (char c = source.next(); source.hasNext(); c = source.next()) {
-            lastRead = c;
+        while (source.hasNext()){
+            var c = source.next();
             regexEngine.feed(c);
-            if (c == '\n') {
-                line++;
-                pos = 0;
-            } else if (c == '\t') {
-                pos += 3;
-            }
-            if (regexEngine.isEnd()) {
+            if (regexEngine.isOnlyGarbage()) {
                 source.revert();
-                if (lastRead == '\n') line--;
-                if (lastRead=='\t') pos-=3;
                 return extract(lastSeen, regexEngine);
             }
-            pos++;
+            // this change poorly influence on performance, but improve readability
+            pos = pos.feed(c);
             lastSeen = regexEngine.result();
         }
         return extract(lastSeen, regexEngine);
@@ -84,8 +78,37 @@ public class TokenStream implements Iterator<Token> {
             TraverseIterator<Function<String, TokenValue>> regexEngine) {
         if (lastSeen == null || Objects.equals(regexEngine.pathTaken(), "")) {
             //todo: proper exception
-            throw new RuntimeException("Improper token met: " + regexEngine.pathTaken() + " at " + new Span(line, pos));
+            throw new RuntimeException("Improper token met: " + regexEngine.pathTaken() + " at " + pos);
         }
-        return new Token(lastSeen.apply(regexEngine.pathTaken()), line, pos);
+        return new Token(lastSeen.apply(regexEngine.pathTaken()), pos);
+    }
+
+    public static void main(String[] args) {
+        try (InputStream target = Files.newInputStream(Path.of(args[0]))) {
+            var stream = new IteratorSingleIterableAdapter<>(new TokenStream(target));
+            var source = StreamSupport
+                    .stream(stream.spliterator(), false)
+                    .filter((t) -> !t.isWhitespace()).toList();
+            ArrayList<Pair<Token, String>> toPrint = new ArrayList<>();
+            for (var token : source) {
+                toPrint.add(new Pair<>(token, " at " + token.position()));
+            }
+            printAsTable(toPrint);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static<T1, T2> void printAsTable(Iterable<Pair<T1, T2>> coll){
+        int maxLen = 0;
+        ArrayList<Pair<String, String>> mapped = new ArrayList<>();
+        for (var p: coll){
+            mapped.add(new Pair<>(p.o1.toString(), p.o2.toString()));
+            maxLen = Math.max(maxLen, mapped.getLast().o1.length());
+        }
+        for (var p: mapped){
+            String tabs = '\t' + "\t".repeat(Math.max(0, (maxLen - p.o1.length()) / 4));
+            System.out.println(p.o1 + tabs + p.o2);
+        }
     }
 }

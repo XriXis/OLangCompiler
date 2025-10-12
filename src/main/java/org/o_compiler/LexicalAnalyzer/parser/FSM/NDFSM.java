@@ -165,10 +165,10 @@ public class NDFSM<T> implements FSM<T> {
                     .flatMap(item -> item.feed(ch).stream())
                     .flatMap(item -> entry.epsilonClosure(item).stream())
                     .collect(Collectors.toSet());
-            if (!isEnd()) path.append(ch);
+            if (!isOnlyGarbage()) path.append(ch);
         }
 
-        public boolean isEnd() {
+        public boolean isOnlyGarbage() {
             return current.isEmpty();
         }
 

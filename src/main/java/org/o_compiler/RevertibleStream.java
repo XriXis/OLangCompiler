@@ -16,16 +16,13 @@ public class RevertibleStream<T> implements Iterator<T> {
     }
 
     public T pop() {
-        if (!buffer.isEmpty()) {
+        if (!buffer.isEmpty())
             history.push(buffer.pop());
-            return history.peek();
-        }
-        if (!source.hasNext()) {
+        else if (!source.hasNext())
             throw new NoSuchElementException("End of stream");
-        }
-        T val = source.next();
-        history.push(val);
-        return val;
+        else
+            history.push(source.next());
+        return history.peek();
     }
 
     public void revert() {
@@ -33,6 +30,10 @@ public class RevertibleStream<T> implements Iterator<T> {
             throw new RuntimeException("Reverting to unread stream");
         }
         buffer.push(history.pop());
+    }
+
+    public void imitateNext(T val){
+        buffer.push(val);
     }
 
     public T lastRead(){

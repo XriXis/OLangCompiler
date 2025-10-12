@@ -319,6 +319,10 @@ public class ClassTreeBuilder implements BuildTree {
 
     @Override
     public String toString() {
-        return "[O-Lang class: " + className + "]";
+        return "[O-Lang class: " + simpleName() + "]";
+    }
+
+    public String simpleName(){
+        return className;
     }
 }

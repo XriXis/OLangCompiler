@@ -1,6 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
+import org.o_compiler.Optional;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.BodyTreeBuilder;
 
 import java.util.ArrayList;
@@ -43,6 +44,6 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder implements BuildTr
 
     @Override
     public String toString(){
-        return parent.className + " class method " + name;
+        return parent.className + " class method " + name + " (" + new Optional<>(getType()).map(ClassTreeBuilder::simpleName) + ")";
     }
 }

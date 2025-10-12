@@ -9,9 +9,18 @@ class InputIterator implements Iterator<Character> {
     private final InputStream stream;
     private int nextChar;
 
-    public InputIterator(InputStream stream) throws IOException {
+    /**
+     * Object, that turn interface of InputStream to Iterator<Character>
+     * @param stream opened input stream
+     * @throws RuntimeException(IOException) when read from stream is impossible
+     */
+    public InputIterator(InputStream stream) {
         this.stream = stream;
-        this.nextChar = stream.read();
+        try {
+            this.nextChar = stream.read();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

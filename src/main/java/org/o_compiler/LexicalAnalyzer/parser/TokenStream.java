@@ -29,11 +29,15 @@ public class TokenStream implements Iterator<Token> {
     private Span pos = new Span(1, 0);
 
     public TokenStream(final InputStream target) {
-        try {
-            source = new RevertibleStream<>(new InputIterator(target), 5);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this(new InputIterator(target));
+    }
+
+    public TokenStream(Iterable<Character> input) {
+        this(input.iterator());
+    }
+
+    private TokenStream(Iterator<Character> input){
+        source = new RevertibleStream<>(input, 5);
         final HashMap<String, Pair<Integer, Function<String, TokenValue>>> configuration = new HashMap<>();
         // todo: change this explicit enumeration of the classes to "All inheritors of the TokenDescriptor"
         final ArrayList<TokenDescription> types = new ArrayList<>();

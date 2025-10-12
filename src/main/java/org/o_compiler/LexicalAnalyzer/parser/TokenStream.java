@@ -65,6 +65,8 @@ public class TokenStream implements Iterator<Token> {
         Function<String, TokenValue> lastSeen = regexEngine.result();
         while (source.hasNext()){
             var c = source.next();
+            if (!source.hasNext() && source.lastRead() != '\n')
+                source.imitateNext('\n');
             regexEngine.feed(c);
             if (regexEngine.isOnlyGarbage()) {
                 source.revert();
@@ -82,6 +84,7 @@ public class TokenStream implements Iterator<Token> {
             TraverseIterator<Function<String, TokenValue>> regexEngine) {
         if (lastSeen == null || Objects.equals(regexEngine.pathTaken(), "")) {
             //todo: proper exception
+            System.out.println("last seen "+lastSeen + " ; cum "+regexEngine.pathTaken());
             throw new RuntimeException("Improper token met: " + regexEngine.pathTaken() + " at " + pos);
         }
         return new Token(lastSeen.apply(regexEngine.pathTaken()), pos);

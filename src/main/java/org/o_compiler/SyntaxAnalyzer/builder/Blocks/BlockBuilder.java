@@ -50,7 +50,10 @@ public class BlockBuilder implements BuildTree {
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return BuildTree.appendTo(to, depth, "Code enclosed in block", children);
+        for (var child: children){
+            child.appendTo(to, depth);
+        }
+        return to;
     }
 
     @Override

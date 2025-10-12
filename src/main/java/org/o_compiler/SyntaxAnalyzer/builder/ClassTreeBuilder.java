@@ -5,6 +5,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
+import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.CodeSegregator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,6 +80,28 @@ public class ClassTreeBuilder implements BuildTree {
         };
     }
 
+    public boolean isSubclassOf(ClassTreeBuilder another) {
+        var queuedParent = classInheritanceParent;
+        while (queuedParent != null) {
+            if (another.equals(queuedParent)) return true;
+            queuedParent = queuedParent.classInheritanceParent;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean equals(Object another){
+        // todo: think about lifecycles of class values. "==" is place for potential bug.
+        //  Now, each class object is unique (i do not know how generics are implemented, so should be considered
+        //  separately), but it could be not so in the future
+        return another == this;
+    }
+
+    @Override
+    public boolean encloseName(String name) {
+        return classMembers.containsKey(name);
+    }
+
     private MethodTreeBuilder scanMethod() {
         // get variable name
         var varName = source.next();
@@ -114,11 +137,8 @@ public class ClassTreeBuilder implements BuildTree {
         if (nextToken.entry().equals(Keyword.IS)) {
             body = scanMultilineBody();
         } else if (nextToken.entry().equals(ControlSign.LAMBDA)) {
-            nextToken = source.next();
-            while (!nextToken.entry().equals(ControlSign.END_LINE)) {
-                body.add(nextToken);
-                nextToken = source.next();
-            }
+            body.add(new Token(Keyword.RETURN, nextToken.position()));
+            body.addAll(new CodeSegregator(source).scanBracesExpr());
         } else if (!nextToken.entry().equals(ControlSign.END_LINE)) {
             throw new CompilerError("Body of method " + varName.entry().value() + " not found");
         }
@@ -172,7 +192,7 @@ public class ClassTreeBuilder implements BuildTree {
         nextToken = source.next();
 
         ArrayList<Token> body = new ArrayList<>();
-        if (nextToken.entry().equals(Keyword.IS) ) {
+        if (nextToken.entry().equals(Keyword.IS)) {
             body = scanMultilineBody();
         } else if (!nextToken.entry().equals(ControlSign.END_LINE)) {
             throw new CompilerError("Unexpected token: " + nextToken);
@@ -180,8 +200,8 @@ public class ClassTreeBuilder implements BuildTree {
 
         return new MethodTreeBuilder("this", this, parameters, this, body);
     }
-
     // todo: add method object propagation as parent of parameters
+
     private ArrayList<Variable> scanParameters() {
         ArrayList<Variable> parameters = new ArrayList<>();
         var nextToken = source.next();
@@ -247,11 +267,6 @@ public class ClassTreeBuilder implements BuildTree {
         return body;
     }
 
-    @Override
-    public boolean encloseName(String name) {
-        return classMembers.containsKey(name);
-    }
-
     public boolean enclosePolymorphicName(String name) {
         return polymorphicClasses.stream()
                 .anyMatch(c -> c.entry().value().contains(name));
@@ -270,7 +285,15 @@ public class ClassTreeBuilder implements BuildTree {
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return BuildTree.appendTo(to, depth, "Class "+ className, classMembers.values());
+        var children = new ArrayList<>(classMembers.values()
+                .stream()
+                .filter((m) -> (m instanceof AttributeTreeBuilder))
+                .toList());
+        children.addAll(classMembers.values()
+                .stream()
+                .filter((m) -> (m instanceof MethodTreeBuilder))
+                .toList());
+        return BuildTree.appendTo(to, depth, "Class " + className, children);
     }
 
     @Override
@@ -282,20 +305,20 @@ public class ClassTreeBuilder implements BuildTree {
     public void build() {
         var attrs = classMembers.values()
                 .stream()
-                .filter((m)-> (m instanceof AttributeTreeBuilder))
+                .filter((m) -> (m instanceof AttributeTreeBuilder))
                 .toList();
         var methods = classMembers.values()
                 .stream()
-                .filter((m)-> (m instanceof MethodTreeBuilder))
+                .filter((m) -> (m instanceof MethodTreeBuilder))
                 .toList();
         for (var attr : attrs)
             attr.build();
-        for (var method: methods)
+        for (var method : methods)
             method.build();
     }
 
     @Override
-    public String toString(){
-        return "[O-Lang class: "+className+"]";
+    public String toString() {
+        return "[O-Lang class: " + className + "]";
     }
 }

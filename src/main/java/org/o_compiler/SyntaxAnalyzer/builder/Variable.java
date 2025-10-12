@@ -25,6 +25,10 @@ public class Variable implements Valuable, BuildTree {
         return type;
     }
 
+    public ClassTreeBuilder getName(){
+        return type;
+    }
+
     @Override
     public Variable getVariable() {
         return this;

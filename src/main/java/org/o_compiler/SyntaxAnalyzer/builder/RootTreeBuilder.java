@@ -185,7 +185,7 @@ public class RootTreeBuilder implements BuildTree {
     public static void main(String[] args) {
         try {
             RootTreeBuilder rootTreeBuilder = new RootTreeBuilder(
-                    new IteratorSingleIterableAdapter<>(new TokenStream(Files.newInputStream(Path.of("data/test.o")))));
+                    new IteratorSingleIterableAdapter<>(new TokenStream(Files.newInputStream(Path.of("data/testLambda")))));
 
             rootTreeBuilder.build();
             System.out.println(rootTreeBuilder);

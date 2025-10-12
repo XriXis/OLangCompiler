@@ -38,6 +38,9 @@ public class AssignmentBuilder implements BuildTree {
             throw new InternalCommunicationError("Attempt to parse assignment with no assignment sign at " + assignmentSign.position());
         }
         value = ExpressionTreeBuilder.expressionFactory(code, this);
+        if (!value.getType().isSubclassOf(var.getVariable().getType())){
+            throw new CompilerError("Improper assignment. Variable " + var.getVariable().getName() + " of type " + var.getVariable().getType() + " tried to be assigned with value of type " + value.getType() + " at " + assignmentSign.position());
+        }
     }
 
 

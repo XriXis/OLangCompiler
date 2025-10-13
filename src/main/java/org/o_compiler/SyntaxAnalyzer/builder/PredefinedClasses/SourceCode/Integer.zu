@@ -2,6 +2,8 @@ class Integer extends AnyValue is
     // Constructors
     this(p: Integer)
     this(p: Real)
+    // Get
+    method Get : Integer
     // Features
     var Min : Integer
     var Max : Integer

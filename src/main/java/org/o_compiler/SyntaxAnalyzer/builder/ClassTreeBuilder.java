@@ -6,12 +6,12 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.CodeSegregator;
+import org.o_compiler.SyntaxAnalyzer.tree.ClassMemberTree;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
-// todo: smth with default constructor (or require explicit one, or auto-generate default
-//  ?[in case of absence of any another one])
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ClassTreeBuilder implements BuildTree {
     String className;
@@ -31,6 +31,54 @@ public class ClassTreeBuilder implements BuildTree {
         classMembers = new ArrayList<>();
     }
 
+    public ClassTreeBuilder initGenericClass(ArrayList<Token> genericIdentifiers) {
+        if (genericClasses.isEmpty()) {
+            throw new CompilerError("Try to init generic class " + this.className + " that is not generic");
+        } else if (genericIdentifiers.size() != genericClasses.size()) {
+            throw new CompilerError("Size of generic identifiers does not match number of identifiers for class " + this.className + "\n Expected: " + this.genericClasses.size() + ", Got : " + genericIdentifiers.size());
+        }
+
+        // check if generated class already exists
+        var resultClassName = genericIdentifiers
+                .stream()
+                .map(item -> item.entry().value())
+                .collect(Collectors.joining("_"));
+
+        if (parent.classes.containsKey(resultClassName)) {
+            return parent.classes.get(resultClassName);
+        }
+
+        // replace all appearance of generic type with given
+        ArrayList<Token> bufSource = new ArrayList<>();
+        ArrayList<Token> resSource = new ArrayList<>();
+        for (Iterator<Token> it = source; it.hasNext(); ) {
+            Token token = it.next();
+            bufSource.add(token);
+            if (token.entry() instanceof Identifier && genericClasses.contains(token)) {
+                var index = genericClasses.indexOf(token);
+                resSource.add(genericIdentifiers.get(index));
+            } else {
+                resSource.add(token);
+            }
+        }
+
+        source = bufSource.iterator();
+        // create class
+        var implementedClass = new ClassTreeBuilder(
+                this.className + "_" + className,
+                resSource,
+                this.parent,
+                this.tokenInheritanceParent,
+                new ArrayList<>()
+        );
+        // add to root table
+        parent.classes.put(resultClassName, implementedClass);
+        // build
+        implementedClass.scanClassMembers();
+        implementedClass.build();
+        return implementedClass;
+    }
+
     public void scanClassMembers() {
         if (tokenInheritanceParent != null) {
             if (getClass(tokenInheritanceParent.entry().value()) == null) {
@@ -46,12 +94,13 @@ public class ClassTreeBuilder implements BuildTree {
             if (classMemberBuilder != null)
                 classMembers.add(classMemberBuilder);
         }
+
+        // check constructor exists
+        if (classMembers.stream().noneMatch(classMember -> classMember.name.equals("this"))) {
+            throw new CompilerError("Constructor for class " + className + " is not defined");
+        }
     }
 
-    //todo
-    // this implementation kills the possibility of overloads, so should be changed, if such feature
-    // supposed to be implemented. For such an option exposed out of the @getEnclosedName
-    // To Arthur - you could think about better or more unique implementation without infinite behaviour growth
     public MethodTreeBuilder getMethodByName(String name) {
         var m = getEnclosedName(name);
         if (m instanceof MethodTreeBuilder method)
@@ -59,6 +108,24 @@ public class ClassTreeBuilder implements BuildTree {
         return null;
 //        throw new RuntimeException(new ExecutionControl.NotImplementedException(""));
     }
+
+    // TODO use this
+    public MethodTreeBuilder getMethod(String name, ArrayList<Variable> parameters) {
+        var foundMethods = classMembers.stream()
+                .filter(classMember -> classMember instanceof MethodTreeBuilder)
+                .map(classMember -> (MethodTreeBuilder) classMember)
+                .filter(method -> method.name.equals(name) && method.parameters.size() == parameters.size())
+                .filter(method -> IntStream.range(0, method.parameters.size())
+                        .allMatch(i -> method.parameters.get(i).type.className.equals(parameters.get(i).type.className)))
+                .toList();
+
+        if (foundMethods.size() > 1) {
+            throw new CompilerError("More than one method with name " + name + " and parameters " + parameters + " is found");
+        }
+
+        return foundMethods.isEmpty() ? null : foundMethods.getFirst();
+    }
+
 
     public ClassMemberTreeBuilder scanClassMember() {
         // get field type: var, method, this
@@ -90,16 +157,17 @@ public class ClassTreeBuilder implements BuildTree {
     }
 
     @Override
-    public boolean equals(Object another){
-        // todo: think about lifecycles of class values. "==" is place for potential bug.
-        //  Now, each class object is unique (i do not know how generics are implemented, so should be considered
-        //  separately), but it could be not so in the future
-        return another == this;
+    public boolean equals(Object another) {
+        if (another instanceof ClassTreeBuilder classTreeBuilder) {
+            return classTreeBuilder.className.equals(this.className);
+        } else {
+            throw new Error("Try to compare different types: " + another + " and class" + this.className);
+        }
     }
 
     @Override
     public boolean encloseName(String name) {
-        for (ClassMemberTreeBuilder classMember: classMembers) {
+        for (ClassMemberTreeBuilder classMember : classMembers) {
             if (classMember.name.equals(name))
                 return true;
         }
@@ -129,7 +197,7 @@ public class ClassTreeBuilder implements BuildTree {
             var tokenReturnType = source.next();
             if (!(tokenReturnType.entry() instanceof Identifier)) {
                 throw new CompilerError("Unexpected type name: " + tokenReturnType);
-            } else if (getClass(tokenReturnType.entry().value()) == null && !enclosePolymorphicName(tokenReturnType.entry().value())) {
+            } else if (getClass(tokenReturnType.entry().value()) == null && !encloseGenericName(tokenReturnType.entry().value())) {
                 throw new CompilerError("Class " + tokenReturnType.entry().value() + " not found");
             }
             returnType = getClass(tokenReturnType.entry().value());
@@ -236,12 +304,12 @@ public class ClassTreeBuilder implements BuildTree {
             var type = source.next();
             if (!(type.entry() instanceof Identifier)) {
                 throw new CompilerError("Unexpected parameter type: " + type);
-            } else if (getClass(type.entry().value()) == null && !enclosePolymorphicName(type.entry().value())) {
+            } else if (getClass(type.entry().value()) == null && !encloseGenericName(type.entry().value())) {
                 throw new CompilerError("Class " + type.entry().value() + " not found");
             }
             var classParameterType = getClass(type.entry().value());
             nextToken = source.next();
-            // check polymorphism
+            // check generic type
             Token polyClassName = null;
             if (nextToken.entry().equals(ControlSign.BRACKET_OPEN)) {
                 polyClassName = source.next();
@@ -285,14 +353,14 @@ public class ClassTreeBuilder implements BuildTree {
         return body;
     }
 
-    public boolean enclosePolymorphicName(String name) {
+    public boolean encloseGenericName(String name) {
         return genericClasses.stream()
                 .anyMatch(c -> c.entry().value().contains(name));
     }
 
     @Override
     public ClassMemberTreeBuilder getEnclosedName(String name) {
-        for (ClassMemberTreeBuilder classMember: classMembers) {
+        for (ClassMemberTreeBuilder classMember : classMembers) {
             if (classMember.name.equals(name))
                 return classMember;
         }
@@ -342,7 +410,7 @@ public class ClassTreeBuilder implements BuildTree {
         return "[O-Lang class: " + simpleName() + "]";
     }
 
-    public String simpleName(){
+    public String simpleName() {
         return className;
     }
 }

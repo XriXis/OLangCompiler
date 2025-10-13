@@ -8,7 +8,6 @@ import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.CodeSegregator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 
 // todo: smth with default constructor (or require explicit one, or auto-generate default
@@ -20,16 +19,16 @@ public class ClassTreeBuilder implements BuildTree {
     RootTreeBuilder parent;
     Token tokenInheritanceParent;
     ClassTreeBuilder classInheritanceParent = null;
-    HashMap<String, ClassMemberTreeBuilder> classMembers;
-    ArrayList<Token> polymorphicClasses;
+    ArrayList<ClassMemberTreeBuilder> classMembers;
+    ArrayList<Token> genericClasses;
 
-    public ClassTreeBuilder(String className, Iterable<Token> source, RootTreeBuilder parent, Token inheritanceParent, ArrayList<Token> polymorphicClasses) {
+    public ClassTreeBuilder(String className, Iterable<Token> source, RootTreeBuilder parent, Token inheritanceParent, ArrayList<Token> genericClasses) {
         this.className = className;
         this.source = source.iterator();
         this.parent = parent;
         this.tokenInheritanceParent = inheritanceParent;
-        this.polymorphicClasses = polymorphicClasses;
-        classMembers = new HashMap<>();
+        this.genericClasses = genericClasses;
+        classMembers = new ArrayList<>();
     }
 
     public void scanClassMembers() {
@@ -45,7 +44,7 @@ public class ClassTreeBuilder implements BuildTree {
         while (source.hasNext()) {
             var classMemberBuilder = scanClassMember();
             if (classMemberBuilder != null)
-                classMembers.put(classMemberBuilder.name, classMemberBuilder);
+                classMembers.add(classMemberBuilder);
         }
     }
 
@@ -100,7 +99,11 @@ public class ClassTreeBuilder implements BuildTree {
 
     @Override
     public boolean encloseName(String name) {
-        return classMembers.containsKey(name);
+        for (ClassMemberTreeBuilder classMember: classMembers) {
+            if (classMember.name.equals(name))
+                return true;
+        }
+        return false;
     }
 
     private MethodTreeBuilder scanMethod() {
@@ -144,7 +147,11 @@ public class ClassTreeBuilder implements BuildTree {
             throw new CompilerError("Body of method " + varName.entry().value() + " not found");
         }
 
-        return new MethodTreeBuilder(varName.entry().value(), returnType, parameters, this, body);
+        MethodTreeBuilder methodTreeBuilder = new MethodTreeBuilder(varName.entry().value(), returnType, parameters, this, body);
+        if (classMembers.contains(methodTreeBuilder)) {
+            throw new CompilerError("Method with name " + varName.entry().value() + " of class " + this.className + " with such parameters already exists");
+        }
+        return methodTreeBuilder;
     }
 
     private AttributeTreeBuilder scanAttribute() {
@@ -181,7 +188,13 @@ public class ClassTreeBuilder implements BuildTree {
             valueSourceCode.add(nextToken);
         }
 
-        return new AttributeTreeBuilder(varName.entry().value(), treeTypeOfAttribute, this, valueSourceCode);
+        AttributeTreeBuilder attributeTreeBuilder = new AttributeTreeBuilder(varName.entry().value(), treeTypeOfAttribute, this, valueSourceCode);
+
+        if (classMembers.contains(attributeTreeBuilder)) {
+            throw new CompilerError("Attribute with name " + varName.entry().value() + " already exists");
+        }
+
+        return attributeTreeBuilder;
     }
 
     private MethodTreeBuilder scanConstructor() {
@@ -199,7 +212,11 @@ public class ClassTreeBuilder implements BuildTree {
             throw new CompilerError("Unexpected token: " + nextToken);
         }
 
-        return new MethodTreeBuilder("this", this, parameters, this, body);
+        MethodTreeBuilder methodTreeBuilder = new MethodTreeBuilder("this", this, parameters, this, body);
+        if (classMembers.contains(methodTreeBuilder)) {
+            throw new CompilerError("The same constructor of class " + this.className + " already exists");
+        }
+        return methodTreeBuilder;
     }
 
     private ArrayList<Variable> scanParameters() {
@@ -228,7 +245,7 @@ public class ClassTreeBuilder implements BuildTree {
             Token polyClassName = null;
             if (nextToken.entry().equals(ControlSign.BRACKET_OPEN)) {
                 polyClassName = source.next();
-                if (getClass(polyClassName.entry().value()) == null && this.polymorphicClasses.size() != 1) {
+                if (getClass(polyClassName.entry().value()) == null && this.genericClasses.size() != 1) {
                     throw new CompilerError("Unknown parameter type " + polyClassName + " met at " + polyClassName.position());
                 }
                 nextToken = source.next();
@@ -269,15 +286,17 @@ public class ClassTreeBuilder implements BuildTree {
     }
 
     public boolean enclosePolymorphicName(String name) {
-        return polymorphicClasses.stream()
+        return genericClasses.stream()
                 .anyMatch(c -> c.entry().value().contains(name));
     }
 
     @Override
     public ClassMemberTreeBuilder getEnclosedName(String name) {
-        if (classMembers.containsKey(name)) {
-            return classMembers.get(name);
-        } else if (classInheritanceParent != null) {
+        for (ClassMemberTreeBuilder classMember: classMembers) {
+            if (classMember.name.equals(name))
+                return classMember;
+        }
+        if (classInheritanceParent != null) {
             return classInheritanceParent.getEnclosedName(name);
         } else {
             return null;
@@ -286,11 +305,11 @@ public class ClassTreeBuilder implements BuildTree {
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        var children = new ArrayList<>(classMembers.values()
+        var children = new ArrayList<>(classMembers
                 .stream()
                 .filter((m) -> (m instanceof AttributeTreeBuilder))
                 .toList());
-        children.addAll(classMembers.values()
+        children.addAll(classMembers
                 .stream()
                 .filter((m) -> (m instanceof MethodTreeBuilder))
                 .toList());
@@ -304,11 +323,11 @@ public class ClassTreeBuilder implements BuildTree {
 
     @Override
     public void build() {
-        var attrs = classMembers.values()
+        var attrs = classMembers
                 .stream()
                 .filter((m) -> (m instanceof AttributeTreeBuilder))
                 .toList();
-        var methods = classMembers.values()
+        var methods = classMembers
                 .stream()
                 .filter((m) -> (m instanceof MethodTreeBuilder))
                 .toList();

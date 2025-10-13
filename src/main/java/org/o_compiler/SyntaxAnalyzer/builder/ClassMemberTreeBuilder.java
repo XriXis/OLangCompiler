@@ -19,6 +19,16 @@ public abstract class ClassMemberTreeBuilder implements BuildTree {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof AttributeTreeBuilder && ((AttributeTreeBuilder) obj).name.equals(this.name)) {
+            return true;
+        } else if (obj instanceof MethodTreeBuilder methodObj) {
+            return methodObj.equals(this);
+        }
+        return false;
+    }
+
+    @Override
     public BuildTree getParent() {
         return parent;
     }

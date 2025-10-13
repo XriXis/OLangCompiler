@@ -28,6 +28,25 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder implements BuildTr
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof MethodTreeBuilder methodObj) {
+            if (methodObj.name.equals(this.name) && methodObj.type.equals(this.type)) {
+                var params = methodObj.parameters;
+                if (params.size() != parameters.size())
+                    return false;
+                for (int i = 0; i < parameters.size(); i++) {
+                    if (!parameters.get(i).equals(params.get(i)))
+                        return false;
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public BuildTree getEnclosedName(String name) {
         for (Variable parameter : parameters) {
             if (parameter.name.equals(name)) {

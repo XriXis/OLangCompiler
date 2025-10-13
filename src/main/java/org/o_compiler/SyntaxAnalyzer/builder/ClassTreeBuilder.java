@@ -80,24 +80,54 @@ public class ClassTreeBuilder implements BuildTree {
     }
 
     public void scanClassMembers() {
+        System.out.println(className);
+
         if (tokenInheritanceParent != null) {
             if (getClass(tokenInheritanceParent.entry().value()) == null) {
                 throw new CompilerError("Inherited class " + tokenInheritanceParent.entry().value() + " not found");
             } else {
                 classInheritanceParent = getClass(tokenInheritanceParent.entry().value());
+                // build all class members of parent
+                if (classInheritanceParent.classMembers.isEmpty()) {
+                    classInheritanceParent.scanClassMembers();
+                    classInheritanceParent.build();
+                }
+                // inherit all class members
+                System.out.println(classInheritanceParent.classMembers);
+                classMembers.addAll(classInheritanceParent.classMembers);
             }
+        } else if (!classMembers.isEmpty()) {
+            return;
         }
 
         // scan all classes members and add to HashMap
         while (source.hasNext()) {
             var classMemberBuilder = scanClassMember();
-            if (classMemberBuilder != null)
-                classMembers.add(classMemberBuilder);
+            addToClassMembers(classMemberBuilder);
         }
+
+//        for (var cl: classMembers) {
+//            System.out.println(cl);
+//        }
 
         // check constructor exists
         if (classMembers.stream().noneMatch(classMember -> classMember.name.equals("this"))) {
             throw new CompilerError("Constructor for class " + className + " is not defined");
+        }
+    }
+
+    private void addToClassMembers(ClassMemberTreeBuilder classMemberNew) {
+        if (classMemberNew == null) {
+            return;
+        }
+
+        int index = classMembers.indexOf(classMemberNew);
+        if (index == -1) {
+            classMembers.add(classMemberNew);
+        } else if (classMembers.get(index).getParent() == this) {
+            throw new CompilerError("Class member with name " + classMemberNew.name + " already exists");
+        } else {
+            classMembers.set(index, classMemberNew);
         }
     }
 
@@ -215,11 +245,7 @@ public class ClassTreeBuilder implements BuildTree {
             throw new CompilerError("Body of method " + varName.entry().value() + " not found");
         }
 
-        MethodTreeBuilder methodTreeBuilder = new MethodTreeBuilder(varName.entry().value(), returnType, parameters, this, body);
-        if (classMembers.contains(methodTreeBuilder)) {
-            throw new CompilerError("Method with name " + varName.entry().value() + " of class " + this.className + " with such parameters already exists");
-        }
-        return methodTreeBuilder;
+        return new MethodTreeBuilder(varName.entry().value(), returnType, parameters, this, body);
     }
 
     private AttributeTreeBuilder scanAttribute() {
@@ -256,13 +282,7 @@ public class ClassTreeBuilder implements BuildTree {
             valueSourceCode.add(nextToken);
         }
 
-        AttributeTreeBuilder attributeTreeBuilder = new AttributeTreeBuilder(varName.entry().value(), treeTypeOfAttribute, this, valueSourceCode);
-
-        if (classMembers.contains(attributeTreeBuilder)) {
-            throw new CompilerError("Attribute with name " + varName.entry().value() + " already exists");
-        }
-
-        return attributeTreeBuilder;
+        return new AttributeTreeBuilder(varName.entry().value(), treeTypeOfAttribute, this, valueSourceCode);
     }
 
     private MethodTreeBuilder scanConstructor() {
@@ -280,11 +300,7 @@ public class ClassTreeBuilder implements BuildTree {
             throw new CompilerError("Unexpected token: " + nextToken);
         }
 
-        MethodTreeBuilder methodTreeBuilder = new MethodTreeBuilder("this", this, parameters, this, body);
-        if (classMembers.contains(methodTreeBuilder)) {
-            throw new CompilerError("The same constructor of class " + this.className + " already exists");
-        }
-        return methodTreeBuilder;
+        return new MethodTreeBuilder("this", this, parameters, this, body);
     }
 
     private ArrayList<Variable> scanParameters() {
@@ -412,5 +428,10 @@ public class ClassTreeBuilder implements BuildTree {
 
     public String simpleName() {
         return className;
+    }
+
+    @Override
+    public BuildTree findNameAbove(String name) {
+        return BuildTree.super.findNameAbove(name);
     }
 }

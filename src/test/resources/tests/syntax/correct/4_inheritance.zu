@@ -6,6 +6,7 @@ class Main is
 end
 
 class Animal is
+    this()
     method Speak : Boolean => Boolean(false)
 end
 

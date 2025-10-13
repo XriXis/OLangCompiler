@@ -2,6 +2,8 @@ class MyClass is
     var a : Integer(10)
     var b : Integer(20)
 
+    this()
+
     method add() : Integer is
         return a.Plus(b)
     end

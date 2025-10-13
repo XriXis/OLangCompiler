@@ -1,31 +1,6 @@
 class Main is
+    var lst : List[Integer]
     this() is
-        var example : SumExample(5)
-        Console().print(example.Get().ToString())
+
     end
-end
-
-class Counter is
-    var value : Integer(0)
-
-    method Increment is
-        value := value.Plus(1)
-    end
-
-    method Get : Integer is
-        return value
-    end
-end
-
-class SumExample is
-    var sum : Counter()
-
-    this(n: Integer) is
-        while sum.Get().LessEqual(n) loop
-            sum.Increment()
-        end
-        Console().print(sum.Get().ToString())
-    end
-
-    method Get : Integer => sum.Get()
 end

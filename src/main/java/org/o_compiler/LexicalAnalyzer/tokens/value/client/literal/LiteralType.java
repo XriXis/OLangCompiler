@@ -6,9 +6,9 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
 import java.util.function.Function;
 
 public enum LiteralType implements TokenDescription {
-    BOOLEAN("true|false", Boolean::parseBoolean),
-    INTEGER("[0-9]+", Integer::parseInt),
-    REAL("[0-9]*\\.[0-9]+|[0-9]+\\.[0-9]*", Double::parseDouble),
+    BOOLEAN("true|false", Boolean::parseBoolean, "Boolean"),
+    INTEGER("[0-9]+", Integer::parseInt, "Integer"),
+    REAL("[0-9]*\\.[0-9]+|[0-9]+\\.[0-9]*", Double::parseDouble, "Real"),
     STRING("\"["
             + (char) 0 +
             '-' +
@@ -16,14 +16,16 @@ public enum LiteralType implements TokenDescription {
             (char) ('\"' + 1) +
             '-' +
             Character.MAX_VALUE
-            + "]*\"", str -> str);
+            + "]*\"", str -> str, "String");
 
     final String pattern;
     public final Function<String, ?> parser;
+    final String OLangTypeName;
 
-    LiteralType(String pattern, Function<String, ?> parser) {
+    LiteralType(String pattern, Function<String, ?> parser, String cls) {
         this.pattern = pattern;
         this.parser = parser;
+        this.OLangTypeName = cls;
     }
 
     @Override
@@ -40,6 +42,7 @@ public enum LiteralType implements TokenDescription {
     public TokenValue corresponding(String cumulated) {
         var res = new Literal<>(cumulated);
         res.type = this;
+        res.oLangClassName = OLangTypeName;
         return res;
     }
 }

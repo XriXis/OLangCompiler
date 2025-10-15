@@ -35,7 +35,7 @@ public abstract class ExpressionTreeBuilder implements BuildTree {
         }
         var val = context.findNameAbove(entry.getFirst().entry().value());
         if (val == null)
-            throw new CompilerError("Attempt to access unknown name at " + entry.getFirst().position());
+            throw new CompilerError("Attempt to access unknown name " + entry.getFirst().entry().value() + " at " + entry.getFirst().position());
         if (val instanceof ClassTreeBuilder)
             return new ConstructorInvocationTreeBuilder((ClassTreeBuilder) val, entry.subList(1, entry.size()), context);
         if (entry.size() != 1)

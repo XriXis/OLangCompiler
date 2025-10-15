@@ -10,6 +10,11 @@ import org.o_compiler.SyntaxAnalyzer.tree.ClassMemberTree;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.IntStream;
+
+// todo: smth with default constructor (or require explicit one, or auto-generate default
+//  ?[in case of absence of any another one])
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -80,8 +85,6 @@ public class ClassTreeBuilder implements BuildTree {
     }
 
     public void scanClassMembers() {
-        System.out.println(className);
-
         if (tokenInheritanceParent != null) {
             if (getClass(tokenInheritanceParent.entry().value()) == null) {
                 throw new CompilerError("Inherited class " + tokenInheritanceParent.entry().value() + " not found");

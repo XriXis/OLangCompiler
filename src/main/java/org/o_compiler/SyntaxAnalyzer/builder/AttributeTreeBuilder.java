@@ -3,9 +3,10 @@ package org.o_compiler.SyntaxAnalyzer.builder;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class AttributeTreeBuilder extends ClassMemberTreeBuilder implements Valuable  {
+public class AttributeTreeBuilder extends ClassMemberTreeBuilder implements Valuable {
     ExpressionTreeBuilder init;
     Variable variable;
 
@@ -22,7 +23,7 @@ public class AttributeTreeBuilder extends ClassMemberTreeBuilder implements Valu
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return BuildTree.appendTo(to, depth, parent.className + " class attribute: " + name + " with default value of: ", List.of(init));
+        return BuildTree.appendTo(to, depth, parent.className + " class attribute: " + name + " with default value of: ", init == null ? new ArrayList<>() : List.of(init));
     }
 
     @Override

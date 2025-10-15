@@ -3,6 +3,7 @@ package org.o_compiler.SyntaxAnalyzer.builder.Blocks;
 import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
+import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.RevertibleStream;
@@ -32,12 +33,12 @@ public abstract class ConditionalBlock extends BlockBuilder {
     public void build() {
         condition = parseHead();
         // todo: transfer names of base classes into global constants
-        var boolCastMethod = condition.getType().getMethodByName("asBool");
-        System.out.println();
+        // boolCastMethod just for error detection and printing
+        var boolCastMethod = condition.getType().getMethod("asBool", new ArrayList<>());
         if (condition.getType() != getClass("Boolean") && boolCastMethod == null)
             throw new CompilerError("Conditional block with not boolean condition at " + code.lastRead().position());
         if (condition.getType() != getClass("Boolean"))
-            condition = new MethodCallTreeBuilder(boolCastMethod, condition, Collections.emptyIterator());
+            condition = new MethodCallTreeBuilder(new Identifier("asBool"), condition, Collections.emptyIterator(), this);
         var buffer = new EntityScanner(code, this).scanFreeBlock(
                 (v) -> (v instanceof Keyword) && ((Keyword) v).isBlockOpen(),
                 (v) -> v.equals(Keyword.END) || v.equals(Keyword.ELSE),
@@ -87,5 +88,21 @@ public abstract class ConditionalBlock extends BlockBuilder {
         code.revert();
         buffer.removeLast();
         return ExpressionTreeBuilder.expressionFactory(buffer.iterator(), this);
+    }
+
+    public StringBuilder appendTo(StringBuilder to, int depth, String label) {
+        var indent = "\t".repeat(depth);
+        to.append(indent).append(label).append('\n');
+        to.append(indent).append("=====CONDITION=====\n");
+        condition.appendTo(to, depth+1);
+        to.append(indent).append("===END-CONDITION===\n");
+        for (var child: children){
+            child.appendTo(to, depth+1);
+        }
+        if (elseBranch!=null) {
+            to.append(indent).append("Else block\n");
+            elseBranch.appendTo(to, depth + 1);
+        }
+        return to;
     }
 }

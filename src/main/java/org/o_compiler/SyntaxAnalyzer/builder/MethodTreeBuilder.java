@@ -6,6 +6,7 @@ import org.o_compiler.SyntaxAnalyzer.builder.Blocks.BodyTreeBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class MethodTreeBuilder extends ClassMemberTreeBuilder implements BuildTree {
@@ -47,6 +48,11 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder implements BuildTr
     }
 
     @Override
+    public boolean encloseName(String name) {
+        return parameters.stream().map(Variable::getName).toList().contains(name);
+    }
+
+    @Override
     public BuildTree getEnclosedName(String name) {
         for (Variable parameter : parameters) {
             if (parameter.name.equals(name)) {
@@ -63,6 +69,6 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder implements BuildTr
 
     @Override
     public String toString(){
-        return parent.className + " class method " + name + " (" + new Optional<>(getType()).map(ClassTreeBuilder::simpleName) + ")";
+        return parent.className + " class method " + name + " (" + parameters.stream().map(v->new Optional<>(v.getType()).map(ClassTreeBuilder::simpleName).get()).collect(Collectors.joining(", ")) + ")->" + new Optional<>(type).map(ClassTreeBuilder::simpleName);
     }
 }

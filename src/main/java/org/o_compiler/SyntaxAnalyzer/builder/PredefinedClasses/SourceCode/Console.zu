@@ -2,5 +2,5 @@ class Console is
     // Constructors
     this()
     // Operators
-    method print(s: Array[Integer])
+    method print(s: String)
 end

@@ -22,6 +22,6 @@ public class IfTreeBuilder extends ConditionalBlock {
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return BuildTree.appendTo(to, depth, "While block", children);
+        return super.appendTo(to, depth, "If block");
     }
 }

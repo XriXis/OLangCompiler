@@ -6,6 +6,8 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
 public class Literal<T> implements TokenValue {
     String value;
     LiteralType type;
+    // todo: improve!
+    String oLangClassName;
 
     public Literal(String captured) {
         value = captured;
@@ -18,5 +20,9 @@ public class Literal<T> implements TokenValue {
     @Override
     public String value() {
         return value;
+    }
+
+    public String getOLangClassName(){
+        return oLangClassName;
     }
 }

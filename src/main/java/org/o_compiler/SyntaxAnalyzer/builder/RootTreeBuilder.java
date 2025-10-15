@@ -188,28 +188,16 @@ public class RootTreeBuilder implements BuildTree {
     public static void main(String[] args) {
         RootTreeBuilder rootTreeBuilder = null;
         try {
-//            var line = 0;
-//            var lineS = new StringBuilder();
-//            for (var t : new IteratorSingleIterableAdapter<>(new TokenStream(Files.newInputStream(Path.of("data/test.o"))))) {
-//                lineS.append(t.entry().value());
-//                var newpos = Integer.parseInt(t.position().toString().split(",")[0].split(" ")[1]);
-//                if (newpos!=line) {
-//                    line = newpos;
-//                    System.out.println(lineS + " (" + t.position() + ")");
-//                    lineS = new StringBuilder();
-//                }
-//            }
-
             rootTreeBuilder = new RootTreeBuilder(
                     new IteratorSingleIterableAdapter<>(new TokenStream(Files.newInputStream(Path.of("data/test.o")))));
 
             rootTreeBuilder.build();
+            System.out.println(rootTreeBuilder.viewWithoutPredefined());
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            assert rootTreeBuilder != null;
+            System.out.println(rootTreeBuilder.viewWithoutPredefined());
         }
-//        finally {
-//            assert rootTreeBuilder != null;
-//            System.out.println(rootTreeBuilder.viewWithoutPredefined());
-//        }
     }
 }

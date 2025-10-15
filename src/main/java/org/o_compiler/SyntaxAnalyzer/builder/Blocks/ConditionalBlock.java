@@ -93,14 +93,16 @@ public abstract class ConditionalBlock extends BlockBuilder {
     public StringBuilder appendTo(StringBuilder to, int depth, String label) {
         var indent = "\t".repeat(depth);
         to.append(indent).append(label).append('\n');
-        to.append("=====CONDITION=====");
+        to.append(indent).append("=====CONDITION=====\n");
         condition.appendTo(to, depth+1);
-        to.append("===END-CONDITION===");
+        to.append(indent).append("===END-CONDITION===\n");
         for (var child: children){
             child.appendTo(to, depth+1);
         }
-        to.append(indent).append("Else block\n");
-        elseBranch.appendTo(to, depth+1);
+        if (elseBranch!=null) {
+            to.append(indent).append("Else block\n");
+            elseBranch.appendTo(to, depth + 1);
+        }
         return to;
     }
 }

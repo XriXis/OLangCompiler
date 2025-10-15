@@ -84,7 +84,6 @@ public class TokenStream implements Iterator<Token> {
             TraverseIterator<Function<String, TokenValue>> regexEngine) {
         if (lastSeen == null || Objects.equals(regexEngine.pathTaken(), "")) {
             //todo: proper exception
-            System.out.println("last seen "+lastSeen + " ; cum "+regexEngine.pathTaken());
             throw new RuntimeException("Improper token met: " + regexEngine.pathTaken() + " at " + pos);
         }
         return new Token(lastSeen.apply(regexEngine.pathTaken()), pos);

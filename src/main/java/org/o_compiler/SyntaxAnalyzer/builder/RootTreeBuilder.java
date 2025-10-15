@@ -12,15 +12,13 @@ import org.o_compiler.SyntaxAnalyzer.builder.PredefinedClasses.PredefinedClasses
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 public class RootTreeBuilder implements BuildTree {
     Iterator<Token> source;
     HashMap<String, ClassTreeBuilder> classes;
+    HashSet<String> predefined = new HashSet<>();
 
     public RootTreeBuilder(Iterable<Token> stream) {
         source = StreamSupport
@@ -69,6 +67,7 @@ public class RootTreeBuilder implements BuildTree {
             var classBuilder = scanClass(stream);
             if (classBuilder != null) {
                 classes.put(classBuilder.className, classBuilder);
+                predefined.add(classBuilder.className);
             }
         }
         // scan all class members
@@ -117,7 +116,7 @@ public class RootTreeBuilder implements BuildTree {
                 if (cur.entry().equals(ControlSign.SEPARATOR)) {
                     cur = source.next();
                 } else if (!cur.entry().equals(ControlSign.BRACKET_CLOSED)) {
-                    throw  new CompilerError("Unexpected token met " + cur + " at " + cur.position());
+                    throw new CompilerError("Unexpected token met " + cur + " at " + cur.position());
                 }
             }
             cur = source.next();
@@ -177,20 +176,40 @@ public class RootTreeBuilder implements BuildTree {
         return BuildTree.appendTo(to, depth, "Program init", classes.values());
     }
 
+    public String viewWithoutPredefined(){
+        return BuildTree.appendTo(new StringBuilder(), 0, "Program init", classes.values().stream().filter(v-> !predefined.contains(v.className)).toList()).toString();
+    }
+
     @Override
-    public String toString(){
+    public String toString() {
         return toString_();
     }
 
     public static void main(String[] args) {
+        RootTreeBuilder rootTreeBuilder = null;
         try {
-            RootTreeBuilder rootTreeBuilder = new RootTreeBuilder(
+//            var line = 0;
+//            var lineS = new StringBuilder();
+//            for (var t : new IteratorSingleIterableAdapter<>(new TokenStream(Files.newInputStream(Path.of("data/test.o"))))) {
+//                lineS.append(t.entry().value());
+//                var newpos = Integer.parseInt(t.position().toString().split(",")[0].split(" ")[1]);
+//                if (newpos!=line) {
+//                    line = newpos;
+//                    System.out.println(lineS + " (" + t.position() + ")");
+//                    lineS = new StringBuilder();
+//                }
+//            }
+
+            rootTreeBuilder = new RootTreeBuilder(
                     new IteratorSingleIterableAdapter<>(new TokenStream(Files.newInputStream(Path.of("data/test.o")))));
 
             rootTreeBuilder.build();
-            System.out.println(rootTreeBuilder);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+//        finally {
+//            assert rootTreeBuilder != null;
+//            System.out.println(rootTreeBuilder.viewWithoutPredefined());
+//        }
     }
 }

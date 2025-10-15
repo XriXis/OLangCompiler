@@ -9,6 +9,8 @@ import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.CodeSegregator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.IntStream;
 
 // todo: smth with default constructor (or require explicit one, or auto-generate default
 //  ?[in case of absence of any another one])
@@ -288,6 +290,23 @@ public class ClassTreeBuilder implements BuildTree {
     public boolean enclosePolymorphicName(String name) {
         return genericClasses.stream()
                 .anyMatch(c -> c.entry().value().contains(name));
+    }
+
+    // TODO use this
+    public MethodTreeBuilder getMethod(String name, List<ClassTreeBuilder> parameters) {
+        var foundMethods = classMembers.stream()
+                .filter(classMember -> classMember instanceof MethodTreeBuilder)
+                .map(classMember -> (MethodTreeBuilder) classMember)
+                .filter(method -> method.name.equals(name) && method.parameters.size() == parameters.size())
+                .filter(method -> IntStream.range(0, method.parameters.size())
+                        .allMatch(i -> method.parameters.get(i).type.className.equals(parameters.get(i).className)))
+                .toList();
+
+        if (foundMethods.size() > 1) {
+            throw new CompilerError("More than one method with name " + name + " and parameters " + parameters + " is found");
+        }
+
+        return foundMethods.isEmpty() ? null : foundMethods.getFirst();
     }
 
     @Override

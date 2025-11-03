@@ -4,6 +4,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
+import org.o_compiler.RevertibleStream;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.InternalCommunicationError;
 import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
@@ -12,11 +13,10 @@ import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ConstructorInvocationTr
 import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 import org.o_compiler.SyntaxAnalyzer.builder.Variable;
 
-import java.util.Iterator;
 import java.util.List;
 
 public class DeclarationBuilder implements BuildTree, Valuable {
-    Iterator<Token> source;
+    RevertibleStream<Token> source;
     ConstructorInvocationTreeBuilder init;
     String name;
     ClassTreeBuilder type;
@@ -26,7 +26,7 @@ public class DeclarationBuilder implements BuildTree, Valuable {
     // source - should be already a line
     public DeclarationBuilder(Iterable<Token> source, BuildTree parent) {
         // [var], [x], [:], [Int], ?{ [(], [5], [)] }
-        this.source = source.iterator();
+        this.source = new RevertibleStream<>(source.iterator(), 5);
         this.parent = parent;
     }
 

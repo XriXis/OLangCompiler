@@ -55,6 +55,7 @@ public class DeclarationBuilder implements BuildTree, Valuable {
         this.name = name.entry().value();
         this.type = typeTree;
         init = new ConstructorInvocationTreeBuilder(this.type, source,this);
+        init.build();
         this.var = new Variable(this.name, this.type, this);
     }
 

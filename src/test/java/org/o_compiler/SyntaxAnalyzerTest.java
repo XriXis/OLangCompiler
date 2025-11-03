@@ -57,6 +57,8 @@ public class SyntaxAnalyzerTest {
                     new IteratorSingleIterableAdapter<>(new TokenStream(inputStream)));
 
             rootTreeBuilder.build();
+            System.out.println(rootTreeBuilder.viewWithoutPredefined());
+
         } catch (Exception e) {
             e.printStackTrace();
             return false;

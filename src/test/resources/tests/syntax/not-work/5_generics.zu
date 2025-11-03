@@ -1,0 +1,10 @@
+class Main is
+    this() is
+        var numbers : List[Integer]
+        numbers.add(10)
+        numbers.add(20)
+        numbers.add(30)
+        var total : Integer(0)
+        Console().print("Sum = " + total.ToString())
+    end
+end

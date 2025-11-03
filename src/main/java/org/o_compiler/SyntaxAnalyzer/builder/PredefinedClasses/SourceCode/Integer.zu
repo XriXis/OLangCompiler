@@ -2,6 +2,7 @@ class Integer extends AnyValue is
     // Constructors
     this(p: Integer)
     this(p: Real)
+    this()
     // Get
     method Get : Integer
     // Features
@@ -33,5 +34,4 @@ class Integer extends AnyValue is
     method GreaterEqual(p: Real) : Boolean
     method Equal(p: Integer) : Boolean
     method Equal(p: Real) : Boolean
-    method ToString() : String
 end

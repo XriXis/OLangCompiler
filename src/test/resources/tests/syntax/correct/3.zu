@@ -6,6 +6,9 @@ class Main is
 end
 
 class Counter is
+    this() is
+    end
+
     var value : Integer(0)
 
     method Increment is

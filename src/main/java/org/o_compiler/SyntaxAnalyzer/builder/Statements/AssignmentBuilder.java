@@ -41,6 +41,7 @@ public class AssignmentBuilder implements BuildTree {
         if (!value.getType().isSubclassOf(var.getVariable().getType())){
             throw new CompilerError("Improper assignment. Variable " + var.getVariable().getName() + " of type " + var.getVariable().getType() + " tried to be assigned with value of type " + value.getType() + " at " + assignmentSign.position());
         }
+        value.build();
     }
 
 

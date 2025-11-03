@@ -6,7 +6,9 @@ import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
 import org.o_compiler.SyntaxAnalyzer.builder.ClassTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.ArgsParser;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ConstructorInvocationTreeBuilder extends CallExpressionTreeBuilder {
@@ -25,11 +27,10 @@ public class ConstructorInvocationTreeBuilder extends CallExpressionTreeBuilder 
 
     @Override
     public void build() {
-        if (!this.unparsedArgs.hasNext()) {
-            // todo: identification of default constructor
-            return;
-        }
-        this.args = new ArgsParser(unparsedArgs, this).get();
+        if (!this.unparsedArgs.hasNext())
+            this.args = new ArrayList<>();
+        else
+            this.args = new ArgsParser(unparsedArgs, this).get();
         this.it = type.getMethod(
                 "this",
                 args.stream().map(ExpressionTreeBuilder::getType).collect(Collectors.toList())

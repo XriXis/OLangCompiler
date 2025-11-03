@@ -49,10 +49,10 @@ public class MethodCallTreeBuilder extends CallExpressionTreeBuilder {
                 cur == 1
                         ? expressionFactory(chain.getFirst().iterator(), context)
                         : initFromChain(chain, context, cur - 1);
+        topExpression.build();
         if (topExpression instanceof CallExpressionTreeBuilder resWithArgs)
             for (var child : resWithArgs.args) {
                 if (child == null)
-                    // todo: write proper message with position identification
                     throw new CompilerError("Call of unknown method for type " + topExpression.getType());
                 child.parent = topExpression;
             }

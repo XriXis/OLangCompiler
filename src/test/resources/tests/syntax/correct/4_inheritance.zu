@@ -11,6 +11,8 @@ class Animal is
 end
 
 class Dog extends Animal is
+    this()
+
     method Speak : Boolean is
         Console().print(true.ToString())
         return Boolean(true)

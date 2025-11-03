@@ -28,6 +28,7 @@ public class ReturnStatementBuilder implements BuildTree {
             throw new InternalCommunicationError("Attempt to parse return statement, that not starts with \"return\" at " + res.position());
         result = ExpressionTreeBuilder.expressionFactory(code, this);
         validate(res);
+        result.build();
     }
 
     @Override

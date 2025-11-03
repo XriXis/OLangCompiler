@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class MethodTreeBuilder extends ClassMemberTreeBuilder implements BuildTree {
+public class MethodTreeBuilder extends ClassMemberTreeBuilder {
     ArrayList<Variable> parameters;
     BodyTreeBuilder body;
 
@@ -69,6 +69,9 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder implements BuildTr
 
     @Override
     public String toString(){
+        if (name.equals("this")) {
+            return parent.className + " constructor(" + parameters.stream().map(v->new Optional<>(v.getType()).map(ClassTreeBuilder::simpleName).get()).collect(Collectors.joining(", ")) + ")";
+        }
         return parent.className + " class method " + name + " (" + parameters.stream().map(v->new Optional<>(v.getType()).map(ClassTreeBuilder::simpleName).get()).collect(Collectors.joining(", ")) + ")->" + new Optional<>(type).map(ClassTreeBuilder::simpleName);
     }
 }

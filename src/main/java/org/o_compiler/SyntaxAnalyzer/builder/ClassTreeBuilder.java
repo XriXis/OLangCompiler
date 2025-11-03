@@ -85,6 +85,10 @@ public class ClassTreeBuilder implements BuildTree {
     }
 
     public void scanClassMembers() {
+        if (!classMembers.isEmpty()) {
+            return;
+        }
+
         if (tokenInheritanceParent != null) {
             if (getClass(tokenInheritanceParent.entry().value()) == null) {
                 throw new CompilerError("Inherited class " + tokenInheritanceParent.entry().value() + " not found");
@@ -96,11 +100,13 @@ public class ClassTreeBuilder implements BuildTree {
                     classInheritanceParent.build();
                 }
                 // inherit all class members
-                System.out.println(classInheritanceParent.classMembers);
-                classMembers.addAll(classInheritanceParent.classMembers);
+                classMembers.addAll(
+                        classInheritanceParent.classMembers
+                                .stream()
+                                .filter(classMember -> !classMember.name.equals("this"))
+                                .toList()
+                );
             }
-        } else if (!classMembers.isEmpty()) {
-            return;
         }
 
         // scan all classes members and add to HashMap
@@ -143,13 +149,13 @@ public class ClassTreeBuilder implements BuildTree {
     }
 
     // TODO use this
-    public MethodTreeBuilder getMethod(String name, ArrayList<Variable> parameters) {
+    public MethodTreeBuilder getMethod(String name, List<ClassTreeBuilder> parameters) {
         var foundMethods = classMembers.stream()
                 .filter(classMember -> classMember instanceof MethodTreeBuilder)
                 .map(classMember -> (MethodTreeBuilder) classMember)
                 .filter(method -> method.name.equals(name) && method.parameters.size() == parameters.size())
                 .filter(method -> IntStream.range(0, method.parameters.size())
-                        .allMatch(i -> method.parameters.get(i).type.className.equals(parameters.get(i).type.className)))
+                        .allMatch(i -> method.parameters.get(i).type.className.equals(parameters.get(i).className)))
                 .toList();
 
         if (foundMethods.size() > 1) {
@@ -400,7 +406,11 @@ public class ClassTreeBuilder implements BuildTree {
                 .stream()
                 .filter((m) -> (m instanceof MethodTreeBuilder))
                 .toList());
-        return BuildTree.appendTo(to, depth, "Class " + className, children);
+        if (classInheritanceParent == null) {
+            return BuildTree.appendTo(to, depth, "Class " + className, children);
+        } else {
+            return BuildTree.appendTo(to, depth, "Class " + className + " child of " + classInheritanceParent.simpleName(), children);
+        }
     }
 
     @Override

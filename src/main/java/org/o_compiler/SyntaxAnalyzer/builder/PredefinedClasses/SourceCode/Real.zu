@@ -2,6 +2,7 @@ class Real extends AnyValue is
     // Constructors
     this(p: Real)
     this(p: Integer)
+    this()
     // Features
     var Min : Real
     var Max : Real

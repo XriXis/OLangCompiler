@@ -192,7 +192,6 @@ public class RootTreeBuilder implements BuildTree {
                     new IteratorSingleIterableAdapter<>(new TokenStream(Files.newInputStream(Path.of("data/test.o")))));
 
             rootTreeBuilder.build();
-            System.out.println(rootTreeBuilder.viewWithoutPredefined());
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

@@ -6,8 +6,6 @@ import org.o_compiler.LexicalAnalyzer.parser.TokenStream;
 import java.nio.file.*;
 import java.io.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class LexicalAnalyzerTest {
 
     private final Path directory = Paths.get("src/test/resources/tests/lexicographical");
@@ -20,7 +18,7 @@ public class LexicalAnalyzerTest {
                 .forEach(file -> {
                     try (InputStream inputStream = Files.newInputStream(file)) {
                         System.out.println("Analyzing file: " + file.getFileName());
-                        assertTrue(analyzeLexicographically(inputStream), "File " + file.getFileName() + " should be correctly lexically structured.");
+                        assert analyzeLexicographically(inputStream) : "File " + file.getFileName() + " should be correctly lexically structured.";
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -35,7 +33,7 @@ public class LexicalAnalyzerTest {
                 .forEach(file -> {
                     try (InputStream inputStream = Files.newInputStream(file)) {
                         System.out.println("Analyzing file: " + file.getFileName());
-                        assertFalse(analyzeLexicographically(inputStream), "File " + file.getFileName() + " should be correctly lexically structured.");
+                        assert !analyzeLexicographically(inputStream) : "File " + file.getFileName() + " should be correctly lexically structured.";
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

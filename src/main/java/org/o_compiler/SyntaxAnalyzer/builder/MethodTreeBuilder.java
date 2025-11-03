@@ -23,6 +23,11 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
         return this.type;
     }
 
+    // todo: get rid of it
+    public boolean isConstructor(){
+        return name.equals("this");
+    }
+
     @Override
     public void build() {
         body.build();

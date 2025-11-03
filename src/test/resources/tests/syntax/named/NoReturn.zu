@@ -1,0 +1,6 @@
+class t is
+    this() is end
+    method some(): Integer is
+        Console.println("Hello")
+    end
+end

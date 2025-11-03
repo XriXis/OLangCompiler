@@ -1,0 +1,10 @@
+class t is
+    this() is end
+    method some(): Integer is
+        if (True) then
+            return 7
+        else
+            Console.println("Hello")
+        end
+    end
+end

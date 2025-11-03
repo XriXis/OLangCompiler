@@ -3,6 +3,7 @@ package org.o_compiler.SyntaxAnalyzer.builder.Expressions;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
+import org.o_compiler.SyntaxAnalyzer.Exceptions.EmptyExpressionException;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.UndefinedCallError;
 import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.ArgsParser;
@@ -45,6 +46,7 @@ public class MethodCallTreeBuilder extends CallExpressionTreeBuilder {
     }
 
     private static MethodCallTreeBuilder initFromChain(ArrayList<ArrayList<Token>> chain, BuildTree context, int cur) {
+        if (cur<=0) throw new EmptyExpressionException("Empty expression found in the " + context);
         ExpressionTreeBuilder topExpression =
                 cur == 1
                         ? expressionFactory(chain.getFirst().iterator(), context)

@@ -1,0 +1,8 @@
+class t is
+    this() is end
+    method some(): Integer is
+        if (True) then
+            return 7
+        end
+    end
+end

@@ -6,18 +6,16 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.CodeSegregator;
-import org.o_compiler.SyntaxAnalyzer.tree.ClassMemberTree;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import java.util.stream.Collectors;
+
 // todo: smth with default constructor (or require explicit one, or auto-generate default
 //  ?[in case of absence of any another one])
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 public class ClassTreeBuilder implements BuildTree {
     String className;
     Iterator<Token> source;
@@ -140,6 +138,11 @@ public class ClassTreeBuilder implements BuildTree {
         }
     }
 
+    // todo: get rid of it
+    public boolean isPredefined(){
+        return parent.predefined.contains(className);
+    }
+
     public MethodTreeBuilder getMethodByName(String name) {
         var m = getEnclosedName(name);
         if (m instanceof MethodTreeBuilder method)
@@ -200,7 +203,8 @@ public class ClassTreeBuilder implements BuildTree {
         if (another instanceof ClassTreeBuilder classTreeBuilder) {
             return classTreeBuilder.className.equals(this.className);
         } else {
-            throw new Error("Try to compare different types: " + another + " and class" + this.className);
+            return false;
+//            throw new InternalCommunicationError("Try to compare different types: " + another + " and class " + this.className);
         }
     }
 

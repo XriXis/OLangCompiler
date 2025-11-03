@@ -1,0 +1,5 @@
+class t is
+    this() is
+        return 7
+    end
+end

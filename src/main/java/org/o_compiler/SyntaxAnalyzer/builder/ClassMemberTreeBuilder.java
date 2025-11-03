@@ -1,7 +1,6 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
-import org.o_compiler.SyntaxAnalyzer.tree.ClassMemberTree;
 
 import java.util.Iterator;
 
@@ -18,6 +17,10 @@ public abstract class ClassMemberTreeBuilder implements BuildTree {
         this.sourceCode = sourceCode.iterator();
     }
 
+    public boolean isTypeOf(ClassTreeBuilder t){
+        return t.equals(type);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof AttributeTreeBuilder && ((AttributeTreeBuilder) obj).name.equals(this.name)) {
@@ -29,7 +32,7 @@ public abstract class ClassMemberTreeBuilder implements BuildTree {
     }
 
     @Override
-    public BuildTree getParent() {
+    public ClassTreeBuilder getParent() {
         return parent;
     }
 }

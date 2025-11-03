@@ -1,0 +1,6 @@
+class t is
+    this() is end
+    method some(): Integer is
+        return 5
+    end
+end

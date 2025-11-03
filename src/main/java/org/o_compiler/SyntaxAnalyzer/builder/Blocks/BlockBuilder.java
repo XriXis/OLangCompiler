@@ -4,9 +4,11 @@ import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.RevertibleStream;
+import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.StatementScanner;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.DeclarationBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,5 +61,21 @@ public class BlockBuilder implements BuildTree {
     @Override
     public BuildTree getParent(){
         return parent;
+    }
+
+    // crutch for body proper validation without code bloating
+    protected boolean validate() throws CompilerError {
+        for (var child: children.reversed()) {
+            if (child instanceof ReturnStatementBuilder) return true;
+            if (child instanceof ConditionalBlock condChild){
+                if (condChild.elseBranch!=null
+                        && condChild.elseBranch.validate()
+                        && condChild.validate())
+                    return true;
+            } else if (child instanceof BlockBuilder ch){
+                if (ch.validate()) return true;
+            }
+        }
+        return false;
     }
 }

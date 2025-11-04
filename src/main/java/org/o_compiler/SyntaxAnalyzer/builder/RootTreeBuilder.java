@@ -139,7 +139,7 @@ public class RootTreeBuilder implements BuildTree {
         var bracesStack = new Stack<Token>();
         bracesStack.add(null);
         while (!bracesStack.empty() && source.hasNext()) {
-            if (cur.entry().equals(Keyword.IS) || cur.entry().equals(Keyword.LOOP)) {
+            if (cur.entry() instanceof Keyword c && c.isBlockOpen()) {
                 bracesStack.add(cur);
             }
             if (cur.entry().equals(Keyword.END)) {
@@ -176,8 +176,8 @@ public class RootTreeBuilder implements BuildTree {
         return BuildTree.appendTo(to, depth, "Program init", classes.values());
     }
 
-    public String viewWithoutPredefined(){
-        return BuildTree.appendTo(new StringBuilder(), 0, "Program init", classes.values().stream().filter(v-> !predefined.contains(v.className)).toList()).toString();
+    public String viewWithoutPredefined() {
+        return BuildTree.appendTo(new StringBuilder(), 0, "Program init", classes.values().stream().filter(v -> !predefined.contains(v.className)).toList()).toString();
     }
 
     @Override

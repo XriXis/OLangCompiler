@@ -3,4 +3,5 @@ class Console is
     this()
     // Operators
     method print(s: String)
+    method println(s: String)
 end

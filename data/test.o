@@ -1,19 +1,11 @@
-class MyClass is
-    var a : Integer(10)
-    var b : Integer(20)
-
-    this()
-
-    method add() : Integer is
-        return a.Plus(b)
-    end
-end
-
 class Main is
     this() is
-        var obj : MyClass
-        obj := MyClass()
-        var result : Integer
-        result := obj.add()
+        var n: Integer
+        var numbers : List[Integer]
+        numbers.append(10)
+        numbers.append(20)
+        numbers.append(30)
+        var total : Integer(0)
+        Console().print(total.ToString())
     end
 end

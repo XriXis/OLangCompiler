@@ -6,6 +6,6 @@ class Main is
         numbers.append(20)
         numbers.append(30)
         var total : Integer(0)
-        Console().print("Sum = ".append(total.ToString()))
+        Console().print(total.ToString())
     end
 end

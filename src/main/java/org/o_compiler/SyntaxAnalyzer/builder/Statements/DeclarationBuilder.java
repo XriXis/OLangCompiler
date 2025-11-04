@@ -19,7 +19,6 @@ public class DeclarationBuilder implements BuildTree, Valuable {
     RevertibleStream<Token> source;
     ConstructorInvocationTreeBuilder init;
     String name;
-    ClassTreeBuilder type;
     BuildTree parent;
     Variable var;
 
@@ -53,10 +52,9 @@ public class DeclarationBuilder implements BuildTree, Valuable {
         if (typeTree == null)
             throw new CompilerError("Unexpected token met at " + type.position() + ". Class identifier expected.");
         this.name = name.entry().value();
-        this.type = typeTree;
-        init = new ConstructorInvocationTreeBuilder(this.type, source,this);
+        init = new ConstructorInvocationTreeBuilder(typeTree, source,this);
         init.build();
-        this.var = new Variable(this.name, this.type, this);
+        this.var = new Variable(this.name, init.getType(), this);
     }
 
     @Override

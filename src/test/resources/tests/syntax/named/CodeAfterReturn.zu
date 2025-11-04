@@ -1,7 +1,7 @@
 class t is
     this() is end
     method some(): Integer is
-        if (True) then
+        if (true) then
             return 7
             Console.println("Hello")
         else

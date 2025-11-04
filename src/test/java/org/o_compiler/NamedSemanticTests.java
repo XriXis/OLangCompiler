@@ -56,8 +56,8 @@ public class NamedSemanticTests {
     }
 
     @Test
-    public void emptyReturnShouldNotCompile() {
-        assert !testFile("EmptyReturnInConstructor.zu") : "ReturnInIncompleteBranch.zu should not compile";
+    public void emptyReturnShouldCompile() {
+        assert testFile("EmptyReturnInConstructor.zu") : "ReturnInIncompleteBranch.zu should compile";
     }
 
 

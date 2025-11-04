@@ -8,6 +8,7 @@ import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.CodeSegregator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -24,6 +25,7 @@ public class ClassTreeBuilder implements BuildTree {
     ClassTreeBuilder classInheritanceParent = null;
     ArrayList<ClassMemberTreeBuilder> classMembers;
     ArrayList<Token> genericClasses;
+    ArrayList<Token> bufSource;
 
     public ClassTreeBuilder(String className, Iterable<Token> source, RootTreeBuilder parent, Token inheritanceParent, ArrayList<Token> genericClasses) {
         this.className = className;
@@ -32,6 +34,10 @@ public class ClassTreeBuilder implements BuildTree {
         this.tokenInheritanceParent = inheritanceParent;
         this.genericClasses = genericClasses;
         classMembers = new ArrayList<>();
+        bufSource = new ArrayList<>();
+        for (Token token: source) {
+            bufSource.add(token);
+        }
     }
 
     public ClassTreeBuilder initGenericClass(ArrayList<Token> genericIdentifiers) {
@@ -42,7 +48,7 @@ public class ClassTreeBuilder implements BuildTree {
         }
 
         // check if generated class already exists
-        var resultClassName = genericIdentifiers
+        var resultClassName = className + "_" + genericIdentifiers
                 .stream()
                 .map(item -> item.entry().value())
                 .collect(Collectors.joining("_"));
@@ -52,23 +58,25 @@ public class ClassTreeBuilder implements BuildTree {
         }
 
         // replace all appearance of generic type with given
-        ArrayList<Token> bufSource = new ArrayList<>();
         ArrayList<Token> resSource = new ArrayList<>();
-        for (Iterator<Token> it = source; it.hasNext(); ) {
-            Token token = it.next();
-            bufSource.add(token);
-            if (token.entry() instanceof Identifier && genericClasses.contains(token)) {
-                var index = genericClasses.indexOf(token);
-                resSource.add(genericIdentifiers.get(index));
+        for (Token token: bufSource) {
+            if (token.entry() instanceof Identifier) {
+                var indexOpt = IntStream.range(0, genericClasses.size())
+                        .filter(i -> genericClasses.get(i).entry().value().equals(token.entry().value()))
+                        .findFirst();
+                if (indexOpt.isPresent()) {
+                    var index = indexOpt.getAsInt();
+                    resSource.add(genericIdentifiers.get(index));
+                } else {
+                    resSource.add(token);
+                }
             } else {
                 resSource.add(token);
             }
         }
-
-        source = bufSource.iterator();
         // create class
         var implementedClass = new ClassTreeBuilder(
-                this.className + "_" + className,
+                resultClassName,
                 resSource,
                 this.parent,
                 this.tokenInheritanceParent,
@@ -92,6 +100,11 @@ public class ClassTreeBuilder implements BuildTree {
                 throw new CompilerError("Inherited class " + tokenInheritanceParent.entry().value() + " not found");
             } else {
                 classInheritanceParent = getClass(tokenInheritanceParent.entry().value());
+                // check cross-inheritance
+                if (classInheritanceParent.tokenInheritanceParent != null &&
+                        classInheritanceParent.tokenInheritanceParent.entry().value().equals(className)) {
+                    throw new CompilerError("Cross-inheritance detected for class " + className);
+                }
                 // build all class members of parent
                 if (classInheritanceParent.classMembers.isEmpty()) {
                     classInheritanceParent.scanClassMembers();
@@ -151,23 +164,26 @@ public class ClassTreeBuilder implements BuildTree {
 //        throw new RuntimeException(new ExecutionControl.NotImplementedException(""));
     }
 
-    // TODO use this
     public MethodTreeBuilder getMethod(String name, List<ClassTreeBuilder> parameters) {
-        var foundMethods = classMembers.stream()
-                .filter(classMember -> classMember instanceof MethodTreeBuilder)
-                .map(classMember -> (MethodTreeBuilder) classMember)
-                .filter(method -> method.name.equals(name) && method.parameters.size() == parameters.size())
-                .filter(method -> IntStream.range(0, method.parameters.size())
-                        .allMatch(i -> method.parameters.get(i).type.className.equals(parameters.get(i).className)))
-                .toList();
+        try {
+            var foundMethods = classMembers.stream()
+                    .filter(classMember -> classMember instanceof MethodTreeBuilder)
+                    .map(classMember -> (MethodTreeBuilder) classMember)
+                    .filter(method -> method.name.equals(name) && method.parameters.size() == parameters.size())
+                    .filter(method -> IntStream.range(0, method.parameters.size())
+                            .allMatch(i -> method.parameters.get(i).type.className.equals(parameters.get(i).className)))
+                    .toList();
 
-        if (foundMethods.size() > 1) {
-            throw new CompilerError("More than one method with name " + name + " and parameters " + parameters + " is found");
+            if (foundMethods.size() > 1) {
+                throw new CompilerError("More than one method with name " + name + " and parameters " + parameters + " is found");
+            }
+
+            return foundMethods.isEmpty() ? null : foundMethods.getFirst();
+
+        } catch (NullPointerException exception) {
+            throw new CompilerError("Method of class " + className + " with name " + name + " and parameters " + parameters + " not found");
         }
-
-        return foundMethods.isEmpty() ? null : foundMethods.getFirst();
     }
-
 
     public ClassMemberTreeBuilder scanClassMember() {
         // get field type: var, method, this
@@ -367,7 +383,7 @@ public class ClassTreeBuilder implements BuildTree {
         var curr_braces = 1;
         var nextToken = source.next();
         while (curr_braces != 0) {
-            if (nextToken.entry().equals(Keyword.IS) || nextToken.entry().equals(Keyword.LOOP)) {
+            if (nextToken.entry() instanceof Keyword c && c.isBlockOpen()) {
                 curr_braces++;
             } else if (nextToken.entry().equals(Keyword.END)) {
                 curr_braces--;

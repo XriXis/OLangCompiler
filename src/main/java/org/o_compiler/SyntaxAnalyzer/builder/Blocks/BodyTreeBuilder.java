@@ -13,11 +13,12 @@ public class BodyTreeBuilder extends BlockBuilder {
     public void build() {
         super.build();
         var p = (MethodTreeBuilder) parent;
-        if (p.isTypeOf(getClass("Void")))
-            return;
         // todo: get rid of way it is done
         if (p.getParent().isPredefined()) return;
+        // type of expression is checked when "return" is met, so if it is present - it is correct
+        if (p.isTypeOf(getClass("Void"))) return;
         if (p.isConstructor()) return;
+        // check that return in typed method will be met in any flow of the function execution
         if (!validate())
             throw new CompilerError("Not all flows lead to return value in method " + parent);
     }

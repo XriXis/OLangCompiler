@@ -1,0 +1,4 @@
+class t is
+    this() is end
+    method some() : Void is end
+end

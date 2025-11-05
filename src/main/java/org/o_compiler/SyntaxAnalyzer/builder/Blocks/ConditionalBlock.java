@@ -1,6 +1,5 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Blocks;
 
-import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
@@ -68,7 +67,9 @@ public abstract class ConditionalBlock extends BlockBuilder {
                 if (!elseCodeBuffer.getLast().entry().equals(Keyword.END))
                     // todo: display whole block position
                     throw new InternalCommunicationError("Attempt to parse conditional block, that ends with no END keyword. End of parsed block " + elseCodeBuffer.getLast().position());
-                elseBranch = new BlockBuilder(new IteratorSingleIterableAdapter<>(code), this);
+                elseCodeBuffer.removeLast();
+                elseBranch = new BlockBuilder(elseCodeBuffer, this);
+                elseBranch.build();
             }
             default ->
                     throw new CompilerError("Unclosed Conditional Block from " + buffer.getFirst().position() + " up to " + buffer.getLast().position());
@@ -94,7 +95,7 @@ public abstract class ConditionalBlock extends BlockBuilder {
         var indent = "\t".repeat(depth);
         to.append(indent).append(label).append('\n');
         to.append(indent).append("=====CONDITION=====\n");
-        condition.appendTo(to, depth+1);
+        condition.appendTo(to, depth);
         to.append(indent).append("===END-CONDITION===\n");
         for (var child: children){
             child.appendTo(to, depth+1);

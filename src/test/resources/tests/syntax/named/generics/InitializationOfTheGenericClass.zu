@@ -1,0 +1,9 @@
+class t[T] is
+    var val: T
+
+    this() is end
+
+    this(smth: T) is
+        val := smth
+    end
+end

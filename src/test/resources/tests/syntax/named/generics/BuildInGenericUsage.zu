@@ -1,0 +1,7 @@
+class main is
+    this() is
+        var a : List[Integer]
+        a.append(7)
+        Console().print(a.head().Plus(5).toString())
+    end
+end

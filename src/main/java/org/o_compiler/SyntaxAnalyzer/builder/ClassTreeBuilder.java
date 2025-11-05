@@ -8,7 +8,6 @@ import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.CodeSegregator;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -84,6 +83,7 @@ public class ClassTreeBuilder implements BuildTree {
         );
         // add to root table
         parent.classes.put(resultClassName, implementedClass);
+        parent.predefined.add(resultClassName);
         // build
         implementedClass.scanClassMembers();
         implementedClass.build();

@@ -1,0 +1,16 @@
+class default[T] is
+    var val: T
+    this() is end
+
+    method getVal(): T is
+        return val
+    end
+end
+
+
+class main is
+    this() is
+        var a: default[Integer]()
+        Console().print(a.getVal().Plus(4).toString())
+    end
+end

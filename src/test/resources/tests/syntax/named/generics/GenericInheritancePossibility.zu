@@ -1,0 +1,22 @@
+class t[T] is
+    var val: T
+
+    this() is end
+
+    this(smth: T) is
+        val := smth
+    end
+
+    method getVal(): T is
+        return val
+    end
+end
+
+
+class b extends t is end
+
+class main is
+    this() is
+        Console().print(b[Integer](7).getVal().Plus(6).toString())
+    end
+end

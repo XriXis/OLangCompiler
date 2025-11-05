@@ -11,6 +11,7 @@ class Integer extends AnyValue is
     // Conversions
     method toReal : Real
     method toBoolean : Boolean
+    method toString : String
     // Unary operators
     method UnaryMinus : Integer
     // Integer binary arithmetics

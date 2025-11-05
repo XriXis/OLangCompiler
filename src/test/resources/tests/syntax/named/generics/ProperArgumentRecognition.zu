@@ -1,0 +1,20 @@
+class t[T] is
+    var val: T
+    this() is end
+
+    this(smth: T) is
+        val := smth
+    end
+
+    method blahBlah(s: T): Void is
+        val := val.Plus(s)
+    end
+end
+
+
+class main is
+    this() is
+        var a: t[Integer](7)
+        a.blahBlah(4)
+    end
+end

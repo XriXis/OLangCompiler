@@ -1,0 +1,9 @@
+class main is
+    this() is
+    end
+
+    method s(x: String): Void is
+        var x: String
+        Console().print(x)
+    end
+end

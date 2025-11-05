@@ -1,5 +1,6 @@
-package org.o_compiler;
+package org.o_compiler.Semantic;
 
+import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.parser.TokenStream;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.builder.RootTreeBuilder;
@@ -10,7 +11,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public abstract class NamedSemanticTests {
+public abstract class SemanticTests {
     private final Path directory = Paths.get("src","test", "resources", "tests", "syntax", "named").toAbsolutePath();
 
     protected Path getDirectory(){

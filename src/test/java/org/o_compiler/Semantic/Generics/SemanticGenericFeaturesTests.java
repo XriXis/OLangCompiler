@@ -1,8 +1,8 @@
-package org.o_compiler.Generics;
+package org.o_compiler.Semantic.Generics;
 
 import org.junit.jupiter.api.Test;
 
-public class NamedSemanticGenericFeaturesTests extends NamedSemanticGenericTests {
+public class SemanticGenericFeaturesTests extends SemanticGenericTests {
     @Test
     public void genericInheritancePossibilityShouldCompile() {
         assert testFile("GenericInheritancePossibility.zu") : "GenericInheritancePossibility.zu should compile successfully";

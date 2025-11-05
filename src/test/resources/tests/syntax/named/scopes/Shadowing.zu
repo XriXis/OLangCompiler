@@ -1,0 +1,8 @@
+class main is
+    var x: Integer
+    this() is
+        var x: String
+        x := "Hello world"
+        Console().print(x)
+    end
+end

@@ -2,7 +2,6 @@ package org.o_compiler;
 
 import org.junit.jupiter.api.Test;
 import org.o_compiler.LexicalAnalyzer.parser.TokenStream;
-import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.SyntaxAnalyzer.builder.RootTreeBuilder;
 
 import java.io.IOException;
@@ -77,6 +76,4 @@ public class SyntaxAnalyzerTest {
         }
         return true;
     }
-
-
 }

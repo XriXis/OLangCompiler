@@ -1,8 +1,8 @@
-package org.o_compiler.Return;
+package org.o_compiler.Semantic.Return;
 
 import org.junit.jupiter.api.Test;
 
-public class NamedSemanticReturnErrorTests extends NamedSemanticReturnTests {
+public class SemanticReturnErrorTests extends SemanticReturnTests {
     @Test
     public void incompleteReturnShouldNotCompile() {
         assert !testFile("IncompleteReturn.zu") : "IncompleteReturn.zu should not compile";

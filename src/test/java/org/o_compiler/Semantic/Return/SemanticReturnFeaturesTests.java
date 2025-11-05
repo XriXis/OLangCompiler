@@ -1,8 +1,8 @@
-package org.o_compiler.Return;
+package org.o_compiler.Semantic.Return;
 
 import org.junit.jupiter.api.Test;
 
-public class NamedSemanticReturnFeaturesTests extends NamedSemanticReturnTests {
+public class SemanticReturnFeaturesTests extends SemanticReturnTests {
     @Test
     public void codeAfterReturnShouldCompile() {
         assert testFile("CodeAfterReturn.zu") : "CodeAfterReturn.zu should compile successfully";

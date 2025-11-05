@@ -1,0 +1,7 @@
+class main is
+    this() is
+        var x: Integer
+        var x: String
+        var x: Integer
+    end
+end

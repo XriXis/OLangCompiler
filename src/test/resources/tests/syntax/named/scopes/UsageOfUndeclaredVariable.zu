@@ -1,0 +1,6 @@
+class main is
+    this() is
+        Console().print(x)
+        var x: String
+    end
+end

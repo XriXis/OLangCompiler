@@ -1,0 +1,6 @@
+class main is
+    method x(): Void is end
+    this() is
+        var x: Integer
+    end
+end

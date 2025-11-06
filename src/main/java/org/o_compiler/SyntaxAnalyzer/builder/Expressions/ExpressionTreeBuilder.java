@@ -36,10 +36,16 @@ public abstract class ExpressionTreeBuilder implements BuildTree {
         var val = context.findNameAbove(entry.getFirst().entry().value());
         if (val == null)
             throw new CompilerError("Attempt to access unknown name " + entry.getFirst().entry().value() + " at " + entry.getFirst().position());
-        if (val instanceof ClassTreeBuilder)
-            return new ConstructorInvocationTreeBuilder((ClassTreeBuilder) val, entry.subList(1, entry.size()), context);
+        if (val instanceof ClassTreeBuilder cls)
+            return new ConstructorInvocationTreeBuilder(cls, entry.subList(1, entry.size()), context);
         if (entry.size() != 1)
             throw new CompilerError("Unknown syntax structure. Variable can be only used by value or as context of method. Error occur at unexpected token " + entry.get(1).position());
+        // todo: bet rid of this crutch
+        if (entry.getFirst().entry().value().equals("this")){
+            var p = context;
+            while (!(p instanceof ClassTreeBuilder cls)) p = p.getParent();
+            return new VariableValueAccessTreeBuild(cls::getCurInstance, context);
+        }
         if (val instanceof Valuable)
             return new VariableValueAccessTreeBuild((Valuable) val, context);
         throw new InternalCommunicationError("Unknown type of single term expression at " + entry.getFirst().position());

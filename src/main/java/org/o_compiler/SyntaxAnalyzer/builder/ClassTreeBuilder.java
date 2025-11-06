@@ -25,6 +25,8 @@ public class ClassTreeBuilder implements BuildTree {
     ArrayList<ClassMemberTreeBuilder> classMembers;
     ArrayList<Token> genericClasses;
     ArrayList<Token> bufSource;
+    // todo: make this not crutched
+    Variable curInstance;
 
     public ClassTreeBuilder(String className, Iterable<Token> source, RootTreeBuilder parent, Token inheritanceParent, ArrayList<Token> genericClasses) {
         this.className = className;
@@ -34,9 +36,15 @@ public class ClassTreeBuilder implements BuildTree {
         this.genericClasses = genericClasses;
         classMembers = new ArrayList<>();
         bufSource = new ArrayList<>();
-        for (Token token: source) {
+        for (Token token : source) {
             bufSource.add(token);
         }
+        curInstance = new Variable("this", this, this);
+    }
+
+    // todo: make this not crutched
+    public Variable getCurInstance() {
+        return curInstance;
     }
 
     public ClassTreeBuilder initGenericClass(ArrayList<Token> genericIdentifiers) {
@@ -58,7 +66,7 @@ public class ClassTreeBuilder implements BuildTree {
 
         // replace all appearance of generic type with given
         ArrayList<Token> resSource = new ArrayList<>();
-        for (Token token: bufSource) {
+        for (Token token : bufSource) {
             if (token.entry() instanceof Identifier) {
                 var indexOpt = IntStream.range(0, genericClasses.size())
                         .filter(i -> genericClasses.get(i).entry().value().equals(token.entry().value()))
@@ -152,7 +160,7 @@ public class ClassTreeBuilder implements BuildTree {
     }
 
     // todo: get rid of it
-    public boolean isPredefined(){
+    public boolean isPredefined() {
         return parent.predefined.contains(className);
     }
 
@@ -171,7 +179,7 @@ public class ClassTreeBuilder implements BuildTree {
                     .map(classMember -> (MethodTreeBuilder) classMember)
                     .filter(method -> method.name.equals(name) && method.parameters.size() == parameters.size())
                     .filter(method -> IntStream.range(0, method.parameters.size())
-                            .allMatch(i -> method.parameters.get(i).type.className.equals(parameters.get(i).className)))
+                            .allMatch(i -> parameters.get(i).isSubclassOf(method.parameters.get(i).type)))
                     .toList();
 
             if (foundMethods.size() > 1) {

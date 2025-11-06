@@ -1,0 +1,9 @@
+class t is
+    this() is end
+
+    method a(b: Integer, c: String) is end
+
+    method some() is
+        this.a(1)
+    end
+end

@@ -1,0 +1,18 @@
+class t is
+    this() is end
+
+    method a(b: Animal) is end
+
+    method some() is
+        this.a(Cat())
+    end
+end
+
+class Animal is
+    this() is
+    end
+end
+
+class Cat extends Animal is
+    this() is end
+end

@@ -1,19 +1,85 @@
 (module
-  ;; Define the 'add' function that takes two i32 parameters and returns an i32 result.
-  (func $add (param $a i32) (param $b i32) (result i32)
-    ;; Add the two parameters
-    (i32.add (local.get $a) (local.get $b))
+  (type $fnIntThis (func (param i32) (result i32)))
+
+  ;; Таблица виртуальных методов для MyClass
+  (table $vtable 1 funcref)
+
+  ;; Заполняем vtable
+  (elem (i32.const 0) $MyClass_add_impl)
+
+  (memory (export "memory") 1)
+
+  ;; Константы: поля объекта MyClass
+  (global $offset_vtable (export "OFF_VTABLE") i32 (i32.const 0))
+  (global $offset_a      (export "OFF_A")      i32 (i32.const 4))
+  (global $offset_b      (export "OFF_B")      i32 (i32.const 8))
+
+  ;; Total object size = 12 bytes
+  (global $size_MyClass (export "SIZE_MyClass") i32 (i32.const 12))
+
+  ;; -------- Object constructor --------
+  (func $MyClass_new (export "MyClass_new") (result i32)
+    ;; Allocate on heap
+    (local $ptr i32)
+    local.set $ptr (i32.const 42) ;; Some memotry trace logic
+
+    ;; Write vtable pointer
+    local.get $ptr
+    i32.const 0       ;; index of vtable = 0
+    i32.store
+
+    ;; Write field a = 10
+    local.get $ptr
+    global.get $offset_a
+    i32.add
+    i32.const 10
+    i32.store
+
+    ;; Write field b = 20
+    local.get $ptr
+    global.get $offset_b
+    i32.add
+    i32.const 20
+    i32.store
+
+    ;; return pointer to object
+    local.get $ptr
   )
 
-  ;; Define the '_start' function that will be invoked at the start
-  (func $_start (result i32)
-    ;; Call the 'add' function with two arguments
-    (call $add (i32.const 5) (i32.const 10))
+
+  ;; ------------ Virtual function implementation ------------
+  ;; MyClass.add(): Integer = a + b
+  (func $MyClass_add_impl (type $fnIntThis) (param $this i32) (result i32)
+    ;; load a
+    local.get $this
+    global.get $offset_a
+    i32.add
+    i32.load
+
+    ;; load b
+    local.get $this
+    global.get $offset_b
+    i32.add
+    i32.load
+
+    i32.add
   )
 
-  ;; Export the 'add' function to be accessible from outside the module
-  (export "add" (func $add))
 
-  ;; Export the '_start' function to be invoked when the module starts
-  (export "_start" (func $_start))
+  ;; ------------ Dynamic dispatch ------------
+  ;; Call virtual method #0 on object
+  (func $MyClass_add (export "MyClass_add") (param $this i32) (result i32)
+    ;; Load vtable index
+    local.get $this
+    global.get $offset_vtable
+    i32.add
+    i32.load        ;; ← this is the index into table
+
+    local.get $this ;; implicit arg
+
+    call_indirect (type $fnIntThis)
+  )
+
+  ;; Simple bump allocator pointer
+  (global $heapPtr (mut i32) (i32.const 1024))
 )

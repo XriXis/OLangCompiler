@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.stream.StreamSupport;
 
 public class PredefinedClassesParser {
-    private static final Path sourceCodeDir = Path.of("src/main/java/org/o_compiler/SyntaxAnalyzer/builder/PredefinedClasses/SourceCode");
+    private static final Path sourceCodeDir = Path.of("src/main/resources/PredefinedClasses/SourceCode");
 
     public static Iterator<Token> getPredefinedClassesStream() {
         return uniteFiles();

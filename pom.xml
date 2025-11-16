@@ -14,6 +14,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
+        <!-- JWebAssembly Dependency -->
+        <dependency>
+            <groupId>de.inetsoftware</groupId>
+            <artifactId>jwebassembly-compiler</artifactId>
+            <version>0.4</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

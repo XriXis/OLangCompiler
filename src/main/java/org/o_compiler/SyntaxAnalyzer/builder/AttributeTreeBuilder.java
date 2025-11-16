@@ -1,9 +1,10 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
+import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class AttributeTreeBuilder extends ClassMemberTreeBuilder implements Valuable {
@@ -23,7 +24,17 @@ public class AttributeTreeBuilder extends ClassMemberTreeBuilder implements Valu
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return TreeBuilder.appendTo(to, depth, parent.className + " class attribute: " + name + " with default value of: ", init == null ? new ArrayList<>() : List.of(init));
+        return appendTo(to, depth, ((ClassTreeBuilder)parent).className + " class attribute: " + name + " with default value of: ");
+    }
+
+    @Override
+    protected void visitSingly(BuildTreeVisitor v) {
+        v.visitAttribute(this);
+    }
+
+    @Override
+    public Collection<? extends TreeBuilder> children() {
+        return init == null ? List.of() : List.of(init);
     }
 
     @Override

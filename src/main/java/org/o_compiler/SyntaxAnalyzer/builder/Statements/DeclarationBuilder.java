@@ -1,5 +1,6 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Statements;
 
+import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
@@ -12,20 +13,20 @@ import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ConstructorInvocationTr
 import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 import org.o_compiler.SyntaxAnalyzer.builder.Variable;
 
+import java.util.Collection;
 import java.util.List;
 
-public class DeclarationBuilder implements TreeBuilder, Valuable {
+public class DeclarationBuilder extends TreeBuilder implements Valuable {
     RevertibleStream<Token> source;
     ConstructorInvocationTreeBuilder init;
     String name;
-    TreeBuilder parent;
     Variable var;
 
     // source - should be already a line
     public DeclarationBuilder(Iterable<Token> source, TreeBuilder parent) {
+        super(parent);
         // [var], [x], [:], [Int], ?{ [(], [5], [)] }
         this.source = new RevertibleStream<>(source.iterator(), 5);
-        this.parent = parent;
     }
 
     @Override
@@ -57,13 +58,18 @@ public class DeclarationBuilder implements TreeBuilder, Valuable {
     }
 
     @Override
-    public TreeBuilder getParent() {
-        return parent;
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return appendTo(to, depth, "Declaration of the variable " + name);
     }
 
     @Override
-    public StringBuilder appendTo(StringBuilder to, int depth) {
-        return TreeBuilder.appendTo(to, depth, "Declaration of the variable " + name, List.of(init));
+    protected void visitSingly(BuildTreeVisitor v) {
+        v.visitDeclaration(this);
+    }
+
+    @Override
+    public Collection<? extends TreeBuilder> children() {
+        return List.of(init);
     }
 
     public String getName(){

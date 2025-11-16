@@ -11,17 +11,17 @@ import org.o_compiler.SyntaxAnalyzer.builder.Statements.DeclarationBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
-public class BlockBuilder implements TreeBuilder {
+public abstract class BlockBuilder extends TreeBuilder {
     RevertibleStream<Token> code;
     ArrayList<TreeBuilder> children = new ArrayList<>();
     HashMap<String, DeclarationBuilder> namespace = new HashMap<>();
-    TreeBuilder parent;
 
     public BlockBuilder(Iterable<Token> source, TreeBuilder parent) {
+        super(parent);
         code = new RevertibleStream<>(source.iterator(), 3);
-        this.parent = parent;
     }
 
     public void build() {
@@ -52,15 +52,7 @@ public class BlockBuilder implements TreeBuilder {
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        for (var child: children){
-            child.appendTo(to, depth);
-        }
-        return to;
-    }
-
-    @Override
-    public TreeBuilder getParent(){
-        return parent;
+        return appendTo(to, depth, "");
     }
 
     // crutch for body proper validation without code bloating
@@ -77,5 +69,10 @@ public class BlockBuilder implements TreeBuilder {
             }
         }
         return false;
+    }
+
+    @Override
+    public Collection<? extends TreeBuilder> children(){
+        return children;
     }
 }

@@ -1,21 +1,28 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
+import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 
-public class Variable implements Valuable, TreeBuilder {
+import java.util.Collection;
+import java.util.List;
+
+// todo: remove TreeBuild from this class type definition
+public class Variable extends TreeBuilder implements Valuable {
     String name;
     ClassTreeBuilder type;
     Token polymorphicIdentifier;
-    TreeBuilder parent;
 
     public Variable(String name, ClassTreeBuilder type, TreeBuilder parent) {
+        super(parent);
         this.name = name;
         this.type = type;
         this.polymorphicIdentifier = null;
-        this.parent = parent;
     }
 
     public Variable(String name, ClassTreeBuilder type, Token polymorphicIdentifier) {
+        // am I right???
+        super(type);
+
         this.name = name;
         this.type = type;
         this.polymorphicIdentifier = polymorphicIdentifier;
@@ -39,17 +46,21 @@ public class Variable implements Valuable, TreeBuilder {
     }
 
     @Override
-    public TreeBuilder getParent() {
-        return parent;
-    }
-
-    @Override
     public String toString(){
         return name;
     }
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return null;
+        return to;
+    }
+
+    @Override
+    protected void visitSingly(BuildTreeVisitor v) {
+    }
+
+    @Override
+    public Collection<? extends TreeBuilder> children() {
+        return List.of();
     }
 }

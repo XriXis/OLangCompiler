@@ -4,16 +4,15 @@ import org.o_compiler.LexicalAnalyzer.tokens.Token;
 
 import java.util.Iterator;
 
-public abstract class ClassMemberTreeBuilder implements TreeBuilder {
+public abstract class ClassMemberTreeBuilder extends TreeBuilder {
     String name;
     ClassTreeBuilder type;
-    ClassTreeBuilder parent;
     Iterator<Token> sourceCode;
 
     ClassMemberTreeBuilder(String name, ClassTreeBuilder type, ClassTreeBuilder parent, Iterable<Token> sourceCode) {
+        super(parent);
         this.name = name;
         this.type = type;
-        this.parent = parent;
         this.sourceCode = sourceCode.iterator();
     }
 
@@ -29,10 +28,5 @@ public abstract class ClassMemberTreeBuilder implements TreeBuilder {
             return methodObj.equals(this);
         }
         return false;
-    }
-
-    @Override
-    public ClassTreeBuilder getParent() {
-        return parent;
     }
 }

@@ -1,6 +1,8 @@
 package org.o_compiler.CodeGeneration;
 
 import org.o_compiler.SyntaxAnalyzer.builder.*;
+import org.o_compiler.SyntaxAnalyzer.builder.Blocks.BodyTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Blocks.ElseBlock;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.IfTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.WhileTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.*;
@@ -76,6 +78,16 @@ public class ConstantExprReductionVisitor implements BuildTreeVisitor{
 
     @Override
     public void visitIf(IfTreeBuilder instance) {
+
+    }
+
+    @Override
+    public void visitElse(ElseBlock instance) {
+
+    }
+
+    @Override
+    public void visitBody(BodyTreeBuilder instance) {
 
     }
 }

@@ -4,17 +4,52 @@ import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 
 import java.util.Collection;
 
-public interface TreeBuilder {
-    void build();
+// todo: follow ISP
+public abstract class TreeBuilder {
+    protected TreeBuilder parent;
 
-    default void visit(BuildTreeVisitor v){
-        // todo: make not default and implement foreach tree
-        v.visit(this);
+    protected TreeBuilder(TreeBuilder parent) {
+        this.parent = parent;
     }
 
-    TreeBuilder getParent();
+    abstract public void build();
 
-    default ClassTreeBuilder getClass(String name) {
+    // mixin method, that allows to find corresponding to name program entity in the context encapsulation structure
+    protected abstract StringBuilder appendTo(StringBuilder to, int depth);
+
+    protected abstract void visitSingly(BuildTreeVisitor v);
+
+    public abstract Collection<? extends TreeBuilder> children();
+
+    // should be overridden by context objects. Default implementation for not-context nodes
+    public boolean encloseName(String name) {
+        return false;
+    }
+
+    // should be overridden by context objects. Default implementation for not-context nodes
+    public TreeBuilder getEnclosedName(String name) {
+        return null;
+    }
+
+    protected StringBuilder appendTo(StringBuilder to, int depth, String header) {
+        int newDepth;
+        if (!header.isEmpty()) {
+            to.append("\t".repeat(Math.max(0, depth))).append(header).append('\n');
+            newDepth = depth + 1;
+        } else {
+            newDepth = depth;
+        }
+        for (var child : children()) {
+            child.appendTo(to, newDepth);
+        }
+        return to;
+    }
+
+    public final TreeBuilder getParent() {
+        return parent;
+    }
+
+    protected final ClassTreeBuilder getClass(String name) {
         TreeBuilder current = this;
         while (current.getParent() != null) {
             current = current.getParent();
@@ -22,21 +57,10 @@ public interface TreeBuilder {
         return (ClassTreeBuilder) current.getEnclosedName(name);
     }
 
-    // should be overridden by context objects. Default implementation for not-context nodes
-    default boolean encloseName(String name) {
-        return false;
-    }
-
-    // should be overridden by context objects. Default implementation for not-context nodes
-    default TreeBuilder getEnclosedName(String name) {
-        return null;
-    }
-
-    // mixin method, that allows to find corresponding to name program entity in the context encapsulation structure
-    default TreeBuilder findNameAbove(String name) {
+    public final TreeBuilder findNameAbove(String name) {
         TreeBuilder current = this;
         while (current != null) {
-            if (current.encloseName(name)){
+            if (current.encloseName(name)) {
                 return current.getEnclosedName(name);
             }
             current = current.getParent();
@@ -44,17 +68,14 @@ public interface TreeBuilder {
         return null;
     }
 
-    StringBuilder appendTo(StringBuilder to, int depth);
-
-    default String toString_(){
+    public final String toString_() {
         return appendTo(new StringBuilder(), 0).toString();
     }
 
-    static StringBuilder appendTo(StringBuilder to, int depth, String header, Collection<? extends TreeBuilder> children){
-        to.append("\t".repeat(Math.max(0, depth))).append(header).append('\n');
-        for (var child: children){
-            child.appendTo(to, depth + 1);
+    public final void visit(BuildTreeVisitor v) {
+        visitSingly(v);
+        for (var child : children()) {
+            child.visit(v);
         }
-        return to;
     }
 }

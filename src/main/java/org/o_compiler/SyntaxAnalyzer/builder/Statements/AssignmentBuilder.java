@@ -1,5 +1,6 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Statements;
 
+import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
@@ -9,17 +10,18 @@ import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-public class AssignmentBuilder implements TreeBuilder {
+public class AssignmentBuilder extends TreeBuilder {
     Iterator<Token> code;
     ExpressionTreeBuilder value;
     Valuable var;
-    TreeBuilder parent;
+
     public AssignmentBuilder(Iterable<Token> source, TreeBuilder parent){
+        super(parent);
         code = source.iterator();
-        this.parent = parent;
     }
     @Override
     public void build() {
@@ -44,14 +46,18 @@ public class AssignmentBuilder implements TreeBuilder {
         value.build();
     }
 
-
     @Override
-    public TreeBuilder getParent() {
-        return parent;
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return appendTo(to, depth, "Assignment value to the " + var.getVariable());
     }
 
     @Override
-    public StringBuilder appendTo(StringBuilder to, int depth) {
-        return TreeBuilder.appendTo(to, depth, "Assignment value to the " + var.getVariable(), List.of(value));
+    protected void visitSingly(BuildTreeVisitor v) {
+        v.visitAssignment(this);
+    }
+
+    @Override
+    public Collection<? extends TreeBuilder> children() {
+        return List.of(value);
     }
 }

@@ -1,5 +1,6 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Blocks;
 
+import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
@@ -23,5 +24,10 @@ public class IfTreeBuilder extends ConditionalBlock {
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
         return super.appendTo(to, depth, "If block");
+    }
+
+    @Override
+    protected void visitSingly(BuildTreeVisitor v) {
+        v.visitIf(this);
     }
 }

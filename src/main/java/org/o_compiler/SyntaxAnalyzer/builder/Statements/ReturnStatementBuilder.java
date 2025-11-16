@@ -1,5 +1,6 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Statements;
 
+import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
@@ -10,17 +11,17 @@ import org.o_compiler.SyntaxAnalyzer.builder.Expressions.EmptyExpression;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.MethodTreeBuilder;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-public class ReturnStatementBuilder implements TreeBuilder {
+public class ReturnStatementBuilder extends TreeBuilder {
     Iterator<Token> code;
     ExpressionTreeBuilder result;
-    TreeBuilder parent;
 
     public ReturnStatementBuilder(Iterable<Token> source, TreeBuilder parent){
+        super(parent);
         code = source.iterator();
-        this.parent = parent;
     }
 
     @Override
@@ -38,13 +39,18 @@ public class ReturnStatementBuilder implements TreeBuilder {
     }
 
     @Override
-    public TreeBuilder getParent() {
-        return parent;
+    public StringBuilder appendTo(StringBuilder to, int depth) {
+        return appendTo(to, depth, "Return statement");
     }
 
     @Override
-    public StringBuilder appendTo(StringBuilder to, int depth) {
-        return TreeBuilder.appendTo(to, depth, "Return statement", List.of(result));
+    protected void visitSingly(BuildTreeVisitor v) {
+        v.visitReturnStatement(this);
+    }
+
+    @Override
+    public Collection<? extends TreeBuilder> children() {
+        return List.of(result);
     }
 
     private void validate(Token sign){

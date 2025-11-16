@@ -1,5 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Blocks;
 
+import org.o_compiler.CodeGeneration.BuildTreeVisitor;
+import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
@@ -14,7 +16,9 @@ import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.MethodCallTreeBuilder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 public abstract class ConditionalBlock extends BlockBuilder {
     ExpressionTreeBuilder condition;
@@ -68,7 +72,7 @@ public abstract class ConditionalBlock extends BlockBuilder {
                     // todo: display whole block position
                     throw new InternalCommunicationError("Attempt to parse conditional block, that ends with no END keyword. End of parsed block " + elseCodeBuffer.getLast().position());
                 elseCodeBuffer.removeLast();
-                elseBranch = new BlockBuilder(elseCodeBuffer, this);
+                elseBranch = new ElseBlock(elseCodeBuffer, this);
                 elseBranch.build();
             }
             default ->
@@ -91,19 +95,91 @@ public abstract class ConditionalBlock extends BlockBuilder {
         return ExpressionTreeBuilder.expressionFactory(buffer.iterator(), this);
     }
 
+    @Override
     public StringBuilder appendTo(StringBuilder to, int depth, String label) {
-        var indent = "\t".repeat(depth);
-        to.append(indent).append(label).append('\n');
-        to.append(indent).append("=====CONDITION=====\n");
-        condition.appendTo(to, depth);
-        to.append(indent).append("===END-CONDITION===\n");
-        for (var child: children){
-            child.appendTo(to, depth+1);
-        }
+//        var indent = "\t".repeat(depth);
+//        to.append(indent).append(label).append('\n');
+//        to.append(indent).append("=====CONDITION=====\n");
+        new EmptyView(this).appendTo(to, depth, "=====CONDITION=====");
+//        condition.appendTo(to, depth);
+        new ConditionExprView(this).appendTo(to, depth);
+//        to.append(indent).append("===END-CONDITION===\n");
+        new EmptyView(this).appendTo(to, depth, "===END-CONDITION===");
+        super.appendTo(to, depth+1, "");
+//        for (var child: children){
+//            child.appendTo(to, depth+1);
+//        }
         if (elseBranch!=null) {
-            to.append(indent).append("Else block\n");
-            elseBranch.appendTo(to, depth + 1);
+            new ElseBlockPrintView(this).appendTo(to, depth, "Else block");
+//            to.append(indent).append("Else block\n");
+//            elseBranch.appendTo(to, depth + 1);
         }
         return to;
+    }
+
+    protected StringBuilder originalAppendTo(StringBuilder to, int depth, String label){
+        return super.appendTo(to, depth, label);
+    }
+
+    private static class PrintView extends ConditionalBlock{
+        public PrintView(ConditionalBlock o){
+            super(new IteratorSingleIterableAdapter<>(o.code), o.parent);
+            condition = o.condition;
+            children = o.children;
+            namespace = o.namespace;
+            elseBranch = o.elseBranch;
+        }
+
+        @Override
+        public StringBuilder appendTo(StringBuilder to, int depth, String label) {
+            return originalAppendTo(to, depth, label);
+        }
+
+        @Override
+        protected boolean isProperOpen(TokenValue t) {
+            throw new RuntimeException("Unsupposed to be used outside the ConditionalBlock class");
+        }
+
+        @Override
+        protected boolean isStartBlock(TokenValue t) {
+            throw new RuntimeException("Unsupposed to be used outside the ConditionalBlock class");
+        }
+
+        @Override
+        protected void visitSingly(BuildTreeVisitor v) {
+            throw new RuntimeException("Unsupposed to be used outside the ConditionalBlock class");
+        }
+    }
+
+    private static class ConditionExprView extends PrintView {
+        public ConditionExprView(ConditionalBlock o) {
+            super(o);
+        }
+
+        @Override
+        public Collection<? extends TreeBuilder> children(){
+            return List.of(condition);
+        }
+    }
+
+    private static class ElseBlockPrintView extends PrintView {
+        public ElseBlockPrintView(ConditionalBlock o) {
+            super(o);
+        }
+        @Override
+        public Collection<? extends TreeBuilder> children(){
+            return elseBranch.children();
+        }
+    }
+
+    private static class EmptyView extends PrintView {
+        public EmptyView(ConditionalBlock o) {
+            super(o);
+        }
+
+        @Override
+        public Collection<? extends TreeBuilder> children(){
+            return List.of();
+        }
     }
 }

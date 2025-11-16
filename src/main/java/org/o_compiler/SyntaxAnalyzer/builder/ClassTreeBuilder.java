@@ -1,5 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
+import org.o_compiler.CodeGeneration.BuildTreeVisitor;
+import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
@@ -8,6 +10,7 @@ import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.CodeSegregator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -16,22 +19,19 @@ import java.util.stream.Collectors;
 
 // todo: smth with default constructor (or require explicit one, or auto-generate default
 //  ?[in case of absence of any another one])
-public class ClassTreeBuilder implements TreeBuilder {
+public class ClassTreeBuilder extends TreeBuilder {
     String className;
     Iterator<Token> source;
-    RootTreeBuilder parent;
     Token tokenInheritanceParent;
     ClassTreeBuilder classInheritanceParent = null;
     ArrayList<ClassMemberTreeBuilder> classMembers;
     ArrayList<Token> genericClasses;
     ArrayList<Token> bufSource;
-    // todo: make this not crutched
-    Variable curInstance;
 
     public ClassTreeBuilder(String className, Iterable<Token> source, RootTreeBuilder parent, Token inheritanceParent, ArrayList<Token> genericClasses) {
+        super(parent);
         this.className = className;
         this.source = source.iterator();
-        this.parent = parent;
         this.tokenInheritanceParent = inheritanceParent;
         this.genericClasses = genericClasses;
         classMembers = new ArrayList<>();
@@ -39,12 +39,11 @@ public class ClassTreeBuilder implements TreeBuilder {
         for (Token token : source) {
             bufSource.add(token);
         }
-        curInstance = new Variable("this", this, this);
     }
 
     // todo: make this not crutched
     public Variable getCurInstance() {
-        return curInstance;
+        return new Variable("this", this, this);
     }
 
     public ClassTreeBuilder initGenericClass(ArrayList<Token> genericIdentifiers) {
@@ -60,8 +59,8 @@ public class ClassTreeBuilder implements TreeBuilder {
                 .map(item -> item.entry().value())
                 .collect(Collectors.joining("_"));
 
-        if (parent.classes.containsKey(resultClassName)) {
-            return parent.classes.get(resultClassName);
+        if (((RootTreeBuilder)parent).classes.containsKey(resultClassName)) {
+            return ((RootTreeBuilder)parent).classes.get(resultClassName);
         }
 
         // replace all appearance of generic type with given
@@ -85,13 +84,13 @@ public class ClassTreeBuilder implements TreeBuilder {
         var implementedClass = new ClassTreeBuilder(
                 resultClassName,
                 resSource,
-                this.parent,
+                ((RootTreeBuilder)this.parent),
                 this.tokenInheritanceParent,
                 new ArrayList<>()
         );
         // add to root table
-        parent.classes.put(resultClassName, implementedClass);
-        parent.predefined.add(resultClassName);
+        ((RootTreeBuilder)parent).classes.put(resultClassName, implementedClass);
+        ((RootTreeBuilder)parent).predefined.add(resultClassName);
         // build
         implementedClass.scanClassMembers();
         implementedClass.build();
@@ -161,7 +160,7 @@ public class ClassTreeBuilder implements TreeBuilder {
 
     // todo: get rid of it
     public boolean isPredefined() {
-        return parent.predefined.contains(className);
+        return ((RootTreeBuilder)parent).predefined.contains(className);
     }
 
     public MethodTreeBuilder getMethodByName(String name) {
@@ -218,25 +217,6 @@ public class ClassTreeBuilder implements TreeBuilder {
         while (queuedParent != null) {
             if (another.equals(queuedParent)) return true;
             queuedParent = queuedParent.classInheritanceParent;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean equals(Object another) {
-        if (another instanceof ClassTreeBuilder classTreeBuilder) {
-            return classTreeBuilder.className.equals(this.className);
-        } else {
-            return false;
-//            throw new InternalCommunicationError("Try to compare different types: " + another + " and class " + this.className);
-        }
-    }
-
-    @Override
-    public boolean encloseName(String name) {
-        for (ClassMemberTreeBuilder classMember : classMembers) {
-            if (classMember.name.equals(name))
-                return true;
         }
         return false;
     }
@@ -412,6 +392,25 @@ public class ClassTreeBuilder implements TreeBuilder {
     }
 
     @Override
+    public boolean equals(Object another) {
+        if (another instanceof ClassTreeBuilder classTreeBuilder) {
+            return classTreeBuilder.className.equals(this.className);
+        } else {
+            return false;
+//            throw new InternalCommunicationError("Try to compare different types: " + another + " and class " + this.className);
+        }
+    }
+
+    @Override
+    public boolean encloseName(String name) {
+        for (ClassMemberTreeBuilder classMember : classMembers) {
+            if (classMember.name.equals(name))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
     public ClassMemberTreeBuilder getEnclosedName(String name) {
         for (ClassMemberTreeBuilder classMember : classMembers) {
             if (classMember.name.equals(name))
@@ -426,24 +425,17 @@ public class ClassTreeBuilder implements TreeBuilder {
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        var children = new ArrayList<>(classMembers
-                .stream()
-                .filter((m) -> (m instanceof AttributeTreeBuilder))
-                .toList());
-        children.addAll(classMembers
-                .stream()
-                .filter((m) -> (m instanceof MethodTreeBuilder))
-                .toList());
-        if (classInheritanceParent == null) {
-            return TreeBuilder.appendTo(to, depth, "Class " + className, children);
-        } else {
-            return TreeBuilder.appendTo(to, depth, "Class " + className + " child of " + classInheritanceParent.simpleName(), children);
-        }
+        return new ViewWrapper(this).appendTo(to, depth);
     }
 
     @Override
-    public TreeBuilder getParent() {
-        return parent;
+    protected void visitSingly(BuildTreeVisitor v) {
+        v.visitClass(this);
+    }
+
+    @Override
+    public Collection<? extends TreeBuilder> children() {
+        return classMembers;
     }
 
     @Override
@@ -471,8 +463,33 @@ public class ClassTreeBuilder implements TreeBuilder {
         return className;
     }
 
-    @Override
-    public TreeBuilder findNameAbove(String name) {
-        return TreeBuilder.super.findNameAbove(name);
+    private static class ViewWrapper extends ClassTreeBuilder{
+        public ViewWrapper(ClassTreeBuilder o) {
+            super(o.className, new IteratorSingleIterableAdapter<>(o.source), (RootTreeBuilder) o.parent, o.tokenInheritanceParent, o.genericClasses);
+            classInheritanceParent = o.classInheritanceParent;
+            classMembers = o.classMembers;
+        }
+
+        @Override
+        public Collection<? extends TreeBuilder> children(){
+            var children = new ArrayList<>(classMembers
+                    .stream()
+                    .filter((m) -> (m instanceof AttributeTreeBuilder))
+                    .toList());
+            children.addAll(classMembers
+                    .stream()
+                    .filter((m) -> (m instanceof MethodTreeBuilder))
+                    .toList());
+            return children;
+        }
+
+        @Override
+        public StringBuilder appendTo(StringBuilder to, int depth){
+            if (classInheritanceParent == null) {
+                return appendTo(to, depth, "Class " + className);
+            } else {
+                return appendTo(to, depth, "Class " + className + " child of " + classInheritanceParent.simpleName());
+            }
+        }
     }
 }

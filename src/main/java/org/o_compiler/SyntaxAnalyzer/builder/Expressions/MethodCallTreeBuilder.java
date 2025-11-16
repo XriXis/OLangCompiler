@@ -1,5 +1,6 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Expressions;
 
+import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
@@ -9,6 +10,7 @@ import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.ArgsParser;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,9 +21,9 @@ public class MethodCallTreeBuilder extends CallExpressionTreeBuilder {
     Identifier rawName;
 
     public MethodCallTreeBuilder(Identifier methodName, ExpressionTreeBuilder of, Iterator<Token> callSource, TreeBuilder parent) {
+        super(parent);
         rawName = methodName;
-        this.parent = parent;
-        of.parent = this;
+        of.setParent(this);
         this.args = new ArgsParser(callSource, this).get();
         var argTypes = args.stream().map(ExpressionTreeBuilder::getType).collect(Collectors.toList());
         this.of = of;
@@ -56,7 +58,7 @@ public class MethodCallTreeBuilder extends CallExpressionTreeBuilder {
             for (var child : resWithArgs.args) {
                 if (child == null)
                     throw new CompilerError("Call of unknown method for type " + topExpression.getType());
-                child.parent = topExpression;
+                child.setParent(topExpression);
             }
         if (!(chain.get(cur).getFirst().entry() instanceof Identifier methodName))
             throw new CompilerError("Unexpected token met:" + chain.get(cur).getFirst() + ". Method identifier expected");
@@ -69,9 +71,19 @@ public class MethodCallTreeBuilder extends CallExpressionTreeBuilder {
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
+        return appendTo(to, depth, it + " call");
+    }
+
+    @Override
+    protected void visitSingly(BuildTreeVisitor v) {
+        v.visitMethodCall(this);
+    }
+
+    @Override
+    public Collection<? extends TreeBuilder> children() {
         var fullArgs = new ArrayList<>(List.of(of));
         fullArgs.addAll(args);
-        return TreeBuilder.appendTo(to, depth, it + " call", fullArgs);
+        return fullArgs;
     }
 
     @Override

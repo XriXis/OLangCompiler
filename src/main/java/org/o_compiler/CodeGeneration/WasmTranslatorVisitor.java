@@ -1,6 +1,8 @@
 package org.o_compiler.CodeGeneration;
 
 import org.o_compiler.SyntaxAnalyzer.builder.*;
+import org.o_compiler.SyntaxAnalyzer.builder.Blocks.BodyTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Blocks.ElseBlock;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.IfTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.WhileTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.*;
@@ -8,7 +10,7 @@ import org.o_compiler.SyntaxAnalyzer.builder.Statements.AssignmentBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.DeclarationBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
 
-public class WasmTranslatorVisitor implements BuildTreeVisitor{
+public class WasmTranslatorVisitor implements BuildTreeVisitor {
     @Override
     public void visitRoot(RootTreeBuilder instance) {
 
@@ -76,6 +78,16 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor{
 
     @Override
     public void visitIf(IfTreeBuilder instance) {
+
+    }
+
+    @Override
+    public void visitElse(ElseBlock instance) {
+
+    }
+
+    @Override
+    public void visitBody(BodyTreeBuilder instance) {
 
     }
 }

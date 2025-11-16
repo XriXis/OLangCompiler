@@ -1,10 +1,12 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
+import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.Optional;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.BodyTreeBuilder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,12 +21,12 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
         body = new BodyTreeBuilder(sourceCode, this);
     }
 
-    public ClassTreeBuilder getType(){
+    public ClassTreeBuilder getType() {
         return this.type;
     }
 
     // todo: get rid of it
-    public boolean isConstructor(){
+    public boolean isConstructor() {
         return name.equals("this");
     }
 
@@ -69,14 +71,24 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return TreeBuilder.appendTo(to, depth, toString(), List.of(body));
+        return appendTo(to, depth, toString());
     }
 
     @Override
-    public String toString(){
+    protected void visitSingly(BuildTreeVisitor v) {
+        v.visitMethod(this);
+    }
+
+    @Override
+    public Collection<? extends TreeBuilder> children() {
+        return List.of(body);
+    }
+
+    @Override
+    public String toString() {
         if (name.equals("this")) {
-            return parent.className + " constructor(" + parameters.stream().map(v->new Optional<>(v.getType()).map(ClassTreeBuilder::simpleName).get()).collect(Collectors.joining(", ")) + ")";
+            return ((ClassTreeBuilder) parent).className + " constructor(" + parameters.stream().map(v -> new Optional<>(v.getType()).map(ClassTreeBuilder::simpleName).get()).collect(Collectors.joining(", ")) + ")";
         }
-        return parent.className + " class method " + name + " (" + parameters.stream().map(v->new Optional<>(v.getType()).map(ClassTreeBuilder::simpleName).get()).collect(Collectors.joining(", ")) + ")->" + new Optional<>(type).map(ClassTreeBuilder::simpleName);
+        return ((ClassTreeBuilder) parent).className + " class method " + name + " (" + parameters.stream().map(v -> new Optional<>(v.getType()).map(ClassTreeBuilder::simpleName).get()).collect(Collectors.joining(", ")) + ")->" + new Optional<>(type).map(ClassTreeBuilder::simpleName);
     }
 }

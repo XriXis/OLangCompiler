@@ -1,5 +1,6 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
+import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.parser.TokenStream;
@@ -15,12 +16,13 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.StreamSupport;
 
-public class RootTreeBuilder implements TreeBuilder {
+public class RootTreeBuilder extends TreeBuilder {
     Iterator<Token> source;
     HashMap<String, ClassTreeBuilder> classes;
     HashSet<String> predefined = new HashSet<>();
 
     public RootTreeBuilder(Iterable<Token> stream) {
+        super(null);
         source = StreamSupport
                 .stream(stream.spliterator(), false)
                 .filter((t) -> !t.isWhitespace())
@@ -30,11 +32,6 @@ public class RootTreeBuilder implements TreeBuilder {
 
     public boolean encloseName(String name) {
         return classes.containsKey(name);
-    }
-
-    @Override
-    public TreeBuilder getParent() {
-        return null;
     }
 
     @Override
@@ -162,22 +159,27 @@ public class RootTreeBuilder implements TreeBuilder {
     }
 
     @Override
-    public ClassTreeBuilder getClass(String name) {
-        return getEnclosedName(name);
-    }
-
-    @Override
     public ClassTreeBuilder getEnclosedName(String name) {
         return classes.get(name);
     }
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return TreeBuilder.appendTo(to, depth, "Program init", classes.values());
+        return appendTo(to, depth, "Program init");
+    }
+
+    @Override
+    protected void visitSingly(BuildTreeVisitor v) {
+        v.visitRoot(this);
+    }
+
+    @Override
+    public Collection<? extends TreeBuilder> children() {
+        return classes.values();
     }
 
     public String viewWithoutPredefined() {
-        return TreeBuilder.appendTo(new StringBuilder(), 0, "Program init", classes.values().stream().filter(v -> !predefined.contains(v.className)).toList()).toString();
+        return new ViewWrapper(this).toString();
     }
 
     @Override
@@ -199,4 +201,18 @@ public class RootTreeBuilder implements TreeBuilder {
             System.out.println(rootTreeBuilder.viewWithoutPredefined());
         }
     }
+
+    private static class ViewWrapper extends RootTreeBuilder{
+        public ViewWrapper(RootTreeBuilder o) {
+            super(new IteratorSingleIterableAdapter<>(o.source));
+            classes = o.classes;
+            predefined = o.predefined;
+        }
+
+        @Override
+        public Collection<? extends TreeBuilder> children() {
+            return super.classes.values().stream().filter(v -> !predefined.contains(v.className)).toList();
+        }
+    }
 }
+

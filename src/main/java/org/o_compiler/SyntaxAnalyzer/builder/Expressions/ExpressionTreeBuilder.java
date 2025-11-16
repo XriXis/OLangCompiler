@@ -13,9 +13,12 @@ import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public abstract class ExpressionTreeBuilder implements TreeBuilder {
+public abstract class ExpressionTreeBuilder extends TreeBuilder {
     ClassTreeBuilder type;
-    TreeBuilder parent;
+
+    protected ExpressionTreeBuilder(TreeBuilder parent) {
+        super(parent);
+    }
 
     public static ExpressionTreeBuilder expressionFactory(Iterator<Token> source, TreeBuilder context) {
         var callChain = new EntityScanner(source, context).scanChain((v) -> v.equals(ControlSign.DYNAMIC_DISPATCH));
@@ -51,12 +54,12 @@ public abstract class ExpressionTreeBuilder implements TreeBuilder {
         throw new InternalCommunicationError("Unknown type of single term expression at " + entry.getFirst().position());
     }
 
-    public ClassTreeBuilder getType() {
-        return type;
+    // crutch in process of code (structure) cleaning
+    protected void setParent(TreeBuilder parent){
+        super.parent = parent;
     }
 
-    @Override
-    public TreeBuilder getParent() {
-        return parent;
+    public ClassTreeBuilder getType() {
+        return type;
     }
 }

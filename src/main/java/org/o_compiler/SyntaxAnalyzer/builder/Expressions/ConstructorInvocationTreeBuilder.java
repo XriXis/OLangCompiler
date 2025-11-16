@@ -1,5 +1,6 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Expressions;
 
+import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
@@ -11,6 +12,7 @@ import org.o_compiler.SyntaxAnalyzer.builder.ClassTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.ArgsParser;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 public class ConstructorInvocationTreeBuilder extends CallExpressionTreeBuilder {
@@ -18,7 +20,7 @@ public class ConstructorInvocationTreeBuilder extends CallExpressionTreeBuilder 
 
     // callSource - [(], ?{[arg1 expr], [arg2 expr] ...}, [)] || empty
     public ConstructorInvocationTreeBuilder(ClassTreeBuilder type, RevertibleStream<Token> callSource, TreeBuilder parent) {
-        this.parent = parent;
+        super(parent);
         this.type = type;
         unparsedArgs = callSource;
     }
@@ -61,7 +63,17 @@ public class ConstructorInvocationTreeBuilder extends CallExpressionTreeBuilder 
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return TreeBuilder.appendTo(to, depth, it + " call", args);
+        return appendTo(to, depth, it + " call");
+    }
+
+    @Override
+    protected void visitSingly(BuildTreeVisitor v) {
+        v.visitConstructorInvocation(this);
+    }
+
+    @Override
+    public Collection<? extends TreeBuilder> children() {
+        return args;
     }
 
     @Override

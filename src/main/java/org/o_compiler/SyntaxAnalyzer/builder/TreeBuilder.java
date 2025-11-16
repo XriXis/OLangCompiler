@@ -2,13 +2,13 @@ package org.o_compiler.SyntaxAnalyzer.builder;
 
 import java.util.Collection;
 
-public interface BuildTree {
+public interface TreeBuilder {
     void build();
 
-    BuildTree getParent();
+    TreeBuilder getParent();
 
     default ClassTreeBuilder getClass(String name) {
-        BuildTree current = this;
+        TreeBuilder current = this;
         while (current.getParent() != null) {
             current = current.getParent();
         }
@@ -21,13 +21,13 @@ public interface BuildTree {
     }
 
     // should be overridden by context objects. Default implementation for not-context nodes
-    default BuildTree getEnclosedName(String name) {
+    default TreeBuilder getEnclosedName(String name) {
         return null;
     }
 
     // mixin method, that allows to find corresponding to name program entity in the context encapsulation structure
-    default BuildTree findNameAbove(String name) {
-        BuildTree current = this;
+    default TreeBuilder findNameAbove(String name) {
+        TreeBuilder current = this;
         while (current != null) {
             if (current.encloseName(name)){
                 return current.getEnclosedName(name);
@@ -43,7 +43,7 @@ public interface BuildTree {
         return appendTo(new StringBuilder(), 0).toString();
     }
 
-    static StringBuilder appendTo(StringBuilder to, int depth, String header, Collection<? extends BuildTree> children){
+    static StringBuilder appendTo(StringBuilder to, int depth, String header, Collection<? extends TreeBuilder> children){
         to.append("\t".repeat(Math.max(0, depth))).append(header).append('\n');
         for (var child: children){
             child.appendTo(to, depth + 1);

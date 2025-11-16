@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 // todo: smth with default constructor (or require explicit one, or auto-generate default
 //  ?[in case of absence of any another one])
-public class ClassTreeBuilder implements BuildTree {
+public class ClassTreeBuilder implements TreeBuilder {
     String className;
     Iterator<Token> source;
     RootTreeBuilder parent;
@@ -435,14 +435,14 @@ public class ClassTreeBuilder implements BuildTree {
                 .filter((m) -> (m instanceof MethodTreeBuilder))
                 .toList());
         if (classInheritanceParent == null) {
-            return BuildTree.appendTo(to, depth, "Class " + className, children);
+            return TreeBuilder.appendTo(to, depth, "Class " + className, children);
         } else {
-            return BuildTree.appendTo(to, depth, "Class " + className + " child of " + classInheritanceParent.simpleName(), children);
+            return TreeBuilder.appendTo(to, depth, "Class " + className + " child of " + classInheritanceParent.simpleName(), children);
         }
     }
 
     @Override
-    public BuildTree getParent() {
+    public TreeBuilder getParent() {
         return parent;
     }
 
@@ -472,7 +472,7 @@ public class ClassTreeBuilder implements BuildTree {
     }
 
     @Override
-    public BuildTree findNameAbove(String name) {
-        return BuildTree.super.findNameAbove(name);
+    public TreeBuilder findNameAbove(String name) {
+        return TreeBuilder.super.findNameAbove(name);
     }
 }

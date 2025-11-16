@@ -5,7 +5,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.client.literal.Literal;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.InternalCommunicationError;
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.ClassTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.EntityScanner;
 import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
@@ -13,18 +13,18 @@ import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public abstract class ExpressionTreeBuilder implements BuildTree {
+public abstract class ExpressionTreeBuilder implements TreeBuilder {
     ClassTreeBuilder type;
-    BuildTree parent;
+    TreeBuilder parent;
 
-    public static ExpressionTreeBuilder expressionFactory(Iterator<Token> source, BuildTree context) {
+    public static ExpressionTreeBuilder expressionFactory(Iterator<Token> source, TreeBuilder context) {
         var callChain = new EntityScanner(source, context).scanChain((v) -> v.equals(ControlSign.DYNAMIC_DISPATCH));
         if (callChain.size() == 1)
             return singleAccessExpressionFactory(callChain.getFirst(), context);
         return MethodCallTreeBuilder.initFromChain(callChain, context);
     }
 
-    private static ExpressionTreeBuilder singleAccessExpressionFactory(ArrayList<Token> entry, BuildTree context) {
+    private static ExpressionTreeBuilder singleAccessExpressionFactory(ArrayList<Token> entry, TreeBuilder context) {
         if (entry.getFirst().entry().equals(ControlSign.PARENTHESIS_OPEN)) {
             return expressionFactory(entry.subList(1, entry.size() - 1).iterator(), context);
         }
@@ -56,7 +56,7 @@ public abstract class ExpressionTreeBuilder implements BuildTree {
     }
 
     @Override
-    public BuildTree getParent() {
+    public TreeBuilder getParent() {
         return parent;
     }
 }

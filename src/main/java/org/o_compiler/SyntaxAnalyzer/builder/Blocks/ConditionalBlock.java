@@ -8,7 +8,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.RevertibleStream;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.InternalCommunicationError;
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.EntityScanner;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.MethodCallTreeBuilder;
@@ -20,7 +20,7 @@ public abstract class ConditionalBlock extends BlockBuilder {
     ExpressionTreeBuilder condition;
     BlockBuilder elseBranch;
 
-    public ConditionalBlock(Iterable<Token> source, BuildTree parent) {
+    public ConditionalBlock(Iterable<Token> source, TreeBuilder parent) {
         super(source, parent);
     }
 

@@ -4,7 +4,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.Token;
 
 import java.util.Iterator;
 
-public abstract class ClassMemberTreeBuilder implements BuildTree {
+public abstract class ClassMemberTreeBuilder implements TreeBuilder {
     String name;
     ClassTreeBuilder type;
     ClassTreeBuilder parent;

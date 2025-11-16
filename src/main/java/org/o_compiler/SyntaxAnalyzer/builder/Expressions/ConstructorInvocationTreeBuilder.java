@@ -6,7 +6,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.RevertibleStream;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.UndefinedCallError;
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.ClassTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.ArgsParser;
 
@@ -17,13 +17,13 @@ public class ConstructorInvocationTreeBuilder extends CallExpressionTreeBuilder 
     RevertibleStream<Token> unparsedArgs;
 
     // callSource - [(], ?{[arg1 expr], [arg2 expr] ...}, [)] || empty
-    public ConstructorInvocationTreeBuilder(ClassTreeBuilder type, RevertibleStream<Token> callSource, BuildTree parent) {
+    public ConstructorInvocationTreeBuilder(ClassTreeBuilder type, RevertibleStream<Token> callSource, TreeBuilder parent) {
         this.parent = parent;
         this.type = type;
         unparsedArgs = callSource;
     }
 
-    public ConstructorInvocationTreeBuilder(ClassTreeBuilder type, Iterable<Token> callSource, BuildTree parent) {
+    public ConstructorInvocationTreeBuilder(ClassTreeBuilder type, Iterable<Token> callSource, TreeBuilder parent) {
         this(type, new RevertibleStream<>(callSource.iterator(), 5), parent);
     }
 
@@ -61,7 +61,7 @@ public class ConstructorInvocationTreeBuilder extends CallExpressionTreeBuilder 
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return BuildTree.appendTo(to, depth, it + " call", args);
+        return TreeBuilder.appendTo(to, depth, it + " call", args);
     }
 
     @Override

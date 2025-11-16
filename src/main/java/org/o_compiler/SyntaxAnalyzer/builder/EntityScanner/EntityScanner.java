@@ -3,16 +3,16 @@ package org.o_compiler.SyntaxAnalyzer.builder.EntityScanner;
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.function.Predicate;
 
 public class EntityScanner  extends CodeSegregator{
-    BuildTree context;
+    TreeBuilder context;
 
-    public EntityScanner(Iterator<Token> source, BuildTree context) {
+    public EntityScanner(Iterator<Token> source, TreeBuilder context) {
         super(source);
         this.context = context;
     }

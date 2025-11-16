@@ -13,8 +13,8 @@ import org.o_compiler.SyntaxAnalyzer.builder.Blocks.WhileTreeBuilder;
 
 import java.util.Iterator;
 
-public class StatementScanner extends EntityScanner implements Iterator<BuildTree> {
-    public StatementScanner(Iterator<Token> source, BuildTree from) {
+public class StatementScanner extends EntityScanner implements Iterator<TreeBuilder> {
+    public StatementScanner(Iterator<Token> source, TreeBuilder from) {
         super(source, from);
     }
 
@@ -31,7 +31,7 @@ public class StatementScanner extends EntityScanner implements Iterator<BuildTre
     }
 
     @Override
-    public BuildTree next() {
+    public TreeBuilder next() {
         var token = source.next();
         source.revert();
         return switch (token.entry()) {
@@ -44,7 +44,7 @@ public class StatementScanner extends EntityScanner implements Iterator<BuildTre
         };
     }
 
-    private BuildTree freeStatementCategorize() {
+    private TreeBuilder freeStatementCategorize() {
         source.next();
         var sign = source.next().entry();
         source.revert();

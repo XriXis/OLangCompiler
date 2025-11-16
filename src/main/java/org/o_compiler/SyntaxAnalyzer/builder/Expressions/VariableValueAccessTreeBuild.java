@@ -1,6 +1,6 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Expressions;
 
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.List;
 
 public class VariableValueAccessTreeBuild extends ExpressionTreeBuilder {
     Valuable val;
-    public VariableValueAccessTreeBuild(Valuable val, BuildTree parent) {
+    public VariableValueAccessTreeBuild(Valuable val, TreeBuilder parent) {
         this.val = val;
         this.parent = parent;
         this.type = val.getVariable().getType();
@@ -19,6 +19,6 @@ public class VariableValueAccessTreeBuild extends ExpressionTreeBuilder {
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return BuildTree.appendTo(to, depth, "Access to bound name: " + val.getVariable().toString(), List.of());
+        return TreeBuilder.appendTo(to, depth, "Access to bound name: " + val.getVariable().toString(), List.of());
     }
 }

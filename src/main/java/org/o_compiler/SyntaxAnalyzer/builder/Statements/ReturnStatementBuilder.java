@@ -5,7 +5,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.EmptyExpressionException;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.InternalCommunicationError;
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.EmptyExpression;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.MethodTreeBuilder;
@@ -13,12 +13,12 @@ import org.o_compiler.SyntaxAnalyzer.builder.MethodTreeBuilder;
 import java.util.Iterator;
 import java.util.List;
 
-public class ReturnStatementBuilder implements BuildTree {
+public class ReturnStatementBuilder implements TreeBuilder {
     Iterator<Token> code;
     ExpressionTreeBuilder result;
-    BuildTree parent;
+    TreeBuilder parent;
 
-    public ReturnStatementBuilder(Iterable<Token> source, BuildTree parent){
+    public ReturnStatementBuilder(Iterable<Token> source, TreeBuilder parent){
         code = source.iterator();
         this.parent = parent;
     }
@@ -38,13 +38,13 @@ public class ReturnStatementBuilder implements BuildTree {
     }
 
     @Override
-    public BuildTree getParent() {
+    public TreeBuilder getParent() {
         return parent;
     }
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return BuildTree.appendTo(to, depth, "Return statement", List.of(result));
+        return TreeBuilder.appendTo(to, depth, "Return statement", List.of(result));
     }
 
     private void validate(Token sign){

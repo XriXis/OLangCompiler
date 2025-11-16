@@ -1,6 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.ClassTreeBuilder;
 
 import java.util.Collection;
 

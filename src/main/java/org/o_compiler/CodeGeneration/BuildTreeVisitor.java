@@ -1,10 +1,13 @@
 package org.o_compiler.CodeGeneration;
 
-import org.o_compiler.SyntaxAnalyzer.builder.*;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.BodyTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.ElseBlock;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.IfTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.WhileTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.AttributeTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.ClassTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.MethodTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.RootTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.*;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.AssignmentBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.DeclarationBuilder;

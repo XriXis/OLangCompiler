@@ -8,7 +8,7 @@ import org.o_compiler.RevertibleStream;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.UndefinedCallError;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
-import org.o_compiler.SyntaxAnalyzer.builder.ClassTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.ClassTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.ArgsParser;
 
 import java.util.ArrayList;

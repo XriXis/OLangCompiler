@@ -1,4 +1,4 @@
-package org.o_compiler.SyntaxAnalyzer.builder;
+package org.o_compiler.SyntaxAnalyzer.builder.Classes;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.IteratorSingleIterableAdapter;
@@ -8,6 +8,8 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.CodeSegregator;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Variable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -163,14 +165,6 @@ public class ClassTreeBuilder extends TreeBuilder {
         return ((RootTreeBuilder)parent).predefined.contains(className);
     }
 
-    public MethodTreeBuilder getMethodByName(String name) {
-        var m = getEnclosedName(name);
-        if (m instanceof MethodTreeBuilder method)
-            return method;
-        return null;
-//        throw new RuntimeException(new ExecutionControl.NotImplementedException(""));
-    }
-
     public MethodTreeBuilder getMethod(String name, List<ClassTreeBuilder> parameters) {
         try {
             var foundMethods = classMembers.stream()
@@ -178,7 +172,7 @@ public class ClassTreeBuilder extends TreeBuilder {
                     .map(classMember -> (MethodTreeBuilder) classMember)
                     .filter(method -> method.name.equals(name) && method.parameters.size() == parameters.size())
                     .filter(method -> IntStream.range(0, method.parameters.size())
-                            .allMatch(i -> parameters.get(i).isSubclassOf(method.parameters.get(i).type)))
+                            .allMatch(i -> parameters.get(i).isSubclassOf(method.parameters.get(i).getType())))
                     .toList();
 
             if (foundMethods.size() > 1) {

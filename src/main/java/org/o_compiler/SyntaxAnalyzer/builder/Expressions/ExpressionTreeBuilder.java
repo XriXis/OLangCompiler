@@ -6,7 +6,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.InternalCommunicationError;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
-import org.o_compiler.SyntaxAnalyzer.builder.ClassTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.ClassTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.EntityScanner;
 import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 

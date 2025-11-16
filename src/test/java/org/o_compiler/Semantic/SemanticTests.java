@@ -3,7 +3,7 @@ package org.o_compiler.Semantic;
 import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.parser.TokenStream;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
-import org.o_compiler.SyntaxAnalyzer.builder.RootTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.RootTreeBuilder;
 
 import java.io.FileInputStream;
 import java.io.IOException;

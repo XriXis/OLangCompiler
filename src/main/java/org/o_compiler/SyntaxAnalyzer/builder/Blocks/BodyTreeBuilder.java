@@ -3,8 +3,8 @@ package org.o_compiler.SyntaxAnalyzer.builder.Blocks;
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
-import org.o_compiler.SyntaxAnalyzer.builder.ClassTreeBuilder;
-import org.o_compiler.SyntaxAnalyzer.builder.MethodTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.ClassTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.MethodTreeBuilder;
 
 public class BodyTreeBuilder extends BlockBuilder {
     public BodyTreeBuilder(Iterable<Token> source, MethodTreeBuilder parent) {

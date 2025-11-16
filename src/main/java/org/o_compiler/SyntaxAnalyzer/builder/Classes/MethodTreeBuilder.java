@@ -1,9 +1,11 @@
-package org.o_compiler.SyntaxAnalyzer.builder;
+package org.o_compiler.SyntaxAnalyzer.builder.Classes;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.Optional;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.BodyTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Variable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,7 +64,7 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
     @Override
     public TreeBuilder getEnclosedName(String name) {
         for (Variable parameter : parameters) {
-            if (parameter.name.equals(name)) {
+            if (parameter.getName().equals(name)) {
                 return parameter;
             }
         }

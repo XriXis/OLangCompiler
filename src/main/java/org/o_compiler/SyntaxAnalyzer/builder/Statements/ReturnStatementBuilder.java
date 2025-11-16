@@ -9,7 +9,7 @@ import org.o_compiler.SyntaxAnalyzer.Exceptions.InternalCommunicationError;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.EmptyExpression;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
-import org.o_compiler.SyntaxAnalyzer.builder.MethodTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.MethodTreeBuilder;
 
 import java.util.Collection;
 import java.util.Iterator;

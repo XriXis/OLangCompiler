@@ -1,8 +1,11 @@
-package org.o_compiler.SyntaxAnalyzer.builder;
+package org.o_compiler.SyntaxAnalyzer.builder.Classes;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
+import org.o_compiler.SyntaxAnalyzer.builder.Variable;
 
 import java.util.Collection;
 import java.util.List;

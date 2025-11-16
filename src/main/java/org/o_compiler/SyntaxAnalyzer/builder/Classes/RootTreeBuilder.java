@@ -1,4 +1,4 @@
-package org.o_compiler.SyntaxAnalyzer.builder;
+package org.o_compiler.SyntaxAnalyzer.builder.Classes;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
@@ -9,6 +9,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.SyntaxAnalyzer.builder.PredefinedClasses.PredefinedClassesParser;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;

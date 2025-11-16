@@ -1,6 +1,6 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Expressions;
 
-import org.o_compiler.SyntaxAnalyzer.builder.MethodTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.MethodTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 
 import java.util.ArrayList;

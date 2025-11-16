@@ -1,7 +1,7 @@
 package org.o_compiler;
 
 import org.o_compiler.LexicalAnalyzer.parser.TokenStream;
-import org.o_compiler.SyntaxAnalyzer.builder.RootTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.RootTreeBuilder;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -15,11 +15,6 @@ public class Main {
             var tree = new RootTreeBuilder(stream);
             tree.build();
             System.out.println(tree.viewWithoutPredefined());
-//            ArrayList<Pair<Token, String>> toPrint = new ArrayList<>();
-//            for (var token : stream) {
-//                toPrint.add(new Pair<>(token, " at " + token.position()));
-//            }
-//            printAsTable(toPrint);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

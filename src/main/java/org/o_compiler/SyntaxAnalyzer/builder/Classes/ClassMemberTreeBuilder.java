@@ -1,6 +1,7 @@
-package org.o_compiler.SyntaxAnalyzer.builder;
+package org.o_compiler.SyntaxAnalyzer.builder.Classes;
 
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 
 import java.util.Iterator;
 

@@ -10,23 +10,72 @@ import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
 
 public class WasmTranslatorVisitor implements BuildTreeVisitor{
     @Override
-    public void visit(TreeBuilder node) {
-        switch (node){
-            case RootTreeBuilder instance -> {}
-            case ClassTreeBuilder instance -> {}
-            case MethodTreeBuilder instance -> {}
-            case AttributeTreeBuilder instance -> {}
-            case AssignmentBuilder instance -> {}
-            case DeclarationBuilder instance -> {}
-            case ReturnStatementBuilder instance -> {}
-            case VariableValueAccessTreeBuild instance -> {}
-            case MethodCallTreeBuilder instance -> {}
-            case LiteralAccessExpression<?> instance -> {}
-            case EmptyExpression instance -> {}
-            case ConstructorInvocationTreeBuilder instance -> {}
-            case WhileTreeBuilder instance -> {}
-            case IfTreeBuilder instance -> {}
-            default -> throw new IllegalStateException("Unexpected value: " + node);
-        }
+    public void visitRoot(RootTreeBuilder instance) {
+
+    }
+
+    @Override
+    public void visitClass(ClassTreeBuilder instance) {
+
+    }
+
+    @Override
+    public void visitMethod(MethodTreeBuilder instance) {
+
+    }
+
+    @Override
+    public void visitAttribute(AttributeTreeBuilder instance) {
+
+    }
+
+    @Override
+    public void visitAssignment(AssignmentBuilder instance) {
+
+    }
+
+    @Override
+    public void visitDeclaration(DeclarationBuilder instance) {
+
+    }
+
+    @Override
+    public void visitReturnStatement(ReturnStatementBuilder instance) {
+
+    }
+
+    @Override
+    public void visitVariableValueAccess(VariableValueAccessTreeBuild instance) {
+
+    }
+
+    @Override
+    public void visitMethodCall(MethodCallTreeBuilder instance) {
+
+    }
+
+    @Override
+    public void visitLiteralAccess(LiteralAccessExpression<?> instance) {
+
+    }
+
+    @Override
+    public void visitEmptyExpression(EmptyExpression instance) {
+
+    }
+
+    @Override
+    public void visitConstructorInvocation(ConstructorInvocationTreeBuilder instance) {
+
+    }
+
+    @Override
+    public void visitWhile(WhileTreeBuilder instance) {
+
+    }
+
+    @Override
+    public void visitIf(IfTreeBuilder instance) {
+
     }
 }

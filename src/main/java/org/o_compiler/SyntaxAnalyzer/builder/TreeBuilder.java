@@ -1,9 +1,16 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
+import org.o_compiler.CodeGeneration.BuildTreeVisitor;
+
 import java.util.Collection;
 
 public interface TreeBuilder {
     void build();
+
+    default void visit(BuildTreeVisitor v){
+        // todo: make not default and implement foreach tree
+        v.visit(this);
+    }
 
     TreeBuilder getParent();
 

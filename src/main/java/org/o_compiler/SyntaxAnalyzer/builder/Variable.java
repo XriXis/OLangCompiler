@@ -2,13 +2,13 @@ package org.o_compiler.SyntaxAnalyzer.builder;
 
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 
-public class Variable implements Valuable, BuildTree {
+public class Variable implements Valuable, TreeBuilder {
     String name;
     ClassTreeBuilder type;
     Token polymorphicIdentifier;
-    BuildTree parent;
+    TreeBuilder parent;
 
-    public Variable(String name, ClassTreeBuilder type, BuildTree parent) {
+    public Variable(String name, ClassTreeBuilder type, TreeBuilder parent) {
         this.name = name;
         this.type = type;
         this.polymorphicIdentifier = null;
@@ -39,7 +39,7 @@ public class Variable implements Valuable, BuildTree {
     }
 
     @Override
-    public BuildTree getParent() {
+    public TreeBuilder getParent() {
         return parent;
     }
 

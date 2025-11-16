@@ -5,7 +5,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.RevertibleStream;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.StatementScanner;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.DeclarationBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
@@ -13,13 +13,13 @@ import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class BlockBuilder implements BuildTree {
+public class BlockBuilder implements TreeBuilder {
     RevertibleStream<Token> code;
-    ArrayList<BuildTree> children = new ArrayList<>();
+    ArrayList<TreeBuilder> children = new ArrayList<>();
     HashMap<String, DeclarationBuilder> namespace = new HashMap<>();
-    BuildTree parent;
+    TreeBuilder parent;
 
-    public BlockBuilder(Iterable<Token> source, BuildTree parent) {
+    public BlockBuilder(Iterable<Token> source, TreeBuilder parent) {
         code = new RevertibleStream<>(source.iterator(), 3);
         this.parent = parent;
     }
@@ -59,7 +59,7 @@ public class BlockBuilder implements BuildTree {
     }
 
     @Override
-    public BuildTree getParent(){
+    public TreeBuilder getParent(){
         return parent;
     }
 

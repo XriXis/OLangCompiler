@@ -5,7 +5,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.EmptyExpressionException;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.UndefinedCallError;
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.ArgsParser;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class MethodCallTreeBuilder extends CallExpressionTreeBuilder {
     ExpressionTreeBuilder of;
     Identifier rawName;
 
-    public MethodCallTreeBuilder(Identifier methodName, ExpressionTreeBuilder of, Iterator<Token> callSource, BuildTree parent) {
+    public MethodCallTreeBuilder(Identifier methodName, ExpressionTreeBuilder of, Iterator<Token> callSource, TreeBuilder parent) {
         rawName = methodName;
         this.parent = parent;
         of.parent = this;
@@ -35,7 +35,7 @@ public class MethodCallTreeBuilder extends CallExpressionTreeBuilder {
         this.type = it.getType();
     }
 
-    protected static MethodCallTreeBuilder initFromChain(ArrayList<ArrayList<Token>> chain, BuildTree context) {
+    protected static MethodCallTreeBuilder initFromChain(ArrayList<ArrayList<Token>> chain, TreeBuilder context) {
         var res = initFromChain(
                 chain,
                 context,
@@ -45,7 +45,7 @@ public class MethodCallTreeBuilder extends CallExpressionTreeBuilder {
         return res;
     }
 
-    private static MethodCallTreeBuilder initFromChain(ArrayList<ArrayList<Token>> chain, BuildTree context, int cur) {
+    private static MethodCallTreeBuilder initFromChain(ArrayList<ArrayList<Token>> chain, TreeBuilder context, int cur) {
         if (cur<=0) throw new EmptyExpressionException("Empty expression found in the " + context);
         ExpressionTreeBuilder topExpression =
                 cur == 1
@@ -71,7 +71,7 @@ public class MethodCallTreeBuilder extends CallExpressionTreeBuilder {
     public StringBuilder appendTo(StringBuilder to, int depth) {
         var fullArgs = new ArrayList<>(List.of(of));
         fullArgs.addAll(args);
-        return BuildTree.appendTo(to, depth, it + " call", fullArgs);
+        return TreeBuilder.appendTo(to, depth, it + " call", fullArgs);
     }
 
     @Override

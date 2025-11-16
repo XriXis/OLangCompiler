@@ -3,12 +3,10 @@ package org.o_compiler.SyntaxAnalyzer.builder.Blocks;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
-
-import java.util.ArrayList;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 
 public class WhileTreeBuilder extends ConditionalBlock {
-    public WhileTreeBuilder(Iterable<Token> source, BuildTree parent) {
+    public WhileTreeBuilder(Iterable<Token> source, TreeBuilder parent) {
         super(source, parent);
     }
 

@@ -23,7 +23,7 @@ public class AttributeTreeBuilder extends ClassMemberTreeBuilder implements Valu
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return BuildTree.appendTo(to, depth, parent.className + " class attribute: " + name + " with default value of: ", init == null ? new ArrayList<>() : List.of(init));
+        return TreeBuilder.appendTo(to, depth, parent.className + " class attribute: " + name + " with default value of: ", init == null ? new ArrayList<>() : List.of(init));
     }
 
     @Override

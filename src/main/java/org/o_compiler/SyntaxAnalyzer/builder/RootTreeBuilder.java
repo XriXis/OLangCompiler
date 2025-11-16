@@ -15,7 +15,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.StreamSupport;
 
-public class RootTreeBuilder implements BuildTree {
+public class RootTreeBuilder implements TreeBuilder {
     Iterator<Token> source;
     HashMap<String, ClassTreeBuilder> classes;
     HashSet<String> predefined = new HashSet<>();
@@ -33,7 +33,7 @@ public class RootTreeBuilder implements BuildTree {
     }
 
     @Override
-    public BuildTree getParent() {
+    public TreeBuilder getParent() {
         return null;
     }
 
@@ -173,11 +173,11 @@ public class RootTreeBuilder implements BuildTree {
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return BuildTree.appendTo(to, depth, "Program init", classes.values());
+        return TreeBuilder.appendTo(to, depth, "Program init", classes.values());
     }
 
     public String viewWithoutPredefined() {
-        return BuildTree.appendTo(new StringBuilder(), 0, "Program init", classes.values().stream().filter(v -> !predefined.contains(v.className)).toList()).toString();
+        return TreeBuilder.appendTo(new StringBuilder(), 0, "Program init", classes.values().stream().filter(v -> !predefined.contains(v.className)).toList()).toString();
     }
 
     @Override

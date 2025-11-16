@@ -14,7 +14,7 @@ public class Main {
             var stream = new IteratorSingleIterableAdapter<>(new TokenStream(target));
             var tree = new RootTreeBuilder(stream);
             tree.build();
-            System.out.println(tree);
+            System.out.println(tree.viewWithoutPredefined());
 //            ArrayList<Pair<Token, String>> toPrint = new ArrayList<>();
 //            for (var token : stream) {
 //                toPrint.add(new Pair<>(token, " at " + token.position()));

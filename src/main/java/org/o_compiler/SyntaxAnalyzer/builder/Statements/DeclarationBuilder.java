@@ -7,23 +7,22 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.RevertibleStream;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.InternalCommunicationError;
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
-import org.o_compiler.SyntaxAnalyzer.builder.ClassTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ConstructorInvocationTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 import org.o_compiler.SyntaxAnalyzer.builder.Variable;
 
 import java.util.List;
 
-public class DeclarationBuilder implements BuildTree, Valuable {
+public class DeclarationBuilder implements TreeBuilder, Valuable {
     RevertibleStream<Token> source;
     ConstructorInvocationTreeBuilder init;
     String name;
-    BuildTree parent;
+    TreeBuilder parent;
     Variable var;
 
     // source - should be already a line
-    public DeclarationBuilder(Iterable<Token> source, BuildTree parent) {
+    public DeclarationBuilder(Iterable<Token> source, TreeBuilder parent) {
         // [var], [x], [:], [Int], ?{ [(], [5], [)] }
         this.source = new RevertibleStream<>(source.iterator(), 5);
         this.parent = parent;
@@ -58,13 +57,13 @@ public class DeclarationBuilder implements BuildTree, Valuable {
     }
 
     @Override
-    public BuildTree getParent() {
+    public TreeBuilder getParent() {
         return parent;
     }
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return BuildTree.appendTo(to, depth, "Declaration of the variable " + name, List.of(init));
+        return TreeBuilder.appendTo(to, depth, "Declaration of the variable " + name, List.of(init));
     }
 
     public String getName(){

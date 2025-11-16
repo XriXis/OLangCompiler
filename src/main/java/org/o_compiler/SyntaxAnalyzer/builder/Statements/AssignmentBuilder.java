@@ -5,19 +5,19 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.InternalCommunicationError;
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 
 import java.util.Iterator;
 import java.util.List;
 
-public class AssignmentBuilder implements BuildTree {
+public class AssignmentBuilder implements TreeBuilder {
     Iterator<Token> code;
     ExpressionTreeBuilder value;
     Valuable var;
-    BuildTree parent;
-    public AssignmentBuilder(Iterable<Token> source, BuildTree parent){
+    TreeBuilder parent;
+    public AssignmentBuilder(Iterable<Token> source, TreeBuilder parent){
         code = source.iterator();
         this.parent = parent;
     }
@@ -46,12 +46,12 @@ public class AssignmentBuilder implements BuildTree {
 
 
     @Override
-    public BuildTree getParent() {
+    public TreeBuilder getParent() {
         return parent;
     }
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return BuildTree.appendTo(to, depth, "Assignment value to the " + var.getVariable(), List.of(value));
+        return TreeBuilder.appendTo(to, depth, "Assignment value to the " + var.getVariable(), List.of(value));
     }
 }

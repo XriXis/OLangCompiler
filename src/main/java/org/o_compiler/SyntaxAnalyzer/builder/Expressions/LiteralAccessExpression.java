@@ -1,13 +1,13 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Expressions;
 
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.literal.Literal;
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 
 import java.util.List;
 
 public class LiteralAccessExpression<T> extends ExpressionTreeBuilder{
     Literal<T> value;
-    public LiteralAccessExpression(Literal<T> value, BuildTree parent) {
+    public LiteralAccessExpression(Literal<T> value, TreeBuilder parent) {
         this.value = value;
         this.parent = parent;
         this.type = getClass(value.getOLangClassName());
@@ -22,6 +22,6 @@ public class LiteralAccessExpression<T> extends ExpressionTreeBuilder{
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return BuildTree.appendTo(to, depth, "Usage of the literal value: " + value.value(), List.of());
+        return TreeBuilder.appendTo(to, depth, "Usage of the literal value: " + value.value(), List.of());
     }
 }

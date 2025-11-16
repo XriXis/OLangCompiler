@@ -1,9 +1,9 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Expressions;
 
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 
 public class EmptyExpression  extends ExpressionTreeBuilder {
-    public EmptyExpression(BuildTree p){
+    public EmptyExpression(TreeBuilder p){
         type = getClass("Void");
         parent = p;
     }

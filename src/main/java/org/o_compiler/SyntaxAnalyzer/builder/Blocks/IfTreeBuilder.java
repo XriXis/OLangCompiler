@@ -3,10 +3,10 @@ package org.o_compiler.SyntaxAnalyzer.builder.Blocks;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
-import org.o_compiler.SyntaxAnalyzer.builder.BuildTree;
+import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 
 public class IfTreeBuilder extends ConditionalBlock {
-    public IfTreeBuilder(Iterable<Token> source, BuildTree parent) {
+    public IfTreeBuilder(Iterable<Token> source, TreeBuilder parent) {
         super(source, parent);
     }
 

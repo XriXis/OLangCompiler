@@ -58,7 +58,7 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
     }
 
     @Override
-    public BuildTree getEnclosedName(String name) {
+    public TreeBuilder getEnclosedName(String name) {
         for (Variable parameter : parameters) {
             if (parameter.name.equals(name)) {
                 return parameter;
@@ -69,7 +69,7 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return BuildTree.appendTo(to, depth, toString(), List.of(body));
+        return TreeBuilder.appendTo(to, depth, toString(), List.of(body));
     }
 
     @Override

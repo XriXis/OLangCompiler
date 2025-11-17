@@ -1,8 +1,8 @@
 package org.o_compiler.CodeGeneration;
 
 public interface DeferredVisitorAction {
-    DeferredVisitorAction empty = (ignored) -> {
+    DeferredVisitorAction empty = () -> {
     };
 
-    void act(BuildTreeVisitor v);
+    void act();
 }

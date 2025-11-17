@@ -27,8 +27,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
     @Override
     public DeferredVisitorAction visitRoot(RootTreeBuilder instance) {
         buffer.append("(module\n");
-        // todo: think, how to remove cast to self class. Possible solution is generic param, but not perfect
-        return (v)-> ((WasmTranslatorVisitor) v).buffer.append(")");
+        return () -> buffer.append(")");
     }
 
     @Override

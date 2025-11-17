@@ -79,6 +79,6 @@ public abstract class TreeBuilder {
         for (var child : children()) {
             child.visit(v);
         }
-        deferred.act(v);
+        deferred.act();
     }
 }

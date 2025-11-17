@@ -1,6 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Classes;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
+import org.o_compiler.CodeGeneration.DeferredVisitorAction;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.parser.TokenStream;
@@ -170,8 +171,8 @@ public class RootTreeBuilder extends TreeBuilder {
     }
 
     @Override
-    protected void visitSingly(BuildTreeVisitor v) {
-        v.visitRoot(this);
+    protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
+        return v.visitRoot(this);
     }
 
     @Override

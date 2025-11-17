@@ -1,6 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Expressions;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
+import org.o_compiler.CodeGeneration.DeferredVisitorAction;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.literal.Literal;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 
@@ -28,8 +29,8 @@ public class LiteralAccessExpression<T> extends ExpressionTreeBuilder{
     }
 
     @Override
-    protected void visitSingly(BuildTreeVisitor v) {
-        v.visitLiteralAccess(this);
+    protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
+        return v.visitLiteralAccess(this);
     }
 
     @Override

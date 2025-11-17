@@ -1,6 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Expressions;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
+import org.o_compiler.CodeGeneration.DeferredVisitorAction;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 
 import java.util.Collection;
@@ -22,8 +23,8 @@ public class EmptyExpression  extends ExpressionTreeBuilder {
     }
 
     @Override
-    protected void visitSingly(BuildTreeVisitor v) {
-        v.visitEmptyExpression(this);
+    protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
+        return v.visitEmptyExpression(this);
     }
 
     @Override

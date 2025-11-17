@@ -1,6 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Blocks;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
+import org.o_compiler.CodeGeneration.DeferredVisitorAction;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.builder.Classes.ClassTreeBuilder;
@@ -26,7 +27,7 @@ public class BodyTreeBuilder extends BlockBuilder {
     }
 
     @Override
-    protected void visitSingly(BuildTreeVisitor v) {
-        v.visitBody(this);
+    protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
+        return v.visitBody(this);
     }
 }

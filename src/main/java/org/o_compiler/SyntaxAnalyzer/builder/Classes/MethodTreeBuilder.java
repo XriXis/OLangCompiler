@@ -1,6 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Classes;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
+import org.o_compiler.CodeGeneration.DeferredVisitorAction;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.Optional;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.BodyTreeBuilder;
@@ -77,8 +78,8 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
     }
 
     @Override
-    protected void visitSingly(BuildTreeVisitor v) {
-        v.visitMethod(this);
+    protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
+        return v.visitMethod(this);
     }
 
     @Override

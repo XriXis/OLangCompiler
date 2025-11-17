@@ -1,6 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Expressions;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
+import org.o_compiler.CodeGeneration.DeferredVisitorAction;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 
@@ -26,8 +27,8 @@ public class VariableValueAccessTreeBuild extends ExpressionTreeBuilder {
     }
 
     @Override
-    protected void visitSingly(BuildTreeVisitor v) {
-        v.visitVariableValueAccess(this);
+    protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
+        return v.visitVariableValueAccess(this);
     }
 
     @Override

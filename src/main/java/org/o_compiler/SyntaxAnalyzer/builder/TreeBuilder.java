@@ -1,6 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
+import org.o_compiler.CodeGeneration.DeferredVisitorAction;
 import org.o_compiler.SyntaxAnalyzer.builder.Classes.ClassTreeBuilder;
 
 import java.util.Collection;
@@ -18,7 +19,7 @@ public abstract class TreeBuilder {
     // mixin method, that allows to find corresponding to name program entity in the context encapsulation structure
     protected abstract StringBuilder appendTo(StringBuilder to, int depth);
 
-    protected abstract void visitSingly(BuildTreeVisitor v);
+    protected abstract DeferredVisitorAction visitSingly(BuildTreeVisitor v);
 
     public abstract Collection<? extends TreeBuilder> children();
 
@@ -74,9 +75,10 @@ public abstract class TreeBuilder {
     }
 
     public final void visit(BuildTreeVisitor v) {
-        visitSingly(v);
+        var deferred = visitSingly(v);
         for (var child : children()) {
             child.visit(v);
         }
+        deferred.act(v);
     }
 }

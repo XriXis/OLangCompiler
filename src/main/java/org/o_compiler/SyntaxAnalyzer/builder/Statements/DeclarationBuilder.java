@@ -1,6 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Statements;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
+import org.o_compiler.CodeGeneration.DeferredVisitorAction;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
@@ -63,8 +64,8 @@ public class DeclarationBuilder extends TreeBuilder implements Valuable {
     }
 
     @Override
-    protected void visitSingly(BuildTreeVisitor v) {
-        v.visitDeclaration(this);
+    protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
+        return v.visitDeclaration(this);
     }
 
     @Override

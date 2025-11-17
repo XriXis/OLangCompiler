@@ -1,6 +1,7 @@
 package org.o_compiler.SyntaxAnalyzer.builder.Expressions;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
+import org.o_compiler.CodeGeneration.DeferredVisitorAction;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
@@ -75,8 +76,8 @@ public class MethodCallTreeBuilder extends CallExpressionTreeBuilder {
     }
 
     @Override
-    protected void visitSingly(BuildTreeVisitor v) {
-        v.visitMethodCall(this);
+    protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
+        return v.visitMethodCall(this);
     }
 
     @Override

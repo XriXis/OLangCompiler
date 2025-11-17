@@ -14,35 +14,35 @@ import org.o_compiler.SyntaxAnalyzer.builder.Statements.DeclarationBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
 
 public interface BuildTreeVisitor {
-    void visitRoot(RootTreeBuilder instance);
+    DeferredVisitorAction visitRoot(RootTreeBuilder instance);
 
-    void visitClass(ClassTreeBuilder instance);
+    DeferredVisitorAction visitClass(ClassTreeBuilder instance);
 
-    void visitMethod(MethodTreeBuilder instance);
+    DeferredVisitorAction visitMethod(MethodTreeBuilder instance);
 
-    void visitAttribute(AttributeTreeBuilder instance);
+    DeferredVisitorAction visitAttribute(AttributeTreeBuilder instance);
 
-    void visitAssignment(AssignmentBuilder instance);
+    DeferredVisitorAction visitAssignment(AssignmentBuilder instance);
 
-    void visitDeclaration(DeclarationBuilder instance);
+    DeferredVisitorAction visitDeclaration(DeclarationBuilder instance);
 
-    void visitReturnStatement(ReturnStatementBuilder instance);
+    DeferredVisitorAction visitReturnStatement(ReturnStatementBuilder instance);
 
-    void visitVariableValueAccess(VariableValueAccessTreeBuild instance);
+    DeferredVisitorAction visitVariableValueAccess(VariableValueAccessTreeBuild instance);
 
-    void visitMethodCall(MethodCallTreeBuilder instance);
+    DeferredVisitorAction visitMethodCall(MethodCallTreeBuilder instance);
 
-    void visitLiteralAccess(LiteralAccessExpression<?> instance);
+    DeferredVisitorAction visitLiteralAccess(LiteralAccessExpression<?> instance);
 
-    void visitEmptyExpression(EmptyExpression instance);
+    DeferredVisitorAction visitEmptyExpression(EmptyExpression instance);
 
-    void visitConstructorInvocation(ConstructorInvocationTreeBuilder instance);
+    DeferredVisitorAction visitConstructorInvocation(ConstructorInvocationTreeBuilder instance);
 
-    void visitWhile(WhileTreeBuilder instance);
+    DeferredVisitorAction visitWhile(WhileTreeBuilder instance);
 
-    void visitIf(IfTreeBuilder instance);
+    DeferredVisitorAction visitIf(IfTreeBuilder instance);
 
-    void visitElse(ElseBlock instance);
+    DeferredVisitorAction visitElse(ElseBlock instance);
 
-    void visitBody(BodyTreeBuilder instance);
+    DeferredVisitorAction visitBody(BodyTreeBuilder instance);
 }

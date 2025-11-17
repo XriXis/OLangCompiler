@@ -15,82 +15,82 @@ import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
 
 public class WasmTranslatorVisitor implements BuildTreeVisitor {
     @Override
-    public void visitRoot(RootTreeBuilder instance) {
-
+    public DeferredVisitorAction visitRoot(RootTreeBuilder instance) {
+        return null;
     }
 
     @Override
-    public void visitClass(ClassTreeBuilder instance) {
-
+    public DeferredVisitorAction visitClass(ClassTreeBuilder instance) {
+        return null;
     }
 
     @Override
-    public void visitMethod(MethodTreeBuilder instance) {
-
+    public DeferredVisitorAction visitMethod(MethodTreeBuilder instance) {
+        return null;
     }
 
     @Override
-    public void visitAttribute(AttributeTreeBuilder instance) {
-
+    public DeferredVisitorAction visitAttribute(AttributeTreeBuilder instance) {
+        return null;
     }
 
     @Override
-    public void visitAssignment(AssignmentBuilder instance) {
-
+    public DeferredVisitorAction visitAssignment(AssignmentBuilder instance) {
+        return null;
     }
 
     @Override
-    public void visitDeclaration(DeclarationBuilder instance) {
-
+    public DeferredVisitorAction visitDeclaration(DeclarationBuilder instance) {
+        return null;
     }
 
     @Override
-    public void visitReturnStatement(ReturnStatementBuilder instance) {
-
+    public DeferredVisitorAction visitReturnStatement(ReturnStatementBuilder instance) {
+        return null;
     }
 
     @Override
-    public void visitVariableValueAccess(VariableValueAccessTreeBuild instance) {
-
+    public DeferredVisitorAction visitVariableValueAccess(VariableValueAccessTreeBuild instance) {
+        return null;
     }
 
     @Override
-    public void visitMethodCall(MethodCallTreeBuilder instance) {
-
+    public DeferredVisitorAction visitMethodCall(MethodCallTreeBuilder instance) {
+        return null;
     }
 
     @Override
-    public void visitLiteralAccess(LiteralAccessExpression<?> instance) {
-
+    public DeferredVisitorAction visitLiteralAccess(LiteralAccessExpression<?> instance) {
+        return null;
     }
 
     @Override
-    public void visitEmptyExpression(EmptyExpression instance) {
-
+    public DeferredVisitorAction visitEmptyExpression(EmptyExpression instance) {
+        return null;
     }
 
     @Override
-    public void visitConstructorInvocation(ConstructorInvocationTreeBuilder instance) {
-
+    public DeferredVisitorAction visitConstructorInvocation(ConstructorInvocationTreeBuilder instance) {
+        return null;
     }
 
     @Override
-    public void visitWhile(WhileTreeBuilder instance) {
-
+    public DeferredVisitorAction visitWhile(WhileTreeBuilder instance) {
+        return null;
     }
 
     @Override
-    public void visitIf(IfTreeBuilder instance) {
-
+    public DeferredVisitorAction visitIf(IfTreeBuilder instance) {
+        return null;
     }
 
     @Override
-    public void visitElse(ElseBlock instance) {
-
+    public DeferredVisitorAction visitElse(ElseBlock instance) {
+        return null;
     }
 
     @Override
-    public void visitBody(BodyTreeBuilder instance) {
-
+    public DeferredVisitorAction visitBody(BodyTreeBuilder instance) {
+        return null;
     }
 }

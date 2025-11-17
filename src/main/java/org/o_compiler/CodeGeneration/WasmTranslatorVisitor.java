@@ -14,7 +14,7 @@ import org.o_compiler.SyntaxAnalyzer.builder.Statements.DeclarationBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
 
 public class WasmTranslatorVisitor implements BuildTreeVisitor {
-    StringBuilder buffer;
+    private final StringBuilder buffer;
 
     public WasmTranslatorVisitor() {
         buffer = new StringBuilder();

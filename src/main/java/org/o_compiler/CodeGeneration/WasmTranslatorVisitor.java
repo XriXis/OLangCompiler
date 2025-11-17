@@ -14,9 +14,21 @@ import org.o_compiler.SyntaxAnalyzer.builder.Statements.DeclarationBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
 
 public class WasmTranslatorVisitor implements BuildTreeVisitor {
+    StringBuilder buffer;
+
+    public WasmTranslatorVisitor() {
+        buffer = new StringBuilder();
+    }
+
+    public String cumulatedFile() {
+        return buffer.toString();
+    }
+
     @Override
     public DeferredVisitorAction visitRoot(RootTreeBuilder instance) {
-        return null;
+        buffer.append("(module\n");
+        // todo: think, how to remove cast to self class. Possible solution is generic param, but not perfect
+        return (v)-> ((WasmTranslatorVisitor) v).buffer.append(")");
     }
 
     @Override

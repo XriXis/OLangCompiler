@@ -1,5 +1,6 @@
 package org.o_compiler;
 
+import org.o_compiler.CodeGeneration.WasmTranslatorVisitor;
 import org.o_compiler.LexicalAnalyzer.parser.TokenStream;
 import org.o_compiler.SyntaxAnalyzer.builder.Classes.RootTreeBuilder;
 
@@ -15,6 +16,11 @@ public class Main {
             var tree = new RootTreeBuilder(stream);
             tree.build();
             System.out.println(tree.viewWithoutPredefined());
+            var v = new WasmTranslatorVisitor();
+            tree.visit(v);
+            try (var out = Files.newOutputStream(Path.of("out.wat"))){
+                out.write(v.cumulatedFile().getBytes());
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -15,6 +15,6 @@ class Main is
         obj := MyClass()
         var result : Integer
         result := obj.add()
-        Console().print(result.Get().ToString())
+        Console().print(result.Get())
     end
 end

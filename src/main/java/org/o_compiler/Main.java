@@ -1,5 +1,6 @@
 package org.o_compiler;
 
+import org.o_compiler.CodeGeneration.PredefinedClasses.PredefinedClassesAdapter;
 import org.o_compiler.CodeGeneration.WasmTranslatorVisitor;
 import org.o_compiler.LexicalAnalyzer.parser.TokenStream;
 import org.o_compiler.SyntaxAnalyzer.builder.Classes.RootTreeBuilder;
@@ -10,17 +11,22 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 
 public class Main {
+    static Path outputFile = Path.of("output/out.wat");
+
     public static void main(String[] args) {
         try (InputStream target = Files.newInputStream(Path.of("data/test.o"))) {
             var stream = new IteratorSingleIterableAdapter<>(new TokenStream(target));
             var tree = new RootTreeBuilder(stream);
             tree.build();
             System.out.println(tree.viewWithoutPredefined());
+            PredefinedClassesAdapter.collect();
             var v = new WasmTranslatorVisitor();
             tree.visit(v);
-            try (var out = Files.newOutputStream(Path.of("output/out.wat"))){
+            try (var out = Files.newOutputStream(outputFile)){
                 out.write(v.cumulatedFile().getBytes());
             }
+            PredefinedClassesAdapter.include(outputFile);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

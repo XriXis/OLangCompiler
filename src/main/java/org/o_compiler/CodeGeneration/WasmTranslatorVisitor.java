@@ -1,5 +1,7 @@
 package org.o_compiler.CodeGeneration;
 
+import org.o_compiler.LexicalAnalyzer.tokens.Token;
+import org.o_compiler.LexicalAnalyzer.tokens.value.TokenValue;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.literal.Literal;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.InternalCommunicationError;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.literal.Literal;
@@ -43,26 +45,14 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
 
     @Override
     public DeferredVisitorAction visitRoot(RootTreeBuilder instance) {
-        String initStr =
-                "(module\n" +
-                        "  (memory (export \"memory\") 1)\n" +
-                        "\n" +
-                        "  ;; Глобальные переменные: смещения полей\n" +
-                        "  (global $offset_a i32 (i32.const 0))\n" +
-                        "  (global $offset_b i32 (i32.const 4))\n" +
-                        "  (global $size_MyClass i32 (i32.const 8))\n" +
-                        "\n" +
-                        "  ;; Глобальная переменная для указателя на кучу памяти\n" +
-                        "  (global $heapPtr (mut i32) (i32.const 8))\n\n";
-
-        buffer.append(initStr);
-        return append(")");
+        buffer.append("  ;; Generated code\n");
+        return append("");
     }
 
     public DeferredVisitorAction visitClass(ClassTreeBuilder instance, String classname) {
         String commentStr = "  ;; class %s\n".formatted(classname);
         buffer.append(commentStr);
-        return append("");
+        return append("\n");
     }
 
     @Override
@@ -74,8 +64,13 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
             declarationStr.append("(export \"_start\") ");
         }
 
+        var parameters = instance.getParameters();
+        // add parameter this to non-constructor methods
+        if (!instance.getName().equals("this")) {
+            declarationStr.append("(param $%s %s) ".formatted("this", "i32"));
+        }
         // parameters
-        for (Variable variable : instance.getParameters()) {
+        for (Variable variable : parameters) {
             String typeStr = variable.getType() == null ?
                     variable.getPolymorphicIdentifier() :
                     variable.getType().simpleName();
@@ -105,7 +100,20 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
 
     @Override
     public DeferredVisitorAction visitAttribute(AttributeTreeBuilder instance) {
-        return empty;
+        /*
+        (global        ; объявление глобальной переменной
+          $Person_name_offset  ; имя: Person_name_offset
+          i32                  ; тип: 32-битное целое
+          (i32.const 0)        ; значение: константа 0
+        )                      ; конец объявления
+         */
+
+        var offset = instance.getPos() * 4;
+
+        String attrName = instance.generateName();
+        buffer.append("  (global $%s_offset i32 (i32.const %d))\n\n".formatted(attrName, offset));
+
+        return append("");
     }
 
     @Override
@@ -115,21 +123,22 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
 
     @Override
     public DeferredVisitorAction visitDeclaration(DeclarationBuilder instance) {
-        var isReal = instance.getVariable().getType().isSubclassOf(RootTreeBuilder.getPredefined("Real"));
-        var declarationName = "$" + instance.getName();
-        buffer
-                .append("(local ")
-                .append(declarationName)
-                .append(' ')
-                .append(isReal ? "f64" : "i64")
-                .append(')')
-        ;
-        buffer
-                .append("(local.set ")
-                .append(declarationName)
-                .append(' ')
-        ;
-        return closeBlock;
+//        var isReal = instance.getVariable().getType().isSubclassOf(RootTreeBuilder.getPredefined("Real"));
+//        var declarationName = "$" + instance.getName();
+//        buffer
+//                .append("(local ")
+//                .append(declarationName)
+//                .append(' ')
+//                .append(isReal ? "f64" : "i64")
+//                .append(')')
+//        ;
+//        buffer
+//                .append("(local.set ")
+//                .append(declarationName)
+//                .append(' ')
+//        ;
+//        return closeBlock;
+        return append("");
     }
 
     @Override
@@ -164,23 +173,23 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
     public <T> DeferredVisitorAction visitLiteralAccess(LiteralAccessExpression<T> instance,
                                                         ClassTreeBuilder type,
                                                         Literal<T> value) {
-        // todo: delegate types differentiation into literal class(es)
-        if (type == RootTreeBuilder.getPredefined("Integer")) {
-            buffer.append("(i64.const ").append(value.value()).append(')');
-        } else if (type == RootTreeBuilder.getPredefined("Real")) {
-            buffer.append("(f64.const ").append(value.value()).append(')');
-        } else if (type == RootTreeBuilder.getPredefined("Boolean")) {
-            // todo: use bytes(). But for it generic recognition or implementation segregation is required
-            //  --------------------------------------vvvvvvvvvvvvvvvvvvvvvv
-            buffer.append("(i64.const ").append(value.value().equals("true") ? "1" : "0").append(')');
-        } else if (type == RootTreeBuilder.getPredefined("String")) {
-            if (!staticMemoryAllocation.containsKey(value.value())) {
-                staticMemoryAllocation.put(value.value(), staticMemoryLen);
-                staticMemoryLen += value.value().length();
-            }
-            buffer.append("(i64.const ").append(staticMemoryAllocation.get(value.value())).append(")");
-        } else
-            throw new InternalCommunicationError("Impossible literal type " + type.simpleName());
+//        // todo: delegate types differentiation into literal class(es)
+//        if (type == RootTreeBuilder.getPredefined("Integer")) {
+//            buffer.append("(i64.const ").append(value.value()).append(')');
+//        } else if (type == RootTreeBuilder.getPredefined("Real")) {
+//            buffer.append("(f64.const ").append(value.value()).append(')');
+//        } else if (type == RootTreeBuilder.getPredefined("Boolean")) {
+//            // todo: use bytes(). But for it generic recognition or implementation segregation is required
+//            //  --------------------------------------vvvvvvvvvvvvvvvvvvvvvv
+//            buffer.append("(i64.const ").append(value.value().equals("true") ? "1" : "0").append(')');
+//        } else if (type == RootTreeBuilder.getPredefined("String")) {
+//            if (!staticMemoryAllocation.containsKey(value.value())) {
+//                staticMemoryAllocation.put(value.value(), staticMemoryLen);
+//                staticMemoryLen += value.value().length();
+//            }
+//            buffer.append("(i64.const ").append(staticMemoryAllocation.get(value.value())).append(")");
+//        } else
+//            throw new InternalCommunicationError("Impossible literal type " + type.simpleName());
         return empty;
     }
 

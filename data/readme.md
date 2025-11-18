@@ -9,3 +9,10 @@ wat2wasm test.wat -o test.wasm
 ```shell
 wasmer run test.wasm 
 ```
+
+**OR**
+
+```shell
+cd ..
+./data/run_wasm.sh
+```

@@ -4,4 +4,6 @@ class Console is
     // Operators
     method print(s: String)
     method println(s: String)
+    method print(i: Integer)
+    method println(i: Integer)
 end

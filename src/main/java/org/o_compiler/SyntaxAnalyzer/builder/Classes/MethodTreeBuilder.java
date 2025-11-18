@@ -2,6 +2,7 @@ package org.o_compiler.SyntaxAnalyzer.builder.Classes;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.CodeGeneration.DeferredVisitorAction;
+import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.Optional;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.BodyTreeBuilder;
@@ -19,7 +20,13 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
     BodyTreeBuilder body;
 
     MethodTreeBuilder(String name, ClassTreeBuilder type, ArrayList<Variable> parameters, ClassTreeBuilder parent, Iterable<Token> sourceCode) {
-        super(name, type, parent, sourceCode);
+        super(name, type, parent, parent, sourceCode);
+        this.parameters = parameters;
+        body = new BodyTreeBuilder(sourceCode, this);
+    }
+
+    MethodTreeBuilder(String name, ClassTreeBuilder type, ArrayList<Variable> parameters, ClassTreeBuilder parent, ClassTreeBuilder owner, Iterable<Token> sourceCode) {
+        super(name, type, parent, owner, sourceCode);
         this.parameters = parameters;
         body = new BodyTreeBuilder(sourceCode, this);
     }
@@ -58,6 +65,11 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
     }
 
     @Override
+    public ClassMemberTreeBuilder clone(ClassTreeBuilder owner) {
+        return new MethodTreeBuilder(name, type, parameters, (ClassTreeBuilder) parent, owner, new IteratorSingleIterableAdapter<>(sourceCode));
+    }
+
+    @Override
     public boolean encloseName(String name) {
         return parameters.stream().map(Variable::getName).toList().contains(name);
     }
@@ -93,5 +105,20 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
             return ((ClassTreeBuilder) parent).className + " constructor(" + parameters.stream().map(v -> new Optional<>(v.getType()).map(ClassTreeBuilder::simpleName).get()).collect(Collectors.joining(", ")) + ")";
         }
         return ((ClassTreeBuilder) parent).className + " class method " + name + " (" + parameters.stream().map(v -> new Optional<>(v.getType()).map(ClassTreeBuilder::simpleName).get()).collect(Collectors.joining(", ")) + ")->" + new Optional<>(type).map(ClassTreeBuilder::simpleName);
+    }
+
+    public ArrayList<Variable> getParameters() {
+        return this.parameters;
+    }
+
+    public String generateName() {
+        ArrayList<String> types = new ArrayList<>();
+        for (Variable variable : this.getParameters()) {
+            String typeStr = variable.getType() == null ?
+                    variable.getPolymorphicIdentifier() :
+                    variable.getType().simpleName();
+            types.add(typeStr);
+        }
+        return owner.simpleName() + "_" + name + "_" + String.join("_", types);
     }
 }

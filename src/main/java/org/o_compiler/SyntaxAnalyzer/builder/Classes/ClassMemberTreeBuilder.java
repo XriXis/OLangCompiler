@@ -9,11 +9,13 @@ public abstract class ClassMemberTreeBuilder extends TreeBuilder {
     String name;
     ClassTreeBuilder type;
     Iterator<Token> sourceCode;
+    ClassTreeBuilder owner;
 
-    ClassMemberTreeBuilder(String name, ClassTreeBuilder type, ClassTreeBuilder parent, Iterable<Token> sourceCode) {
+    ClassMemberTreeBuilder(String name, ClassTreeBuilder type, ClassTreeBuilder parent, ClassTreeBuilder owner, Iterable<Token> sourceCode) {
         super(parent);
         this.name = name;
         this.type = type;
+        this.owner = owner;
         this.sourceCode = sourceCode.iterator();
     }
 
@@ -30,4 +32,14 @@ public abstract class ClassMemberTreeBuilder extends TreeBuilder {
         }
         return false;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getParentName() {
+        return ((ClassTreeBuilder) parent).className;
+    }
+
+    public abstract ClassMemberTreeBuilder clone(ClassTreeBuilder owner);
 }

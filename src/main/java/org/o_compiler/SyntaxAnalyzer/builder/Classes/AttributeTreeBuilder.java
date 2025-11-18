@@ -2,6 +2,7 @@ package org.o_compiler.SyntaxAnalyzer.builder.Classes;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.CodeGeneration.DeferredVisitorAction;
+import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
@@ -16,7 +17,12 @@ public class AttributeTreeBuilder extends ClassMemberTreeBuilder implements Valu
     Variable variable;
 
     AttributeTreeBuilder(String name, ClassTreeBuilder type, ClassTreeBuilder parent, Iterable<Token> sourceCode) {
-        super(name, type, parent, sourceCode);
+        super(name, type, parent, parent, sourceCode);
+        variable = new Variable(name, type, this);
+    }
+
+    AttributeTreeBuilder(String name, ClassTreeBuilder type, ClassTreeBuilder parent, ClassTreeBuilder owner, Iterable<Token> sourceCode) {
+        super(name, type, parent, owner, sourceCode);
         variable = new Variable(name, type, this);
     }
 
@@ -44,5 +50,10 @@ public class AttributeTreeBuilder extends ClassMemberTreeBuilder implements Valu
     @Override
     public Variable getVariable() {
         return this.variable;
+    }
+
+    @Override
+    public ClassMemberTreeBuilder clone(ClassTreeBuilder owner) {
+        return new AttributeTreeBuilder(name, type, (ClassTreeBuilder) parent, owner, new IteratorSingleIterableAdapter<>(sourceCode));
     }
 }

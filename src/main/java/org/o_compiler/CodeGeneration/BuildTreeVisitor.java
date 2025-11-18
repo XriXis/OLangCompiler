@@ -16,7 +16,7 @@ import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
 public interface BuildTreeVisitor {
     DeferredVisitorAction visitRoot(RootTreeBuilder instance);
 
-    DeferredVisitorAction visitClass(ClassTreeBuilder instance);
+    DeferredVisitorAction visitClass(ClassTreeBuilder instance, String name);
 
     DeferredVisitorAction visitMethod(MethodTreeBuilder instance);
 

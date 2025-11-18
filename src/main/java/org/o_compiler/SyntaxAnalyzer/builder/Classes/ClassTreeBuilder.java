@@ -125,6 +125,7 @@ public class ClassTreeBuilder extends TreeBuilder {
                         classInheritanceParent.classMembers
                                 .stream()
                                 .filter(classMember -> !classMember.name.equals("this"))
+                                .map(classMember -> classMember.clone(this))
                                 .toList()
                 );
             }
@@ -335,6 +336,7 @@ public class ClassTreeBuilder extends TreeBuilder {
             } else if (getClass(type.entry().value()) == null && !encloseGenericName(type.entry().value())) {
                 throw new CompilerError("Class " + type.entry().value() + " not found");
             }
+
             var classParameterType = getClass(type.entry().value());
             nextToken = source.next();
             // check generic type
@@ -350,6 +352,11 @@ public class ClassTreeBuilder extends TreeBuilder {
                 }
                 nextToken = source.next();
             }
+            // if arg type is generic (just T)
+            if (encloseGenericName(type.entry().value())) {
+                polyClassName = type;
+            }
+
             parameters.add(new Variable(param.entry().value(), classParameterType, polyClassName));
 
             if (!nextToken.entry().equals(ControlSign.SEPARATOR) && !nextToken.entry().equals(ControlSign.PARENTHESIS_CLOSED)) {
@@ -425,7 +432,7 @@ public class ClassTreeBuilder extends TreeBuilder {
 
     @Override
     protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
-        return v.visitClass(this);
+        return v.visitClass(this, className);
     }
 
     @Override

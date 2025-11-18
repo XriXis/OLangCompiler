@@ -11,14 +11,14 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-        try (InputStream target = Files.newInputStream(Path.of(args[0]))) {
+        try (InputStream target = Files.newInputStream(Path.of("data/test.o"))) {
             var stream = new IteratorSingleIterableAdapter<>(new TokenStream(target));
             var tree = new RootTreeBuilder(stream);
             tree.build();
             System.out.println(tree.viewWithoutPredefined());
             var v = new WasmTranslatorVisitor();
             tree.visit(v);
-            try (var out = Files.newOutputStream(Path.of("out.wat"))){
+            try (var out = Files.newOutputStream(Path.of("output/out.wat"))){
                 out.write(v.cumulatedFile().getBytes());
             }
         } catch (IOException e) {

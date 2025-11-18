@@ -8,7 +8,7 @@ import java.util.Collection;
 
 // todo: follow ISP
 public abstract class TreeBuilder {
-    protected TreeBuilder parent;
+    public TreeBuilder parent;
 
     protected TreeBuilder(TreeBuilder parent) {
         this.parent = parent;

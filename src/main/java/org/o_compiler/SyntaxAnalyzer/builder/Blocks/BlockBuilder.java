@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.HashMap;
 
 public abstract class BlockBuilder extends TreeBuilder {
-    RevertibleStream<Token> code;
+    public RevertibleStream<Token> code;
     ArrayList<TreeBuilder> children = new ArrayList<>();
     HashMap<String, DeclarationBuilder> namespace = new HashMap<>();
 

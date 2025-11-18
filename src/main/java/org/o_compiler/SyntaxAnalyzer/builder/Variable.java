@@ -34,6 +34,10 @@ public class Variable extends TreeBuilder implements Valuable {
         return type;
     }
 
+    public String getPolymorphicIdentifier(){
+        return polymorphicIdentifier.entry().value();
+    }
+
     public String getName(){
         return name;
     }

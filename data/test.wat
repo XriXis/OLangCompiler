@@ -1,85 +1,79 @@
 (module
-  (type $fnIntThis (func (param i32) (result i32)))
-
-  ;; Таблица виртуальных методов для MyClass
-  (table $vtable 1 funcref)
-
-  ;; Заполняем vtable
-  (elem (i32.const 0) $MyClass_add_impl)
-
   (memory (export "memory") 1)
 
-  ;; Константы: поля объекта MyClass
-  (global $offset_vtable (export "OFF_VTABLE") i32 (i32.const 0))
-  (global $offset_a      (export "OFF_A")      i32 (i32.const 4))
-  (global $offset_b      (export "OFF_B")      i32 (i32.const 8))
+  ;; Глобальные переменные: смещения полей
+  (global $offset_a i64 (i64.const 0))
+  (global $offset_b i64 (i64.const 4))
+  (global $size_MyClass i64 (i64.const 8))
 
-  ;; Total object size = 12 bytes
-  (global $size_MyClass (export "SIZE_MyClass") i32 (i32.const 12))
+  ;; Глобальная переменная для указателя на кучу памяти
+  (global $heapPtr (mut i64) (i64.const 8))
 
-  ;; -------- Object constructor --------
-  (func $MyClass_new (export "MyClass_new") (result i32)
-    ;; Allocate on heap
-    (local $ptr i32)
-    local.set $ptr (i32.const 42) ;; Some memotry trace logic
+  ;; Конструктор для MyClass
+  (func $MyClass_new (result i64)
+    (local $ptr i64)
 
-    ;; Write vtable pointer
-    local.get $ptr
-    i32.const 0       ;; index of vtable = 0
-    i32.store
+    ;; Выделить память для нового объекта
+    global.get $heapPtr
+    local.set $ptr
 
-    ;; Write field a = 10
+    ;; Увеличить указатель кучи
+    global.get $heapPtr
+    global.get $size_MyClass
+    i64.add
+    global.set $heapPtr
+
+    ;; Записать поле 'a' = 10
     local.get $ptr
     global.get $offset_a
-    i32.add
-    i32.const 10
-    i32.store
+    i64.add
+    i64.const 10
+    i64.store
 
-    ;; Write field b = 20
+    ;; Записать поле 'b' = 20
     local.get $ptr
     global.get $offset_b
-    i32.add
-    i32.const 20
-    i32.store
+    i64.add
+    i64.const 20
+    i64.store
 
-    ;; return pointer to object
+    ;; Вернуть указатель на объект
     local.get $ptr
   )
 
-
-  ;; ------------ Virtual function implementation ------------
-  ;; MyClass.add(): Integer = a + b
-  (func $MyClass_add_impl (type $fnIntThis) (param $this i32) (result i32)
-    ;; load a
+  ;; Метод add()
+  (func $MyClass_add (param $this i64) (result i64)
+    ;; Загрузка значения поля 'a'
     local.get $this
     global.get $offset_a
-    i32.add
-    i32.load
+    i64.add
+    i64.load
 
-    ;; load b
+    ;; Загрузка значения поля 'b'
     local.get $this
     global.get $offset_b
-    i32.add
-    i32.load
+    i64.add
+    i64.load
 
-    i32.add
+    ;; Возвращаем сумму полей 'a' и 'b'
+    i64.add
   )
 
+  ;; Точка входа
+  (func $Main_this (export "_start") (result i64)
+    (local $obj i64)
+    (local $result i64)
 
-  ;; ------------ Dynamic dispatch ------------
-  ;; Call virtual method #0 on object
-  (func $MyClass_add (export "MyClass_add") (param $this i32) (result i32)
-    ;; Load vtable index
-    local.get $this
-    global.get $offset_vtable
-    i32.add
-    i32.load        ;; ← this is the index into table
+    ;; Создание объекта MyClass
+    call $MyClass_new
+    local.set $obj
 
-    local.get $this ;; implicit arg
+    ;; Вызов метода add()
+    local.get $obj
+    call $MyClass_add
+    local.set $result
 
-    call_indirect (type $fnIntThis)
+    ;; Возврат результата
+    local.get $result
   )
-
-  ;; Simple bump allocator pointer
-  (global $heapPtr (mut i32) (i32.const 1024))
 )

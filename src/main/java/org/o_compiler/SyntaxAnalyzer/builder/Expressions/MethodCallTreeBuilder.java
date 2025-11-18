@@ -77,7 +77,7 @@ public class MethodCallTreeBuilder extends CallExpressionTreeBuilder {
 
     @Override
     protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
-        return v.visitMethodCall(this);
+        return v.visitMethodCall(this, it);
     }
 
     @Override

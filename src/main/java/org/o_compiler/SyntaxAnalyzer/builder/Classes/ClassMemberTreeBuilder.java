@@ -44,7 +44,7 @@ public abstract class ClassMemberTreeBuilder extends TreeBuilder {
 
     public abstract ClassMemberTreeBuilder clone(ClassTreeBuilder owner);
 
-    public abstract String generateName();
+    public abstract String wasmName();
 
     public ClassTreeBuilder getType() {
         return this.type;

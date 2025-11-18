@@ -13,6 +13,7 @@ import org.o_compiler.SyntaxAnalyzer.builder.Expressions.*;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.AssignmentBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.DeclarationBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 
 public interface BuildTreeVisitor {
     DeferredVisitorAction visitRoot(RootTreeBuilder instance);
@@ -23,7 +24,7 @@ public interface BuildTreeVisitor {
 
     DeferredVisitorAction visitAttribute(AttributeTreeBuilder instance);
 
-    DeferredVisitorAction visitAssignment(AssignmentBuilder instance);
+    DeferredVisitorAction visitAssignment(AssignmentBuilder instance, Valuable var);
 
     DeferredVisitorAction visitDeclaration(DeclarationBuilder instance);
 
@@ -31,17 +32,17 @@ public interface BuildTreeVisitor {
 
     DeferredVisitorAction visitVariableValueAccess(VariableValueAccessTreeBuild instance);
 
-    DeferredVisitorAction visitMethodCall(MethodCallTreeBuilder instance);
+    DeferredVisitorAction visitMethodCall(MethodCallTreeBuilder instance, MethodTreeBuilder signature);
 
     <T> DeferredVisitorAction visitLiteralAccess(LiteralAccessExpression<T> instance, ClassTreeBuilder type, Literal<T> value);
 
     DeferredVisitorAction visitEmptyExpression(EmptyExpression instance);
 
-    DeferredVisitorAction visitConstructorInvocation(ConstructorInvocationTreeBuilder instance);
+    DeferredVisitorAction visitConstructorInvocation(ConstructorInvocationTreeBuilder instance, MethodTreeBuilder signature);
 
-    DeferredVisitorAction visitWhile(WhileTreeBuilder instance, ExpressionTreeBuilder condition);
+    DeferredVisitorAction visitWhile(WhileTreeBuilder instance, ExpressionTreeBuilder condition, ElseBlock elseBlock);
 
-    DeferredVisitorAction visitIf(IfTreeBuilder instance, ExpressionTreeBuilder condition);
+    DeferredVisitorAction visitIf(IfTreeBuilder instance, ExpressionTreeBuilder condition, ElseBlock elseBlock);
 
     DeferredVisitorAction visitElse(ElseBlock instance);
 

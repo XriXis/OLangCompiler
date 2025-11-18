@@ -107,7 +107,7 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
         return this.parameters;
     }
 
-    public String generateName() {
+    public String wasmName() {
         ArrayList<String> types = new ArrayList<>();
         for (Variable variable : this.getParameters()) {
             String typeStr = variable.getType() == null ?

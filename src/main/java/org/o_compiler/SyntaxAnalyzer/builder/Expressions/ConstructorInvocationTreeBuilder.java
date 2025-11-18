@@ -69,7 +69,7 @@ public class ConstructorInvocationTreeBuilder extends CallExpressionTreeBuilder 
 
     @Override
     protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
-        return v.visitConstructorInvocation(this);
+        return v.visitConstructorInvocation(this, it);
     }
 
     @Override

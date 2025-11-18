@@ -29,6 +29,6 @@ public class WhileTreeBuilder extends ConditionalBlock {
 
     @Override
     protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
-        return v.visitWhile(this, condition);
+        return v.visitWhile(this, condition, elseBranch);
     }
 }

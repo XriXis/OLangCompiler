@@ -29,17 +29,6 @@ public class IfTreeBuilder extends ConditionalBlock {
 
     @Override
     protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
-        // todo: adjust DRY
-        var d = v.visitIf(this, condition);
-        // todo: get rid of this crutch (method should not know, what deferred action is, but we know, that it is
-        //  adding closing parenthesis)
-        return elseBranch == null ? () -> {
-            d.act();
-            d.act();
-        } : () -> {
-            d.act();
-            elseBranch.visit(v);
-            d.act();
-        };
+        return v.visitIf(this, condition, elseBranch);
     }
 }

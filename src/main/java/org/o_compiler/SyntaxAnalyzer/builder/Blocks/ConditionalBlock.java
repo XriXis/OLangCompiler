@@ -23,7 +23,7 @@ import java.util.List;
 
 public abstract class ConditionalBlock extends BlockBuilder {
     ExpressionTreeBuilder condition;
-    BlockBuilder elseBranch;
+    ElseBlock elseBranch;
 
     public ConditionalBlock(Iterable<Token> source, TreeBuilder parent) {
         super(source, parent);

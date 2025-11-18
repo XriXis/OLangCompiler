@@ -54,7 +54,7 @@ public class AssignmentBuilder extends TreeBuilder {
 
     @Override
     protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
-        return v.visitAssignment(this);
+        return v.visitAssignment(this, var);
     }
 
     @Override

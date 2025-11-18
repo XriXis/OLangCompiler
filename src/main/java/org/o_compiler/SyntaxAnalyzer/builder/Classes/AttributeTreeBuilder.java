@@ -58,7 +58,7 @@ public class AttributeTreeBuilder extends ClassMemberTreeBuilder implements Valu
     }
 
     @Override
-    public String generateName() {
+    public String wasmName() {
         return owner.simpleName() + "_" + name + "_" + type.simpleName();
     }
 }

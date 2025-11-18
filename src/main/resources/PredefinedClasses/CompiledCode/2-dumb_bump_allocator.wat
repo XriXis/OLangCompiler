@@ -6,16 +6,17 @@
 (module
   (memory $0 1)
   ;; start merge
-  (global $top_mem i32)
+  (global $top_mem (mut i32) (i32.const 0))
   (func $malloc (param $alloc_size i32) (result i32)
     (local $res i32)
-    local.set $res (global.get $top_mem)
-    global.set
+    (local.set $res (global.get $top_mem))
+    (global.set
       $top_mem
       (i32.add
         (local.get $alloc_size)
         (global.get $top_mem)
       )
+    )
     local.get $res
   )
     ;; end merge

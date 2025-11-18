@@ -107,7 +107,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         String res;
         // return type
         if (instance.getType() != null) {
-            String typeStr = instance.getType().toString();
+            String typeStr = instance.getType().simpleName();
             typeStr = typeStr.equals("Real") ? "f32" : "i32";
             declarationStr.append("(result %s) ".formatted(typeStr));
             // temporary pass
@@ -121,8 +121,8 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         return () -> {
             if (instance.isConstructor()) {
                 buffer.append("    (local.get $this)\n  ");
-//                ----------------------------------v added in the deffer action od the body. Branch should not present at all
-            } else if (buffer.length() == cur_len + 3) {
+//                ----------------------------------v added in the deffer action od the body. Branch should not be present at all
+            } else if (buffer.length() == cur_len + 6) {
                 buffer.delete(buffer.length()-3, buffer.length());
                 buffer.append(res);
             }

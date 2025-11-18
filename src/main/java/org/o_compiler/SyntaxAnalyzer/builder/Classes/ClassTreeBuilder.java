@@ -438,7 +438,19 @@ public class ClassTreeBuilder extends TreeBuilder {
 
     @Override
     public Collection<? extends TreeBuilder> children() {
-        return classMembers;
+        var children = new ArrayList<>(classMembers
+                .stream()
+                .filter((m) -> (m instanceof AttributeTreeBuilder))
+                .toList());
+        for (int i = 0; i < children.size(); i++) {
+            children.get(i).pos = i;
+        }
+
+        children.addAll(classMembers
+                .stream()
+                .filter((m) -> (m instanceof MethodTreeBuilder))
+                .toList());
+        return children;
     }
 
     @Override

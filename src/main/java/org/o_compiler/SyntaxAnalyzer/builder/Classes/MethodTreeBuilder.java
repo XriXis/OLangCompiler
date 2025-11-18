@@ -31,10 +31,6 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
         body = new BodyTreeBuilder(sourceCode, this);
     }
 
-    public ClassTreeBuilder getType() {
-        return this.type;
-    }
-
     // todo: get rid of it
     public boolean isConstructor() {
         return name.equals("this");

@@ -10,6 +10,7 @@ public abstract class ClassMemberTreeBuilder extends TreeBuilder {
     ClassTreeBuilder type;
     Iterator<Token> sourceCode;
     ClassTreeBuilder owner;
+    int pos;
 
     ClassMemberTreeBuilder(String name, ClassTreeBuilder type, ClassTreeBuilder parent, ClassTreeBuilder owner, Iterable<Token> sourceCode) {
         super(parent);
@@ -42,4 +43,14 @@ public abstract class ClassMemberTreeBuilder extends TreeBuilder {
     }
 
     public abstract ClassMemberTreeBuilder clone(ClassTreeBuilder owner);
+
+    public abstract String generateName();
+
+    public ClassTreeBuilder getType() {
+        return this.type;
+    }
+
+    public int getPos() {
+        return pos;
+    }
 }

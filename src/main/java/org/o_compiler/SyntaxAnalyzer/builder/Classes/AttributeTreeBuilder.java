@@ -56,4 +56,9 @@ public class AttributeTreeBuilder extends ClassMemberTreeBuilder implements Valu
     public ClassMemberTreeBuilder clone(ClassTreeBuilder owner) {
         return new AttributeTreeBuilder(name, type, (ClassTreeBuilder) parent, owner, new IteratorSingleIterableAdapter<>(sourceCode));
     }
+
+    @Override
+    public String generateName() {
+        return owner.simpleName() + "_" + name + "_" + type.simpleName();
+    }
 }

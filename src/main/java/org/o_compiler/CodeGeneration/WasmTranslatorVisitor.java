@@ -79,7 +79,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
             String typeStr = variable.getType() == null ?
                     variable.getPolymorphicIdentifier() :
                     variable.getType().simpleName();
-            typeStr = typeStr.equals("Real") ? "f64" : "i64";
+            typeStr = typeStr.equals("Real") ? "f32" : "i32";
 
             declarationStr.append("(param $%s %s) ".formatted(variable.getName(), typeStr));
         }
@@ -87,14 +87,14 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         // return type
         if (instance.getType() != null) {
             String typeStr = instance.getType().toString();
-            typeStr = typeStr.equals("Real") ? "f64" : "i64";
+            typeStr = typeStr.equals("Real") ? "f32" : "i32";
             declarationStr.append("(result %s) ".formatted(typeStr));
 
             // temporary pass
-            if (typeStr.equals("f64")) {
-                declarationStr.append("\n    (f64.const 0.0) ");
+            if (typeStr.equals("f32")) {
+                declarationStr.append("\n    (f32.const 0.0) ");
             } else {
-                declarationStr.append("\n    (i64.const 0) ");
+                declarationStr.append("\n    (i32.const 0) ");
             }
         }
 

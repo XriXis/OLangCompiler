@@ -5,6 +5,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.client.literal.Literal;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.InternalCommunicationError;
+import org.o_compiler.SyntaxAnalyzer.builder.Statements.StatementTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Classes.ClassTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.EntityScanner;
@@ -13,7 +14,7 @@ import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public abstract class ExpressionTreeBuilder extends TreeBuilder {
+public abstract class ExpressionTreeBuilder extends StatementTreeBuilder {
     ClassTreeBuilder type;
 
     protected ExpressionTreeBuilder(TreeBuilder parent) {

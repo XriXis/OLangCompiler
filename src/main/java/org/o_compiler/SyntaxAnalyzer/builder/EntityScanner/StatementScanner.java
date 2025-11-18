@@ -10,10 +10,11 @@ import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.DeclarationBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.WhileTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Statements.StatementTreeBuilder;
 
 import java.util.Iterator;
 
-public class StatementScanner extends EntityScanner implements Iterator<TreeBuilder> {
+public class StatementScanner extends EntityScanner implements Iterator<StatementTreeBuilder> {
     public StatementScanner(Iterator<Token> source, TreeBuilder from) {
         super(source, from);
     }
@@ -31,7 +32,7 @@ public class StatementScanner extends EntityScanner implements Iterator<TreeBuil
     }
 
     @Override
-    public TreeBuilder next() {
+    public StatementTreeBuilder next() {
         var token = source.next();
         source.revert();
         return switch (token.entry()) {
@@ -44,7 +45,7 @@ public class StatementScanner extends EntityScanner implements Iterator<TreeBuil
         };
     }
 
-    private TreeBuilder freeStatementCategorize() {
+    private StatementTreeBuilder freeStatementCategorize() {
         source.next();
         var sign = source.next().entry();
         source.revert();

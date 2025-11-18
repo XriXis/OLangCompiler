@@ -6,6 +6,7 @@ import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.Optional;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.BodyTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Statements.AssignmentBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Variable;
 
@@ -39,6 +40,18 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
     @Override
     public void build() {
         body.build();
+        if (isConstructor())
+            body.predefine(
+                    (parent).children().stream()
+                            .takeWhile((cm) -> cm instanceof AttributeTreeBuilder)
+                            .map((attr) ->
+                                    (new AssignmentBuilder(
+                                            (AttributeTreeBuilder) attr,
+                                            ((AttributeTreeBuilder) attr).init,
+                                            this))
+                            )
+                            .toList()
+            );
     }
 
     @Override

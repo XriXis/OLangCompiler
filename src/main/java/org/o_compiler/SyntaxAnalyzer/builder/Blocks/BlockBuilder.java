@@ -5,6 +5,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.RevertibleStream;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
+import org.o_compiler.SyntaxAnalyzer.builder.Statements.StatementTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.StatementScanner;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.DeclarationBuilder;
@@ -14,9 +15,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-public abstract class BlockBuilder extends TreeBuilder {
+public abstract class BlockBuilder extends StatementTreeBuilder {
     public RevertibleStream<Token> code;
-    ArrayList<TreeBuilder> children = new ArrayList<>();
+    ArrayList<StatementTreeBuilder> children = new ArrayList<>();
     HashMap<String, DeclarationBuilder> namespace = new HashMap<>();
 
     public BlockBuilder(Iterable<Token> source, TreeBuilder parent) {

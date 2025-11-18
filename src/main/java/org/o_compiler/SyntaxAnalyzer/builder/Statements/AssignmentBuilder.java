@@ -12,10 +12,11 @@ import org.o_compiler.SyntaxAnalyzer.builder.Expressions.ExpressionTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class AssignmentBuilder extends TreeBuilder {
+public class AssignmentBuilder extends StatementTreeBuilder {
     Iterator<Token> code;
     ExpressionTreeBuilder value;
     Valuable var;
@@ -24,6 +25,17 @@ public class AssignmentBuilder extends TreeBuilder {
         super(parent);
         code = source.iterator();
     }
+
+    public AssignmentBuilder(Valuable var, ExpressionTreeBuilder value, TreeBuilder parent){
+        super(parent);
+        code = Collections.emptyIterator();
+        if (!value.getType().isSubclassOf(var.getVariable().getType())){
+            throw new CompilerError("Improper assignment. Variable " + var.getVariable().getName() + " of type " + var.getVariable().getType() + " tried to be assigned with value of type " + value.getType() + "(Error occurs by manual creation of assignment, not the parsing)");
+        }
+        this.var = var;
+        this.value = value;
+    }
+
     @Override
     public void build() {
         var variableToken = code.next();

@@ -17,7 +17,7 @@ import org.o_compiler.SyntaxAnalyzer.builder.Variable;
 import java.util.Collection;
 import java.util.List;
 
-public class DeclarationBuilder extends TreeBuilder implements Valuable {
+public class DeclarationBuilder extends StatementTreeBuilder implements Valuable {
     RevertibleStream<Token> source;
     ConstructorInvocationTreeBuilder init;
     String name;
@@ -40,6 +40,9 @@ public class DeclarationBuilder extends TreeBuilder implements Valuable {
             throw new CompilerError("Unexpected token met at " + name.position() + ". New identifier expected.");
         if (parent.encloseName(name.entry().value()))
             throw new CompilerError("Double declaration in same scope is prohibited");
+        // todo: remove if want to implement local variables hiding
+        if (findNameAbove(name.entry().value()) instanceof DeclarationBuilder)
+            throw new CompilerError("Local hiding is prohibited. Variable could not hide names from the same method. Forbidden duplication is found at " + name.position());
         if (!var.entry().equals(Keyword.VAR))
             throw new InternalCommunicationError("Declaration must starts with var keyword. Identified declaration starts with " + var + " at " + var.position());
         var column = source.next();

@@ -44,7 +44,7 @@ public class AttributeTreeBuilder extends ClassMemberTreeBuilder implements Valu
 
     @Override
     public Collection<? extends TreeBuilder> children() {
-        return init == null ? List.of() : List.of(init);
+        return List.of();
     }
 
     @Override

@@ -2,7 +2,6 @@ package org.o_compiler.SyntaxAnalyzer.builder.Classes;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.CodeGeneration.DeferredVisitorAction;
-import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
@@ -428,7 +427,11 @@ public class ClassTreeBuilder extends TreeBuilder {
 
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth) {
-        return new ViewWrapper(this).appendTo(to, depth);
+        if (classInheritanceParent == null) {
+            return appendTo(to, depth, "Class " + className);
+        } else {
+            return appendTo(to, depth, "Class " + className + " child of " + classInheritanceParent.simpleName());
+        }
     }
 
     @Override
@@ -436,6 +439,7 @@ public class ClassTreeBuilder extends TreeBuilder {
         return v.visitClass(this, className);
     }
 
+    // todo: optimize to ordering be used only when required, or be predefined in this way
     @Override
     public Collection<? extends TreeBuilder> children() {
         var children = new ArrayList<>(classMembers
@@ -476,35 +480,5 @@ public class ClassTreeBuilder extends TreeBuilder {
 
     public String simpleName() {
         return className;
-    }
-
-    private static class ViewWrapper extends ClassTreeBuilder{
-        public ViewWrapper(ClassTreeBuilder o) {
-            super(o.className, new IteratorSingleIterableAdapter<>(o.source), (RootTreeBuilder) o.parent, o.tokenInheritanceParent, o.genericClasses);
-            classInheritanceParent = o.classInheritanceParent;
-            classMembers = o.classMembers;
-        }
-
-        @Override
-        public Collection<? extends TreeBuilder> children(){
-            var children = new ArrayList<>(classMembers
-                    .stream()
-                    .filter((m) -> (m instanceof AttributeTreeBuilder))
-                    .toList());
-            children.addAll(classMembers
-                    .stream()
-                    .filter((m) -> (m instanceof MethodTreeBuilder))
-                    .toList());
-            return children;
-        }
-
-        @Override
-        public StringBuilder appendTo(StringBuilder to, int depth){
-            if (classInheritanceParent == null) {
-                return appendTo(to, depth, "Class " + className);
-            } else {
-                return appendTo(to, depth, "Class " + className + " child of " + classInheritanceParent.simpleName());
-            }
-        }
     }
 }

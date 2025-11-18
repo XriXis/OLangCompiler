@@ -2,7 +2,15 @@ class MyClass is
     var a : Integer(10)
     var b : Integer(20)
 
-    this()
+    this() is
+
+    end
+
+    this(c:Integer) is
+        a := 10
+        b := 20
+        a := c
+    end
 
     method add() : Integer is
         return a.Plus(b)

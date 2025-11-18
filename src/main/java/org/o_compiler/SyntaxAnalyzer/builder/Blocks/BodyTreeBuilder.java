@@ -6,6 +6,9 @@ import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.builder.Classes.ClassTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Classes.MethodTreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Statements.StatementTreeBuilder;
+
+import java.util.List;
 
 public class BodyTreeBuilder extends BlockBuilder {
     public BodyTreeBuilder(Iterable<Token> source, MethodTreeBuilder parent) {
@@ -29,5 +32,10 @@ public class BodyTreeBuilder extends BlockBuilder {
     @Override
     protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
         return v.visitBody(this);
+    }
+
+    public void predefine(List<? extends StatementTreeBuilder> lines){
+        for (var line: lines.reversed())
+            children.addFirst(line);
     }
 }

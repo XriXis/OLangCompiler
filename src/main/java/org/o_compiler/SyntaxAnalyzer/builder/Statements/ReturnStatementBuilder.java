@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-public class ReturnStatementBuilder extends TreeBuilder {
+public class ReturnStatementBuilder extends StatementTreeBuilder {
     Iterator<Token> code;
     ExpressionTreeBuilder result;
 

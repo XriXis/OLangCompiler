@@ -17,9 +17,7 @@ import org.o_compiler.SyntaxAnalyzer.builder.Statements.ReturnStatementBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Valuable;
 import org.o_compiler.SyntaxAnalyzer.builder.Variable;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -31,10 +29,9 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
     private int staticMemoryLen = 0;
     private final Random rnd = new Random();
     final HashSet<String> codeLabels = new HashSet<>();
-    // it is pretty vulnerable
-    private StringBuilder cumulatedLocalDeclarations = new StringBuilder();
-    // also crutch for 1 use-case, that could be satisfied in more general way
-    private StringBuilder predefinedFirstInstructions = new StringBuilder();
+    // stack allow to nest bubbling. Global declarations for class translation, locals for the methods.
+    // Arrays inside mean priority (grouped order) of bubbled code
+    private final Stack<ArrayList<StringBuilder>> bubbledInstructions = new Stack<>();
 
     private String generateUniqueCodeLabel() {
         Supplier<String> rndLabel = () -> rnd.ints('a', 'z' + 1)
@@ -73,6 +70,9 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
 
     @Override
     public DeferredVisitorAction visitMethod(MethodTreeBuilder instance) {
+        // should be in the body, but lets assume, that it is ok to keep it here
+        bubbledInstructions.push(new ArrayList<>(List.of(new StringBuilder(), new StringBuilder())));
+
         String methodName = instance.wasmName();
         StringBuilder declarationStr = new StringBuilder("  (func $%s ".formatted(methodName));
         // if entry point, mark as _start
@@ -86,8 +86,8 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
             declarationStr.append("(param $%s %s) ".formatted("this", "i32"));
             // instantiate value in constructor.
         } else {
-            cumulatedLocalDeclarations.append("(local $this i32)");
-            predefinedFirstInstructions
+            bubbledInstructions.peek().get(0).append("(local $this i32)");
+            bubbledInstructions.peek().get(1)
                     .append("(local.set $this (call $malloc (i32.const ")
                     .append(4 * instance.parent.children().stream()
                             .takeWhile((v) -> v instanceof AttributeTreeBuilder).count())
@@ -156,7 +156,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         switch (of) {
             case AttributeTreeBuilder node -> {
                 var fieldAddrName = "$tmp_field_addr_var_" + generateUniqueCodeLabel();
-                cumulatedLocalDeclarations.append("(local ").append(fieldAddrName).append(" i32)");
+                bubbledInstructions.peek().getFirst().append("(local ").append(fieldAddrName).append(" i32)");
                 buffer
                         .append("(local.set ")
                         .append(fieldAddrName)
@@ -176,7 +176,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
     public DeferredVisitorAction visitDeclaration(DeclarationBuilder instance) {
         var isReal = instance.getVariable().getType().isSubclassOf(RootTreeBuilder.getPredefined("Real"));
         var declarationName = "$" + instance.getName();
-        cumulatedLocalDeclarations
+        bubbledInstructions.peek().getFirst()
                 .append("(local ")
                 .append(declarationName)
                 .append(' ')
@@ -306,11 +306,11 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
     public DeferredVisitorAction visitBody(BodyTreeBuilder instance) {
         int insertionPlace = buffer.length();
         return () -> {
-            buffer
-                    .insert(insertionPlace, cumulatedLocalDeclarations.append("\n  "))
-                    .insert(insertionPlace + cumulatedLocalDeclarations.length(), predefinedFirstInstructions);
-            cumulatedLocalDeclarations = new StringBuilder();
-            predefinedFirstInstructions = new StringBuilder();
+            var place = insertionPlace;
+            for (var item: bubbledInstructions.pop()) {
+                buffer.insert(place, item.append("\n  "));
+                place += item.length();
+            }
         };
     }
 }

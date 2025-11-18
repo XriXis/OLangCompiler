@@ -93,7 +93,8 @@ public class ClassTreeBuilder extends TreeBuilder {
         );
         // add to root table
         ((RootTreeBuilder)parent).classes.put(resultClassName, implementedClass);
-        ((RootTreeBuilder)parent).predefined.add(resultClassName);
+        if (!RootTreeBuilder.predefined.containsKey(resultClassName))
+            RootTreeBuilder.predefined.put(resultClassName, implementedClass);
         // build
         implementedClass.scanClassMembers();
         implementedClass.build();
@@ -164,7 +165,7 @@ public class ClassTreeBuilder extends TreeBuilder {
 
     // todo: get rid of it
     public boolean isPredefined() {
-        return ((RootTreeBuilder)parent).predefined.contains(className);
+        return RootTreeBuilder.predefined.containsKey(className);
     }
 
     public MethodTreeBuilder getMethod(String name, List<ClassTreeBuilder> parameters) {

@@ -1,4 +1,4 @@
-package org.o_compiler.SyntaxAnalyzer.builder.PredefinedClasses;
+package org.o_compiler.SyntaxAnalyzer.builder.Classes.PredefinedClasses;
 
 import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.parser.TokenStream;

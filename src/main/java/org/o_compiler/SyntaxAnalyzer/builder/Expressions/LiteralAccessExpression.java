@@ -30,7 +30,7 @@ public class LiteralAccessExpression<T> extends ExpressionTreeBuilder{
 
     @Override
     protected DeferredVisitorAction visitSingly(BuildTreeVisitor v) {
-        return v.visitLiteralAccess(this);
+        return v.visitLiteralAccess(this, type, value);
     }
 
     @Override

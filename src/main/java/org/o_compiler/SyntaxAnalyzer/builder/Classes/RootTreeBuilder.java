@@ -9,7 +9,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
-import org.o_compiler.SyntaxAnalyzer.builder.PredefinedClasses.PredefinedClassesParser;
+import org.o_compiler.SyntaxAnalyzer.builder.Classes.PredefinedClasses.PredefinedClassesParser;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
 
 import java.io.IOException;
@@ -21,7 +21,11 @@ import java.util.stream.StreamSupport;
 public class RootTreeBuilder extends TreeBuilder {
     Iterator<Token> source;
     HashMap<String, ClassTreeBuilder> classes;
-    HashSet<String> predefined = new HashSet<>();
+    static HashMap<String, ClassTreeBuilder> predefined = new HashMap<>();
+
+    static public ClassTreeBuilder getPredefined(String name){
+        return predefined.get(name);
+    }
 
     public RootTreeBuilder(Iterable<Token> stream) {
         super(null);
@@ -66,7 +70,8 @@ public class RootTreeBuilder extends TreeBuilder {
             var classBuilder = scanClass(stream);
             if (classBuilder != null) {
                 classes.put(classBuilder.className, classBuilder);
-                predefined.add(classBuilder.className);
+                if (!predefined.containsKey(classBuilder.className))
+                    predefined.put(classBuilder.className, classBuilder);
             }
         }
         // scan all class members
@@ -208,12 +213,11 @@ public class RootTreeBuilder extends TreeBuilder {
         public ViewWrapper(RootTreeBuilder o) {
             super(new IteratorSingleIterableAdapter<>(o.source));
             classes = o.classes;
-            predefined = o.predefined;
         }
 
         @Override
         public Collection<? extends TreeBuilder> children() {
-            return super.classes.values().stream().filter(v -> !predefined.contains(v.className)).toList();
+            return super.classes.values().stream().filter(v -> !predefined.containsKey(v.className)).toList();
         }
     }
 }

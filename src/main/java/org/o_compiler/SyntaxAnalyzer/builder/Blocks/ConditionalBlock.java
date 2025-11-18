@@ -29,10 +29,6 @@ public abstract class ConditionalBlock extends BlockBuilder {
         super(source, parent);
     }
 
-    protected abstract boolean isProperOpen(TokenValue t);
-
-    protected abstract boolean isStartBlock(TokenValue t);
-
     @Override
     public void build() {
         condition = parseHead();
@@ -81,21 +77,6 @@ public abstract class ConditionalBlock extends BlockBuilder {
         }
     }
 
-    private ExpressionTreeBuilder parseHead() {
-        var open = code.next();
-        if (!isProperOpen(open.entry()))
-            throw new InternalCommunicationError("Attempt to parse conditional block with head token " + open.entry().value() + " at " + open.position());
-        var buffer = new ArrayList<Token>();
-        do {
-            if (!code.hasNext())
-                throw new CompilerError("Unexpected end of statement at " + open.position() + (buffer.isEmpty() ? "" : " up to " + buffer.getLast().position()));
-            buffer.add(code.next());
-        } while (!isStartBlock(buffer.getLast().entry()));
-        code.revert();
-        buffer.removeLast();
-        return ExpressionTreeBuilder.expressionFactory(buffer.iterator(), this);
-    }
-
     @Override
     public StringBuilder appendTo(StringBuilder to, int depth, String label) {
 //        var indent = "\t".repeat(depth);
@@ -118,6 +99,26 @@ public abstract class ConditionalBlock extends BlockBuilder {
         return to;
     }
 
+    protected abstract boolean isProperOpen(TokenValue t);
+
+    protected abstract boolean isStartBlock(TokenValue t);
+
+    private ExpressionTreeBuilder parseHead() {
+        var open = code.next();
+        if (!isProperOpen(open.entry()))
+            throw new InternalCommunicationError("Attempt to parse conditional block with head token " + open.entry().value() + " at " + open.position());
+        var buffer = new ArrayList<Token>();
+        do {
+            if (!code.hasNext())
+                throw new CompilerError("Unexpected end of statement at " + open.position() + (buffer.isEmpty() ? "" : " up to " + buffer.getLast().position()));
+            buffer.add(code.next());
+        } while (!isStartBlock(buffer.getLast().entry()));
+        code.revert();
+        buffer.removeLast();
+        return ExpressionTreeBuilder.expressionFactory(buffer.iterator(), this);
+    }
+
+    // #region
     protected StringBuilder originalAppendTo(StringBuilder to, int depth, String label){
         return super.appendTo(to, depth, label);
     }
@@ -183,4 +184,5 @@ public abstract class ConditionalBlock extends BlockBuilder {
             return List.of();
         }
     }
+    // #endregion
 }

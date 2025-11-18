@@ -1,5 +1,6 @@
 package org.o_compiler.CodeGeneration;
 
+import org.o_compiler.LexicalAnalyzer.tokens.value.client.literal.Literal;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.BodyTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.ElseBlock;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.IfTreeBuilder;
@@ -32,15 +33,15 @@ public interface BuildTreeVisitor {
 
     DeferredVisitorAction visitMethodCall(MethodCallTreeBuilder instance);
 
-    DeferredVisitorAction visitLiteralAccess(LiteralAccessExpression<?> instance);
+    <T> DeferredVisitorAction visitLiteralAccess(LiteralAccessExpression<T> instance, ClassTreeBuilder type, Literal<T> value);
 
     DeferredVisitorAction visitEmptyExpression(EmptyExpression instance);
 
     DeferredVisitorAction visitConstructorInvocation(ConstructorInvocationTreeBuilder instance);
 
-    DeferredVisitorAction visitWhile(WhileTreeBuilder instance);
+    DeferredVisitorAction visitWhile(WhileTreeBuilder instance, ExpressionTreeBuilder condition);
 
-    DeferredVisitorAction visitIf(IfTreeBuilder instance);
+    DeferredVisitorAction visitIf(IfTreeBuilder instance, ExpressionTreeBuilder condition);
 
     DeferredVisitorAction visitElse(ElseBlock instance);
 

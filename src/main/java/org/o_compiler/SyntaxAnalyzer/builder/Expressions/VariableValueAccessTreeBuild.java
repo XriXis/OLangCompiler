@@ -18,6 +18,10 @@ public class VariableValueAccessTreeBuild extends ExpressionTreeBuilder {
         this.type = val.getVariable().getType();
     }
 
+    public Valuable of(){
+        return val;
+    }
+
     @Override
     public void build() {}
 

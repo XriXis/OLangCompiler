@@ -1,32 +1,16 @@
+class PrintValue[T] is
+  this()
+
+  method print(value: T) is
+    Console().println(value)
+  end
+end
+
+
 class Main is
-    this() is
-        var example : SumExample(5)
-        Console().print(example.Get())
-    end
-end
-
-class Counter is
-    this() is
-    end
-
-    var value : Integer(0)
-
-    method Increment is
-        value := value.Plus(1)
-    end
-
-    method Get : Integer => value
-end
-
-class SumExample is
-    var sum : Counter()
-
-    this(n: Integer) is
-        while sum.Get().Equal(n).Not() loop
-            sum.Increment()
-        end
-        Console().print(sum.Get())
-    end
-
-    method Get : Integer => sum.Get()
+  this() is
+    Console().println(5)
+    var printValueInt : PrintValue[Integer]
+    printValueInt.print(5)
+  end
 end

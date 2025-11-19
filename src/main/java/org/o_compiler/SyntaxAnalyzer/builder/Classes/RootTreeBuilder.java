@@ -180,9 +180,22 @@ public class RootTreeBuilder extends TreeBuilder {
         return v.visitRoot(this);
     }
 
+    private List<String> generateExcludedClasses() {
+        ArrayList<String> excludedClasses = new ArrayList<>(Arrays.asList("Integer", "Boolean", "Real", "Console", "Void"));
+        ArrayList<String> excludedGenericClasses = new ArrayList<>(List.of("Array"));
+        for (var excludedGenericClass: excludedGenericClasses) {
+            for (var c: this.classes.values()) {
+                if (c.simpleName().contains(excludedGenericClass)) {
+                    excludedClasses.add(c.simpleName());
+                }
+            }
+        }
+        return excludedClasses;
+    }
+
     @Override
     public Collection<? extends TreeBuilder> children() {
-        List<String> excludedClasses = Arrays.asList("Integer", "Boolean", "Real", "Console", "Void", "Array");
+        List<String> excludedClasses = generateExcludedClasses();
         return this.classes.values().stream().filter(v -> !excludedClasses.contains(v.className)).toList();
     }
 

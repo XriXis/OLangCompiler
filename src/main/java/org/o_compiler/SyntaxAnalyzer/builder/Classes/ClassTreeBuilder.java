@@ -280,7 +280,7 @@ public class ClassTreeBuilder extends TreeBuilder {
         }
         // check class exists
         var treeTypeOfAttribute = getClass(tokenTypeOfAttribute.entry().value());
-        if (treeTypeOfAttribute == null) {
+        if (treeTypeOfAttribute == null && !encloseGenericName(tokenTypeOfAttribute.entry().value())) {
             throw new CompilerError("Class " + tokenTypeOfAttribute.entry().value() + " not found");
         }
 
@@ -294,6 +294,8 @@ public class ClassTreeBuilder extends TreeBuilder {
             nextToken = source.next();
             valueSourceCode.add(nextToken);
         }
+
+        if (isGeneric()) return null;
 
         return new AttributeTreeBuilder(varName.entry().value(), treeTypeOfAttribute, this, valueSourceCode);
     }

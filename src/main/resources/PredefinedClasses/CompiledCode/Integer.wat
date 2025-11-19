@@ -114,7 +114,7 @@
 
     (local.set $value1 (local.get $this))
     (local.set $value2 (local.get $p))
-    (local.set $result (i32.rem_s (local.get $value1) (local.get $value2)))
+    (local.set $result (i32.div_s (local.get $value1) (local.get $value2)))
     (local.get $result)
   )
 
@@ -199,11 +199,11 @@
     (local $result_value i32)
 
     ;; Создаем Integer a = 15
-    (i32.const 15)
+    (i32.const 38)
     (local.set $a)
 
     ;; Создаем Integer b = 25
-    (i32.const 25)
+    (i32.const 2)
     (local.set $b)
 
     ;; a = 15, b = 25

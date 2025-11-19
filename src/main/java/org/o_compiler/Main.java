@@ -1,6 +1,7 @@
 package org.o_compiler;
 
-import org.o_compiler.CodeGeneration.PredefinedClasses.PredefinedClassesAdapter;
+import org.o_compiler.CodeGeneration.Adapters.JavaScriptAdapter;
+import org.o_compiler.CodeGeneration.Adapters.PredefinedClassesAdapter;
 import org.o_compiler.CodeGeneration.WasmTranslatorVisitor;
 import org.o_compiler.LexicalAnalyzer.parser.TokenStream;
 import org.o_compiler.SyntaxAnalyzer.builder.Classes.RootTreeBuilder;
@@ -18,7 +19,7 @@ public class Main {
             var stream = new IteratorSingleIterableAdapter<>(new TokenStream(target));
             var tree = new RootTreeBuilder(stream);
             tree.build();
-            System.out.println(tree.viewWithoutPredefined());
+//            System.out.println(tree.viewWithoutPredefined());
             PredefinedClassesAdapter.collect();
             var v = new WasmTranslatorVisitor();
             tree.visit(v);
@@ -26,6 +27,8 @@ public class Main {
                 out.write(v.cumulatedFile().getBytes());
             }
             PredefinedClassesAdapter.include(outputFile);
+
+            JavaScriptAdapter.executeFile(outputFile.toString());
 
         } catch (IOException e) {
             throw new RuntimeException(e);

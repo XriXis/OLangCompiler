@@ -1,28 +1,32 @@
-class MyClass is
-    var a : Integer(10)
-    var b : Integer(20)
-
+class Main is
     this() is
-
-    end
-
-    this(c:Integer) is
-        a := 10
-        b := 20
-        a := c
-    end
-
-    method add() : Integer is
-        return a.Plus(b)
+        var example : SumExample(5)
+        Console().print(example.Get())
     end
 end
 
-class Main is
+class Counter is
     this() is
-        var obj : MyClass
-        obj := MyClass()
-        var result : Integer
-        result := obj.add()
-        Console().print(result.Get())
     end
+
+    var value : Integer(0)
+
+    method Increment is
+        value := value.Plus(1)
+    end
+
+    method Get : Integer => value
+end
+
+class SumExample is
+    var sum : Counter()
+
+    this(n: Integer) is
+        while sum.Get().Equal(n).Not() loop
+            sum.Increment()
+        end
+        Console().print(sum.Get())
+    end
+
+    method Get : Integer => sum.Get()
 end

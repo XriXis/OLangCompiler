@@ -38,10 +38,10 @@ convert_and_run_wasm() {
   formatted_file="${wat_file_path%.wat}_formatted.wat"
   # Display a message that we are starting the conversion
   print_info "Formatting..."
-#  wasm-tools parse "$wat_file_path" -t -o "$formatted_file"
+  wasm-tools parse "$wat_file_path" -t -o "$formatted_file"
   print_info "Converting .wat file to .wasm..."
-  wat2wasm "$wat_file_path" -o "${wat_file_path%.wat}.wasm"
-#  wat2wasm "$formatted_file" -o "${wat_file_path%.wat}.wasm"
+#  wat2wasm "$wat_file_path" -o "${wat_file_path%.wat}.wasm"
+  wat2wasm "$formatted_file" -o "${wat_file_path%.wat}.wasm"
   # Check if the conversion was successful
   if [ $? -eq 0 ]; then
     print_success "Conversion successful! Created: ${wat_file_path%.wat}.wasm"
@@ -52,7 +52,8 @@ convert_and_run_wasm() {
 
   # Run the .wasm file with wasmer
   print_info "Running .wasm file with wasmer..."
-  wasmer run "${wat_file_path%.wat}.wasm"
+#  wasmer run "${wat_file_path%.wat}.wasm"
+  wasmer run "${formatted_file%.wat}.wasm"
 
   # Check if wasmer ran successfully
   if [ $? -eq 0 ]; then

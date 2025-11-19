@@ -2,8 +2,8 @@ class Console is
     // Constructors
     this()
     // Operators
-    method print(s: String)
-    method println(s: String)
+    // method print(s: String)
+    // method println(s: String)
     method print(i: Integer)
     method println(i: Integer)
 end

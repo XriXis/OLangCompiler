@@ -84,7 +84,6 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         // add parameter this to non-constructor methods
         if (!instance.getName().equals("this")) {
             declarationStr.append("(param $%s %s) ".formatted("this", "i32"));
-            // instantiate value in constructor.
         } else {
             bubbledInstructions.peek().get(0).append("(local $this i32)");
             bubbledInstructions.peek().get(1)
@@ -106,7 +105,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
 
         String res;
         // return type
-        if (instance.getType() != null) {
+        if (instance.getType() != null && !instance.getType().simpleName().equals("Void")) {
             String typeStr = instance.getType().simpleName();
             typeStr = typeStr.equals("Real") ? "f32" : "i32";
             declarationStr.append("(result %s) ".formatted(typeStr));
@@ -123,7 +122,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
                 buffer.append("    (local.get $this)\n  ");
 //                ----------------------------------v added in the deffer action od the body. Branch should not be present at all
             } else if (buffer.length() == cur_len + 6) {
-                buffer.delete(buffer.length()-3, buffer.length());
+                buffer.delete(buffer.length() - 3, buffer.length());
                 buffer.append(res);
             }
             buffer.append(")\n\n");
@@ -308,7 +307,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         int insertionPlace = buffer.length();
         return () -> {
             var place = insertionPlace;
-            for (var item: bubbledInstructions.pop()) {
+            for (var item : bubbledInstructions.pop()) {
                 buffer.insert(place, item.append("\n  "));
                 place += item.length();
             }

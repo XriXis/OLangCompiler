@@ -120,6 +120,7 @@
     (func $Real_Rem_Integer (param $this f32) (param $p i32) (result f32)
         local.get $this
         local.get $p
+        f32.convert_i32_s
         f32.div
         local.set $this
         local.get $this
@@ -165,22 +166,30 @@
         f32.lt
     )
 
-    (func $Real_Greater_Real (param $this f32) (param $p f32) (result i32) 
+    (func $Real_Greater_Real (param $this f32) (param $p f32) (result i32)
+        local.get $this
+        local.get $p
         call $Real_LessEqual_Real
         i32.eqz
     )
     
     (func $Real_Greater_Integer (param $this f32) (param $p i32) (result i32)
+        local.get $this
+        local.get $p
         call $Real_LessEqual_Integer
         i32.eqz
     )
 
-    (func $Real_GreaterEqual_Real (param $this f32) (param $p f32) (result i32) 
+    (func $Real_GreaterEqual_Real (param $this f32) (param $p f32) (result i32)
+        local.get $this
+        local.get $p
         call $Real_Less_Real
         i32.eqz
     )
 
-    (func $Real_GreaterEqual_Integer (param $this f32) (param $p i32) (result i32) 
+    (func $Real_GreaterEqual_Integer (param $this f32) (param $p i32) (result i32)
+        local.get $this
+        local.get $p
         call $Real_Less_Integer
         i32.eqz
     )
@@ -194,11 +203,48 @@
         f32.gt
     )
 
-    (func $Real_Equal_Integer (param $this f32) (param $p i32) (result i32) 
+    (func $Real_Equal_Integer (param $this f32) (param $p i32) (result i32)
         local.get $this
         local.get $p
         f32.convert_i32_s
         call $Real_Less_Real
     )
   ;; end merge
+    (func $Main_this_ (export "_start") (result i32)
+      (local $a f32)
+      (local $b f32)
+      (local $c f32)
+      (local $result f32)
+      (local $comparison i32)
+
+      ;; Создаем Real a = 15.5
+      (f32.const 15.5)
+      (local.set $a)
+
+      ;; Создаем Real b = 7.2
+      (f32.const 7.2)
+      (local.set $b)
+
+      ;; Тестируем сложение: a + b
+      (local.get $a)
+      (local.get $b)
+      (call $Real_Plus_Real)
+      (local.set $c)
+
+      ;; Тестируем вычитание: c - 3.0
+      (local.get $c)
+      (f32.const 3.0)
+      (call $Real_Minus_Real)
+      (local.set $result)
+
+      ;; Тестируем сравнение: result > 20.0
+      (local.get $result)
+      (f32.const 20.0)
+      (call $Real_Greater_Real)
+      (local.set $comparison)
+
+      ;; Возвращаем результат сравнения (1 если true, 0 если false)
+      ;; Ожидаем: 22.7 - 3.0 = 19.7 > 20.0? false (0)
+      (local.get $comparison)
+    )
  )

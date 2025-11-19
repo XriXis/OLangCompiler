@@ -8,6 +8,8 @@ class Integer extends AnyValue is
     // Features
     var Min : Integer
     var Max : Integer
+    method GetMin : Integer
+    method GetMax : Integer
     // Conversions
     method toReal : Real
     method toBoolean : Boolean

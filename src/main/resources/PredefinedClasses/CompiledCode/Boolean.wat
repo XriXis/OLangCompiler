@@ -205,6 +205,11 @@
     (local.get $p)
   )
 
+  ;; $Boolean_this_
+    (func $Boolean_this_ (result i32)
+      (i32.const 0)
+    )
+
   ;; $Boolean_this_Integer
   (func $Boolean_this_Integer (param $p i32) (result i32)
     ;; Конвертируем Integer в Boolean: 0 -> false(0), не-0 -> true(1)

@@ -1,5 +1,6 @@
 class Boolean extends AnyValue is
     // Constructor
+    this()
     this(p: Boolean)
     // Constructor
     this(p: Integer)

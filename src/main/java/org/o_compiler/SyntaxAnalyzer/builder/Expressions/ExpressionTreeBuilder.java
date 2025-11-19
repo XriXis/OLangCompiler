@@ -48,7 +48,7 @@ public abstract class ExpressionTreeBuilder extends StatementTreeBuilder {
         if (entry.getFirst().entry().value().equals("this")){
             var p = context;
             while (!(p instanceof ClassTreeBuilder cls)) p = p.getParent();
-            return new VariableValueAccessTreeBuild(cls::getCurInstance, context);
+            return new VariableValueAccessTreeBuild(cls.getCurInstance(), context);
         }
         if (val instanceof Valuable)
             return new VariableValueAccessTreeBuild((Valuable) val, context);

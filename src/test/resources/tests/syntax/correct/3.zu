@@ -1,7 +1,7 @@
 class Main is
     this() is
-        var example : SumExample(5)
-        Console().print(example.Get().ToString())
+      var example : SumExample(5)
+      Console().print(example.Get())
     end
 end
 
@@ -25,7 +25,6 @@ class SumExample is
         while sum.Get().LessEqual(n) loop
             sum.Increment()
         end
-        Console().print(sum.Get().ToString())
     end
 
     method Get : Integer => sum.Get()

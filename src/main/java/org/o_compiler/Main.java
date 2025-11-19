@@ -19,7 +19,7 @@ public class Main {
             var stream = new IteratorSingleIterableAdapter<>(new TokenStream(target));
             var tree = new RootTreeBuilder(stream);
             tree.build();
-//            System.out.println(tree.viewWithoutPredefined());
+            System.out.println(tree.viewWithoutPredefined());
             PredefinedClassesAdapter.collect();
             var v = new WasmTranslatorVisitor();
             tree.visit(v);

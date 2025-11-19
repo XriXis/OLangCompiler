@@ -1,32 +1,43 @@
 class Main is
-    this() is
-        var example : SumExample(5)
-        Console().print(example.Get())
-    end
+  this() is
+    var dog : Dog()
+    var cat : Cat()
+    this.saySpeak(dog)
+    this.saySpeak(cat)
+  end
+
+  method saySpeak(animal: Animal) is
+    var num : Integer
+    num := animal.speak()
+    Console().println(num)
+  end
 end
 
-class Counter is
-    this() is
-    end
+class Animal is
+  this()
 
-    var value : Integer(0)
+  method speak : Integer is
+    return Integer(10)
+  end
 
-    method Increment is
-        value := value.Plus(1)
-    end
-
-    method Get : Integer => value
+  method eat : Integer is
+    return Integer(1)
+  end
 end
 
-class SumExample is
-    var sum : Counter()
 
-    this(n: Integer) is
-        while sum.Get().Equal(n).Not() loop
-            sum.Increment()
-        end
-        Console().print(sum.Get())
-    end
+class Dog extends Animal is
+  this()
 
-    method Get : Integer => sum.Get()
+  method speak : Integer is
+    return Integer(5)
+  end
+end
+
+class Cat extends Animal is
+  this()
+
+  method speak : Integer is
+    return Integer(2)
+  end
 end

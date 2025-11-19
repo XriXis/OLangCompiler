@@ -1,79 +1,34 @@
 (module
-  (memory (export "memory") 1)
+  ;; 1. Объявляем тип функции
+  (type $Formatter (func (param i32) (result i32)))
 
-  ;; Глобальные переменные: смещения полей
-  (global $offset_a i32 (i32.const 0))
-  (global $offset_b i32 (i32.const 8))
-  (global $size_MyClass i32 (i32.const 8))
-
-  ;; Глобальная переменная для указателя на кучу памяти
-  (global $heapPtr (mut i32) (i32.const 8))
-
-  ;; Конструктор для MyClass
-  (func $MyClass_new (result i32)
-    (local $ptr i32)
-
-    ;; Выделить память для нового объекта
-    global.get $heapPtr
-    local.set $ptr
-
-    ;; Увеличить указатель кучи
-    global.get $heapPtr
-    global.get $size_MyClass
-    i32.add
-    global.set $heapPtr
-
-    ;; Записать поле 'a' = 10
-    local.get $ptr
-    global.get $offset_a
-    i32.add
-    i64.const 10
-    i64.store
-
-    ;; Записать поле 'b' = 20
-    local.get $ptr
-    global.get $offset_b
-    i32.add
-    i64.const 20
-    i64.store
-
-    ;; Вернуть указатель на объект
-    local.get $ptr
+  ;; 2. Создаем разные реализации
+  (func $formatDecimal (type $Formatter) (param $num i32) (result i32)
+    ;; Просто возвращаем число как есть
+    (local.get $num)
   )
 
-  ;; Метод add()
-  (func $MyClass_add (param $this i32) (result i64)
-    ;; Загрузка значения поля 'a'
-    local.get $this
-    global.get $offset_a
-    i32.add
-    i64.load
-
-    ;; Загрузка значения поля 'b'
-    local.get $this
-    global.get $offset_b
-    i32.add
-    i64.load
-
-    ;; Возвращаем сумму полей 'a' и 'b'
-    i64.add
+  (func $formatHex (type $Formatter) (param $num i32) (result i32)
+    ;; В реальности здесь была бы конвертация в hex
+    (i32.const 0x100) ;; адрес hex строки
   )
 
-  ;; Точка входа
-  (func $Main_this (export "_start") (result i64)
-    (local $obj i32)
-    (local $result i64)
+  ;; 3. Полиморфная функция
+  (func $formatNumber (param $num i32) (param $formatter i32) (result i32)
+    (call_indirect (type $Formatter)
+      (local.get $num)
+      (local.get $formatter)
+    )
+  )
 
-    ;; Создание объекта MyClass
-    call $MyClass_new
-    local.set $obj
+  ;; 4. Таблица функций
+  (table 2 funcref)
+  (elem (i32.const 0) $formatDecimal $formatHex)
 
-    ;; Вызов метода add()
-    local.get $obj
-    call $MyClass_add
-    local.set $result
-
-    ;; Возврат результата
-    local.get $result
+  ;; 5. Использование
+  (func $test (export "_start") (result i32)
+    ;; Один вызов - разное поведение!
+;;    (call $formatNumber (i32.const 42) (i32.const 0)) ;; decimal
+    (call $formatNumber (i32.const 42) (i32.const 1)) ;; hex
   )
 )

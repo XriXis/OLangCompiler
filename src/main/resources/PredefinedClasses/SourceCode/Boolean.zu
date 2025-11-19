@@ -1,8 +1,12 @@
 class Boolean extends AnyValue is
     // Constructor
     this(p: Boolean)
+    // Constructor
+    this(p: Integer)
     // Conversion
     method toInteger() : Integer
+    // Get
+    method Get : Boolean
     // Boolean operators
     method Or(p: Boolean) : Boolean
     method And(p: Boolean) : Boolean

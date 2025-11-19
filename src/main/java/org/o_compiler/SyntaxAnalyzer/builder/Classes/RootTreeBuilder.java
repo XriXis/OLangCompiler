@@ -182,7 +182,8 @@ public class RootTreeBuilder extends TreeBuilder {
 
     @Override
     public Collection<? extends TreeBuilder> children() {
-        return classes.values();
+        List<String> excludedClasses = Arrays.asList("Integer", "Boolean");
+        return this.classes.values().stream().filter(v -> !excludedClasses.contains(v.className)).toList();
     }
 
     public String viewWithoutPredefined() {

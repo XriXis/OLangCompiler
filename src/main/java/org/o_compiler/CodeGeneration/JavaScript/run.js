@@ -18,7 +18,7 @@ async function runWat(fileToExecute) {
             env: {
                 memory: new WebAssembly.Memory({ initial: 1 }),
                 printNumber: (value) => {
-                    console.log('Integer:', value);
+                    process.stdout.write(`${value}`);
                 },
                 printString: (ptr) => {
                     const memory = new Uint8Array(importObject.env.memory.buffer);

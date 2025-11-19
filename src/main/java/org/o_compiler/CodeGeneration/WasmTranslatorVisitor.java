@@ -267,17 +267,19 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         var trueBlockName = "$block_for_loop_true_" + loopCode;
         var loopName = "$while_loop_" + loopCode;
         buffer.append("(block ").append(loopBlockName).append(' ');
-        buffer.append("(block ").append(trueBlockName).append(' ');
+        if (elseBlock!=null)
+            buffer.append("(block ").append(trueBlockName).append(' ');
         buffer.append("(loop ").append(loopName).append(' ');
         // ----------------vvvvvvvv condition negation
         buffer.append("(if (i32.eqz ");
         condition.visit(this);
         buffer.append(") (then (br ").append(loopBlockName).append("))) ");
         return () -> {
-            buffer.append("))");
-            if (elseBlock != null)
+            buffer.append("br ").append(loopName).append("))");
+            if (elseBlock != null) {
                 elseBlock.visit(this);
-            buffer.append(")");
+                buffer.append(")");
+            }
         };
     }
 

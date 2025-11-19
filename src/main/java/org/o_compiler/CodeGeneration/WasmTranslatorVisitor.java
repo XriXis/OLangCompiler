@@ -96,7 +96,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         // parameters
         for (Variable variable : parameters) {
             String typeStr = variable.getType() == null ?
-                    variable.getPolymorphicIdentifier() :
+                    variable.getGenericIdentifier() :
                     variable.getType().simpleName();
             typeStr = typeStr.equals("Real") ? "f32" : "i32";
 

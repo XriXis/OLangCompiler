@@ -1,16 +1,25 @@
-class PrintValue[T] is
-  this()
-
-  method print(value: T) is
-    Console().println(value)
-  end
-end
-
-
 class Main is
-  this() is
-    Console().println(5)
-    var printValueInt : PrintValue[Integer]
-    printValueInt.print(5)
-  end
+    this() is
+        var example : Array[Integer](4)
+        Console().println(example.Length())
+        example.set(0, 10)
+        example.set(1, 9)
+        example.set(2, 8)
+        example.set(3, 7)
+        var res : Integer
+        var i : Integer
+        while (i.Less(example.Length())) loop
+            res := res.Plus(example.get(i))
+            i := i.Plus(1)
+        end
+        Console().println(res)
+        Console().println(example.get(2))
+        i := 0
+        while (i.Less(example.Length())) loop
+            example.set(i, Integer(20).Minus(i))
+            i := i.Plus(1)
+        end
+        Console().println(example.get(2))
+        Console().println(example.Length())
+    end
 end

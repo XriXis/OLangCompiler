@@ -23,7 +23,7 @@ public class RootTreeBuilder extends TreeBuilder {
     HashMap<String, ClassTreeBuilder> classes;
     static HashMap<String, ClassTreeBuilder> predefined = new HashMap<>();
 
-    static public ClassTreeBuilder getPredefined(String name){
+    static public ClassTreeBuilder getPredefined(String name) {
         return predefined.get(name);
     }
 
@@ -182,15 +182,41 @@ public class RootTreeBuilder extends TreeBuilder {
 
     private List<String> generateExcludedClasses() {
         ArrayList<String> excludedClasses = new ArrayList<>(Arrays.asList("Integer", "Boolean", "Real", "Console", "Void"));
-        ArrayList<String> excludedGenericClasses = new ArrayList<>(List.of("Array"));
-        for (var excludedGenericClass: excludedGenericClasses) {
-            for (var c: this.classes.values()) {
+        ArrayList<String> excludedGenericClasses = new ArrayList<>();
+        for (var c : this.classes.values()) {
+            if (c.isGeneric()) {
+                excludedGenericClasses.add(c.simpleName());
+            }
+        }
+
+        for (var excludedGenericClass : excludedGenericClasses) {
+            for (var c : this.classes.values()) {
                 if (c.simpleName().contains(excludedGenericClass)) {
                     excludedClasses.add(c.simpleName());
                 }
             }
         }
         return excludedClasses;
+    }
+
+    protected Map<String, String> generateGenericCallReplaceMap() {
+        Map<String, String> genericCallReplaceMap = new HashMap<>();
+        ArrayList<String> excludedGenericClasses = new ArrayList<>();
+        for (var c : this.classes.values()) {
+            if (c.isGeneric()) {
+                excludedGenericClasses.add(c.simpleName());
+            }
+        }
+
+        for (var excludedGenericClass : excludedGenericClasses) {
+            for (var c : this.classes.values()) {
+                if (c.simpleName().contains(excludedGenericClass)) {
+                    genericCallReplaceMap.put(c.simpleName(), excludedGenericClass);
+                }
+            }
+        }
+
+        return genericCallReplaceMap;
     }
 
     @Override
@@ -223,7 +249,7 @@ public class RootTreeBuilder extends TreeBuilder {
         }
     }
 
-    private static class ViewWrapper extends RootTreeBuilder{
+    private static class ViewWrapper extends RootTreeBuilder {
         public ViewWrapper(RootTreeBuilder o) {
             super(new IteratorSingleIterableAdapter<>(o.source));
             classes = o.classes;

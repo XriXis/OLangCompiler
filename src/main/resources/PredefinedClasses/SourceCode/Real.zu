@@ -4,9 +4,9 @@ class Real extends AnyValue is
     this(p: Integer)
     this()
     // Features
-    var Min : Real
-    var Max : Real
-    var Epsilon : Real
+    method Min : Real
+    method Max : Real
+    method Epsilon : Real
     // Conversions
     method toInteger : Integer
     // Unary operators

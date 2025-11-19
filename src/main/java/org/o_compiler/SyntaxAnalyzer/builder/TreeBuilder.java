@@ -2,15 +2,13 @@ package org.o_compiler.SyntaxAnalyzer.builder;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.CodeGeneration.DeferredVisitorAction;
-import org.o_compiler.SyntaxAnalyzer.builder.Classes.AttributeTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Classes.ClassTreeBuilder;
-import org.o_compiler.SyntaxAnalyzer.builder.Classes.MethodTreeBuilder;
 
 import java.util.Collection;
 
 // todo: follow ISP
 public abstract class TreeBuilder {
-    public TreeBuilder parent;
+    protected TreeBuilder parent;
 
     protected TreeBuilder(TreeBuilder parent) {
         this.parent = parent;

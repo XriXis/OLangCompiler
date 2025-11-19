@@ -88,7 +88,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
             bubbledInstructions.peek().get(0).append("(local $this i32)");
             bubbledInstructions.peek().get(1)
                     .append("(local.set $this (call $malloc (i32.const ")
-                    .append(4 * instance.parent.children().stream()
+                    .append(4 * instance.getParent().children().stream()
                             .takeWhile((v) -> v instanceof AttributeTreeBuilder).count())
                     .append(")))\n  ");
             // todo: make wasm constructor return (local.get $this) by adding this part in the deferred action
@@ -210,11 +210,21 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         return empty;
     }
 
-    @Override
-    public DeferredVisitorAction visitMethodCall(MethodCallTreeBuilder instance, MethodTreeBuilder signature) {
+    private DeferredVisitorAction visitCalExpression(CallExpressionTreeBuilder instance, MethodTreeBuilder signature) {
         var callName = signature.wasmName();
         buffer.append("(call $").append(callName).append(' ');
         return closeBlock;
+    }
+
+    @Override
+    public DeferredVisitorAction visitMethodCall(MethodCallTreeBuilder instance, MethodTreeBuilder signature) {
+        return visitCalExpression(instance, signature);
+    }
+
+    @Override
+    public DeferredVisitorAction visitConstructorInvocation(ConstructorInvocationTreeBuilder instance,
+                                                            MethodTreeBuilder signature) {
+        return visitCalExpression(instance, signature);
     }
 
     @Override
@@ -244,14 +254,6 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
     @Override
     public DeferredVisitorAction visitEmptyExpression(EmptyExpression instance) {
         return empty; // done
-    }
-
-    @Override
-    public DeferredVisitorAction visitConstructorInvocation(ConstructorInvocationTreeBuilder instance,
-                                                            MethodTreeBuilder signature) {
-        var callName = signature.wasmName();
-        buffer.append("(call $").append(callName).append(' ');
-        return closeBlock;
     }
 
     @Override

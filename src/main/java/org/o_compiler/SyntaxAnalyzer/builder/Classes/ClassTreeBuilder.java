@@ -281,7 +281,7 @@ public class ClassTreeBuilder extends TreeBuilder {
         // check class exists
         var treeTypeOfAttribute = getClass(tokenTypeOfAttribute.entry().value());
         if (treeTypeOfAttribute == null && !encloseGenericName(tokenTypeOfAttribute.entry().value())) {
-            throw new CompilerError("Class " + tokenTypeOfAttribute.entry().value() + " not found");
+            throw new CompilerError("Class " + tokenTypeOfAttribute.entry().value() + " not found at " + tokenTypeOfAttribute.position());
         }
 
         // get value

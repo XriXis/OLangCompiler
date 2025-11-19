@@ -49,6 +49,8 @@
         )
         (local.get $copy)
     )
+    i32.const 4
+    i32.mul
     local.set $i_cap
 
     block $copy_loop_br
@@ -87,10 +89,8 @@
     call $malloc
     local.set $this
 
-    i32.const 4
-    local.get $l
-    i32.mul
     local.get $this
+    local.get $l
     i32.store
 
     local.get $this

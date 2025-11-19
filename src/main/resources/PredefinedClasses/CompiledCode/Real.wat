@@ -19,12 +19,6 @@
   ;; start merge
     
     ;; class Real
-    (global $Real_Min_Real_offset i32 (i32.const 0))
-    
-    (global $Real_Max_Real_offset i32 (i32.const 4))
-    
-    (global $Real_Epsilon_Real_offset i32 (i32.const 8))
-    
     ;; TODO: $Real_ToString_
     (func $Real_ToString_ (param $this f32) (result i32)
         (i32.const 0)

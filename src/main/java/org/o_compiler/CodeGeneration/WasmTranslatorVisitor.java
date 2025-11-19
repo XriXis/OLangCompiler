@@ -155,6 +155,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
                 buffer.append("(local.set $").append(var.getVariable().getName()).append(" ");
         switch (of) {
             case AttributeTreeBuilder node -> {
+                // todo: remove redundant local variable
                 var fieldAddrName = "$tmp_field_addr_var_" + generateUniqueCodeLabel();
                 bubbledInstructions.peek().getFirst().append("(local ").append(fieldAddrName).append(" i32)");
                 buffer
@@ -162,7 +163,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
                         .append(fieldAddrName)
                         .append(" (i32.add (local.get $this) (global.get $").append(node.wasmName()).append("_offset)))")
                         .append("(").append(node.isTypeOf(RootTreeBuilder.getPredefined("Real")) ? 'f' : 'i')
-                        .append("32.store (i32.load (local.get ").append(fieldAddrName).append(")) ")
+                        .append("32.store (local.get ").append(fieldAddrName).append(") ")
                 ;
             }
             case Variable node -> localSet.accept(node);

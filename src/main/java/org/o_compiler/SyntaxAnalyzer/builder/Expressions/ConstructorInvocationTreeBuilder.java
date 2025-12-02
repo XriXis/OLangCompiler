@@ -48,6 +48,10 @@ public class ConstructorInvocationTreeBuilder extends CallExpressionTreeBuilder 
             if (!cur.entry().equals(ControlSign.BRACKET_CLOSED))
                 throw new CompilerError("Unclosed generic description met at " + cur.position());
             type = type.initGenericClass(genTypes);
+            if (!this.unparsedArgs.hasNext())
+                this.args = new ArrayList<>();
+            else
+                this.args = new ArgsParser(unparsedArgs, this).get();
         } else {
             unparsedArgs.revert();
             this.args = new ArgsParser(unparsedArgs, this).get();

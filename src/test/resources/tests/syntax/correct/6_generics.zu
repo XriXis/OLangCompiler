@@ -1,0 +1,16 @@
+class PrintValue[T] is
+  this()
+
+  method print(value: T) is
+    Console().println(value)
+  end
+end
+
+
+class Main is
+  this() is
+    Console().println(5)
+    var printValueInt : PrintValue[Integer]
+    printValueInt.print(5)
+  end
+end

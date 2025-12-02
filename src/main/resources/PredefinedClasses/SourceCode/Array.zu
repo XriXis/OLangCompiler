@@ -1,6 +1,8 @@
 class Array[T] extends AnyRef is
     // Constructor
+    this()
     this(l: Integer)
+    this(copy: Array[T], newLen: Integer)
     // Conversion
     method toList : List
     // Features

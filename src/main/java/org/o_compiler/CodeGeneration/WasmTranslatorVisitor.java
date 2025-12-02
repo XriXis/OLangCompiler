@@ -88,7 +88,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
             bubbledInstructions.peek().get(0).append("(local $this i32)");
             bubbledInstructions.peek().get(1)
                     .append("(local.set $this (call $malloc (i32.const ")
-                    .append(4 * instance.parent.children().stream()
+                    .append(4 * instance.getParent().children().stream()
                             .takeWhile((v) -> v instanceof AttributeTreeBuilder).count())
                     .append(")))\n  ");
             // todo: make wasm constructor return (local.get $this) by adding this part in the deferred action
@@ -96,7 +96,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         // parameters
         for (Variable variable : parameters) {
             String typeStr = variable.getType() == null ?
-                    variable.getPolymorphicIdentifier() :
+                    variable.getGenericIdentifier() :
                     variable.getType().simpleName();
             typeStr = typeStr.equals("Real") ? "f32" : "i32";
 
@@ -153,18 +153,12 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         Consumer<Valuable> localSet = (var) ->
                 buffer.append("(local.set $").append(var.getVariable().getName()).append(" ");
         switch (of) {
-            case AttributeTreeBuilder node -> {
-                // todo: remove redundant local variable
-                var fieldAddrName = "$tmp_field_addr_var_" + generateUniqueCodeLabel();
-                bubbledInstructions.peek().getFirst().append("(local ").append(fieldAddrName).append(" i32)");
+            case AttributeTreeBuilder node ->
                 buffer
-                        .append("(local.set ")
-                        .append(fieldAddrName)
-                        .append(" (i32.add (local.get $this) (global.get $").append(node.wasmName()).append("_offset)))")
                         .append("(").append(node.isTypeOf(RootTreeBuilder.getPredefined("Real")) ? 'f' : 'i')
-                        .append("32.store (local.get ").append(fieldAddrName).append(") ")
+                        .append("32.store ")
+                        .append(" (i32.add (local.get $this) (global.get $").append(node.wasmName()).append("_offset))")
                 ;
-            }
             case Variable node -> localSet.accept(node);
             case DeclarationBuilder node -> localSet.accept(node);
             default -> throw new InternalCommunicationError("Assignment is not defined for " + of);
@@ -216,11 +210,21 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         return empty;
     }
 
-    @Override
-    public DeferredVisitorAction visitMethodCall(MethodCallTreeBuilder instance, MethodTreeBuilder signature) {
+    private DeferredVisitorAction visitCalExpression(CallExpressionTreeBuilder instance, MethodTreeBuilder signature) {
         var callName = signature.wasmName();
         buffer.append("(call $").append(callName).append(' ');
         return closeBlock;
+    }
+
+    @Override
+    public DeferredVisitorAction visitMethodCall(MethodCallTreeBuilder instance, MethodTreeBuilder signature) {
+        return visitCalExpression(instance, signature);
+    }
+
+    @Override
+    public DeferredVisitorAction visitConstructorInvocation(ConstructorInvocationTreeBuilder instance,
+                                                            MethodTreeBuilder signature) {
+        return visitCalExpression(instance, signature);
     }
 
     @Override
@@ -250,14 +254,6 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
     @Override
     public DeferredVisitorAction visitEmptyExpression(EmptyExpression instance) {
         return empty; // done
-    }
-
-    @Override
-    public DeferredVisitorAction visitConstructorInvocation(ConstructorInvocationTreeBuilder instance,
-                                                            MethodTreeBuilder signature) {
-        var callName = signature.wasmName();
-        buffer.append("(call $").append(callName).append(' ');
-        return closeBlock;
     }
 
     @Override

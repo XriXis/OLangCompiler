@@ -5,6 +5,7 @@ import org.o_compiler.CodeGeneration.DeferredVisitorAction;
 import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.Optional;
+import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.builder.Blocks.BodyTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Statements.AssignmentBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 public class MethodTreeBuilder extends ClassMemberTreeBuilder {
@@ -121,13 +123,40 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
     }
 
     public String wasmName() {
+        String firstName;
+        ArrayList<Variable> parameters;
+
+        // if class is generic-generated
+        if (((RootTreeBuilder) parent.getParent()).generateGenericCallReplaceMap().containsKey(owner.simpleName())) {
+            var root = ((RootTreeBuilder) parent.getParent());
+            firstName = root.generateGenericCallReplaceMap().get(owner.simpleName());
+
+            // TODO: fix improper match
+            var method = getClass(firstName).children().stream()
+                    .filter(cm -> cm instanceof MethodTreeBuilder)
+                    .map(cm -> (MethodTreeBuilder) cm)
+                    .filter(m -> m.name.equals(name) && m.parameters.size() == this.parameters.size())
+                    .findFirst();
+
+            if (method.isPresent()) {
+                parameters = method.get().getParameters();
+            } else {
+                throw new CompilerError("Method " + this.name + " " + this.getParameters() + " found in base class " + firstName);
+            }
+
+        } else {
+            firstName = owner.simpleName();
+            parameters = this.getParameters();
+        }
+
         ArrayList<String> types = new ArrayList<>();
-        for (Variable variable : this.getParameters()) {
+        for (Variable variable : parameters) {
             String typeStr = variable.getType() == null ?
-                    variable.getPolymorphicIdentifier() :
+                    variable.getGenericIdentifier() :
                     variable.getType().simpleName();
             types.add(typeStr);
         }
-        return owner.simpleName() + "_" + name + "_" + String.join("_", types);
+
+        return firstName + "_" + name + "_" + String.join("_", types);
     }
 }

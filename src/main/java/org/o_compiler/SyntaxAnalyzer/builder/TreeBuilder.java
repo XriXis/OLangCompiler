@@ -2,9 +2,7 @@ package org.o_compiler.SyntaxAnalyzer.builder;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.CodeGeneration.DeferredVisitorAction;
-import org.o_compiler.SyntaxAnalyzer.builder.Classes.AttributeTreeBuilder;
 import org.o_compiler.SyntaxAnalyzer.builder.Classes.ClassTreeBuilder;
-import org.o_compiler.SyntaxAnalyzer.builder.Classes.MethodTreeBuilder;
 
 import java.util.Collection;
 

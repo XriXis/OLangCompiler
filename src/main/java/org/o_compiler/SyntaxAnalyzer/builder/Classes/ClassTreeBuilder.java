@@ -61,8 +61,8 @@ public class ClassTreeBuilder extends TreeBuilder {
                 .map(item -> item.entry().value())
                 .collect(Collectors.joining("_"));
 
-        if (((RootTreeBuilder)parent).classes.containsKey(resultClassName)) {
-            return ((RootTreeBuilder)parent).classes.get(resultClassName);
+        if (((RootTreeBuilder) parent).classes.containsKey(resultClassName)) {
+            return ((RootTreeBuilder) parent).classes.get(resultClassName);
         }
 
         // replace all appearance of generic type with given
@@ -86,12 +86,12 @@ public class ClassTreeBuilder extends TreeBuilder {
         var implementedClass = new ClassTreeBuilder(
                 resultClassName,
                 resSource,
-                ((RootTreeBuilder)this.parent),
+                ((RootTreeBuilder) this.parent),
                 this.tokenInheritanceParent,
                 new ArrayList<>()
         );
         // add to root table
-        ((RootTreeBuilder)parent).classes.put(resultClassName, implementedClass);
+        ((RootTreeBuilder) parent).classes.put(resultClassName, implementedClass);
         if (!RootTreeBuilder.predefined.containsKey(resultClassName))
             RootTreeBuilder.predefined.put(resultClassName, implementedClass);
         // build
@@ -280,8 +280,8 @@ public class ClassTreeBuilder extends TreeBuilder {
         }
         // check class exists
         var treeTypeOfAttribute = getClass(tokenTypeOfAttribute.entry().value());
-        if (treeTypeOfAttribute == null) {
-            throw new CompilerError("Class " + tokenTypeOfAttribute.entry().value() + " not found");
+        if (treeTypeOfAttribute == null && !encloseGenericName(tokenTypeOfAttribute.entry().value())) {
+            throw new CompilerError("Class " + tokenTypeOfAttribute.entry().value() + " not found at " + tokenTypeOfAttribute.position());
         }
 
         // get value
@@ -294,6 +294,8 @@ public class ClassTreeBuilder extends TreeBuilder {
             nextToken = source.next();
             valueSourceCode.add(nextToken);
         }
+
+        if (isGeneric()) return null;
 
         return new AttributeTreeBuilder(varName.entry().value(), treeTypeOfAttribute, this, valueSourceCode);
     }
@@ -457,8 +459,14 @@ public class ClassTreeBuilder extends TreeBuilder {
         return children;
     }
 
+    public boolean isGeneric() {
+        return !genericClasses.isEmpty();
+    }
+
     @Override
     public void build() {
+        if (isGeneric()) return;
+
         var attrs = classMembers
                 .stream()
                 .filter((m) -> (m instanceof AttributeTreeBuilder))

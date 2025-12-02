@@ -78,12 +78,12 @@
   )
 
   ;; $Integer_Plus_real
-  (func $Integer_Plus_real (param $this i32) (param $p f32) (result f32)
+  (func $Integer_Plus_Real (param $this i32) (param $p f32) (result f32)
     (f32.add (f32.convert_i32_s (local.get $this)) (local.get $p))
   )
 
   ;; $Integer_Minus_Integer
-  (func $Integer_Minus_integer (param $this i32) (param $p i32) (result i32)
+  (func $Integer_Minus_Integer (param $this i32) (param $p i32) (result i32)
     (local.get $this)
     (local.get $p)
     (i32.sub)
@@ -141,7 +141,7 @@
   )
 
   ;; $Integer_Less_Real
-  (func $Integer_Less_real (param $this i32) (param $p f32) (result i32)
+  (func $Integer_Less_Real (param $this i32) (param $p f32) (result i32)
     (f32.lt (f32.convert_i32_s (local.get $this)) (local.get $p))
   )
 

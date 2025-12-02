@@ -11,6 +11,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
 import org.o_compiler.SyntaxAnalyzer.builder.Classes.PredefinedClasses.PredefinedClassesParser;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
+import org.o_compiler.SyntaxAnalyzer.builder.Variable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,6 +23,8 @@ public class RootTreeBuilder extends TreeBuilder {
     Iterator<Token> source;
     HashMap<String, ClassTreeBuilder> classes;
     static HashMap<String, ClassTreeBuilder> predefined = new HashMap<>();
+    ArrayList<String> vtable = new ArrayList<>();
+
 
     static public ClassTreeBuilder getPredefined(String name) {
         return predefined.get(name);
@@ -60,6 +63,90 @@ public class RootTreeBuilder extends TreeBuilder {
         for (var classBuilder : classes.values()) {
             classBuilder.build();
         }
+    }
+
+    public String buildVTable() {
+        ArrayList<String> virtualMethods = new ArrayList<>();
+        HashMap<String, String> types = new HashMap<>();
+
+        // collect all data
+        for (var classBuilder : classes.values()) {
+            for (var classMember : classBuilder.classMembers) {
+                if (classMember instanceof MethodTreeBuilder method) {
+                    if (method.isOverridden || !method.overriddenMethods.isEmpty()) {
+                        // assign base index to classBuilder
+                        if (classBuilder.baseIndexInVTable == null) {
+                            classBuilder.baseIndexInVTable = vtable.size();
+                        }
+
+                        // add implementation
+                        vtable.add(method.wasmName());
+                        // add type to HashMap
+                        types.putIfAbsent(method.name, generateTypeAnnotation(method));
+                    }
+                    if (!method.overriddenMethods.isEmpty()) {
+                        // add virtual
+                        virtualMethods.add(method.wasmName() + "_virtual");
+                    }
+                }
+            }
+        }
+
+        // table definition
+        var res = new StringBuilder();
+        res.append("  (table $vtable %d funcref)\n\n".formatted(vtable.size()));
+
+        // vtable
+        res.append("  (elem (i32.const 0) funcref\n");
+        for (int i = 0; i < vtable.size(); i++) {
+            res.append("    (ref.func $%s)  ;; %d\n".formatted(vtable.get(i), i));
+        }
+        res.append("  )\n\n");
+
+        // types
+        res.append("  ;; types\n");
+        for (var type: types.values()) {
+            res.append(type);
+        }
+        res.append("\n");
+
+        return res.toString();
+    }
+
+    private String generateTypeAnnotation(MethodTreeBuilder methodTreeBuilder) {
+        String methodName = methodTreeBuilder.name;
+        StringBuilder declarationStr = new StringBuilder("  (type $%s (func ".formatted(methodName));
+
+        // parameters
+        declarationStr.append("(param i32) "); // this
+        var parameters = methodTreeBuilder.getParameters();
+        for (Variable variable : parameters) {
+            String typeStr = variable.getType() == null ?
+                    variable.getGenericIdentifier() :
+                    variable.getType().simpleName();
+            typeStr = typeStr.equals("Real") ? "f32" : "i32";
+
+            declarationStr.append("(param %s) ".formatted(typeStr));
+        }
+
+        String res;
+        // return type
+        if (methodTreeBuilder.getType() != null && !methodTreeBuilder.getType().simpleName().equals("Void")) {
+            String typeStr = methodTreeBuilder.getType().simpleName();
+            typeStr = typeStr.equals("Real") ? "f32" : "i32";
+            res = "(result %s) ".formatted(typeStr);
+            // temporary pass
+//            res = typeStr.equals("f32") ? "    (f32.const 0.0)  " : "    (i32.const 0)\n  ";
+        } else {
+            res = "  ";
+        }
+
+        declarationStr.append(res).append(") )\n");
+        return declarationStr.toString();
+    }
+
+    public int getVTableIndex(String name) {
+        return vtable.indexOf(name);
     }
 
     private void includePredeclaredClasses() {

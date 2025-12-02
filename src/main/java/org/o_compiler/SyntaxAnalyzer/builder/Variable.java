@@ -7,6 +7,7 @@ import org.o_compiler.SyntaxAnalyzer.builder.Classes.ClassTreeBuilder;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 // todo: remove TreeBuild from this class type definition
 public class Variable extends TreeBuilder implements Valuable {
@@ -70,5 +71,17 @@ public class Variable extends TreeBuilder implements Valuable {
     @Override
     public Collection<? extends TreeBuilder> children() {
         return List.of();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Variable variable)) return false;
+        return Objects.equals(name, variable.name) && Objects.equals(type, variable.type) && Objects.equals(polymorphicIdentifier, variable.polymorphicIdentifier);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, type, polymorphicIdentifier);
     }
 }

@@ -38,7 +38,7 @@ convert_and_run_wasm() {
   formatted_file="${wat_file_path%.wat}_formatted.wat"
   # Display a message that we are starting the conversion
   print_info "Formatting..."
-  wasm-tools parse "$wat_file_path" -t -o "$formatted_file"
+#  wasm-tools parse "$wat_file_path" -t -o "$formatted_file"
   print_info "Converting .wat file to .wasm..."
   wat2wasm "$wat_file_path" -o "${wat_file_path%.wat}.wasm"
 #  wat2wasm "$formatted_file" -o "${wat_file_path%.wat}.wasm"

@@ -32,6 +32,6 @@ public class JavaScriptAdapter {
     }
 
     public static void main(String[] args) {
-        executeFile("output/out_formatted.wat");
+        executeFile("output/out.wat");
     }
 }

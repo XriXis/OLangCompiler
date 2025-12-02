@@ -58,19 +58,88 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
     @Override
     public DeferredVisitorAction visitRoot(RootTreeBuilder instance) {
         buffer.append("  ;; Generated code\n");
+
+        // vtable
+        buffer.append("  ;; VTable\n");
+        buffer.append(instance.buildVTable());
+
         return empty;
     }
 
     @Override
     public DeferredVisitorAction visitClass(ClassTreeBuilder instance, String classname) {
-        String commentStr = "  ;; class %s\n".formatted(classname);
+        String commentStr = "  ;; ==================== class %s ====================\n".formatted(classname);
         buffer.append(commentStr);
         return append("\n");
     }
 
+    public String visitVirtualMethod(MethodTreeBuilder instance) {
+        var res = new StringBuilder();
+        res.append("  ;; virtual method %s\n".formatted(instance.getName()));
+        var methodName = instance.virtualWasmName();
+
+        res.append("  (func $%s ".formatted(methodName));
+
+        // parameters
+        var parameters = instance.getParameters();
+        var parametersToCall = new StringBuilder();
+        res.append("(param $%s %s) ".formatted("this", "i32")); // this
+        parametersToCall.append("(local.get $this) ");
+        for (Variable variable : parameters) {
+            String typeStr = variable.getType() == null ?
+                    variable.getGenericIdentifier() :
+                    variable.getType().simpleName();
+            typeStr = typeStr.equals("Real") ? "f32" : "i32";
+
+            res.append("(param $%s %s) ".formatted(variable.getName(), typeStr));
+            parametersToCall.append("(local.get $%s) ".formatted(variable.getName()));
+        }
+
+        // return type
+        if (instance.getType() != null && !instance.getType().simpleName().equals("Void")) {
+            String typeStr = instance.getType().simpleName();
+            typeStr = typeStr.equals("Real") ? "f32" : "i32";
+            res.append("(result %s) ".formatted(typeStr));
+        }
+
+        // body
+        RootTreeBuilder root;
+        var parent = instance.getParent();
+        while (!(parent instanceof RootTreeBuilder)) {
+            parent = parent.getParent();
+        }
+        root = (RootTreeBuilder) parent;
+        ClassTreeBuilder classTreeBuilder = (ClassTreeBuilder) instance.getParent();
+
+        var delta = root.getVTableIndex(instance.wasmName()) - classTreeBuilder.getBaseIndexInVTable();
+
+        res.append("\n" +
+                "    (local $base_index i32)\n" +
+                "    (local.set $base_index (i32.load (local.get $this)))\n\n");
+        res.append((
+                "    (call_indirect (type $%s)\n" +
+                "      " + parametersToCall + "\n" +
+                "      (i32.add (local.get $base_index) (i32.const %d))" +
+                "    )\n").formatted(
+                        instance.getName(),
+                        delta
+                )
+        );
+
+
+        // close bracket
+        res.append("  )\n\n");
+
+        return res.toString();
+    }
+
     @Override
     public DeferredVisitorAction visitMethod(MethodTreeBuilder instance) {
-        // should be in the body, but lets assume, that it is ok to keep it here
+        if (instance.isPolymorphic()) {
+            buffer.append(visitVirtualMethod(instance));
+        }
+
+        // should be in the body, but let's assume, that it is ok to keep it here
         bubbledInstructions.push(new ArrayList<>(List.of(new StringBuilder(), new StringBuilder())));
 
         String methodName = instance.wasmName();
@@ -85,13 +154,19 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         if (!instance.getName().equals("this")) {
             declarationStr.append("(param $%s %s) ".formatted("this", "i32"));
         } else {
-            bubbledInstructions.peek().get(0).append("(local $this i32)");
+            bubbledInstructions.peek().get(0).append("  (local $this i32)");
             bubbledInstructions.peek().get(1)
-                    .append("(local.set $this (call $malloc (i32.const ")
-                    .append(4 * instance.getParent().children().stream()
+                    .append("  ;; allocate memory\n  ")
+                    .append("  (local.set $this (call $malloc (i32.const ")
+                    .append(4 + 4 * instance.getParent().children().stream()
                             .takeWhile((v) -> v instanceof AttributeTreeBuilder).count())
                     .append(")))\n  ");
             // todo: make wasm constructor return (local.get $this) by adding this part in the deferred action
+            if (instance.getParent() instanceof ClassTreeBuilder classBuilder && classBuilder.getBaseIndexInVTable() != null) {
+                bubbledInstructions.peek().get(1)
+                        .append("  ;; %s base index is %d\n".formatted(classBuilder.simpleName(), classBuilder.getBaseIndexInVTable()))
+                        .append("    (i32.store (local.get $this) (i32.const %d))\n".formatted(classBuilder.getBaseIndexInVTable()));
+            }
         }
         // parameters
         for (Variable variable : parameters) {
@@ -119,7 +194,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         var cur_len = buffer.length();
         return () -> {
             if (instance.isConstructor()) {
-                buffer.append("    (local.get $this)\n  ");
+                buffer.append("  (local.get $this)\n  ");
 //                ----------------------------------v added in the deffer action od the body. Branch should not be present at all
             } else if (buffer.length() == cur_len + 6) {
                 buffer.delete(buffer.length() - 3, buffer.length());
@@ -153,12 +228,11 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         Consumer<Valuable> localSet = (var) ->
                 buffer.append("(local.set $").append(var.getVariable().getName()).append(" ");
         switch (of) {
-            case AttributeTreeBuilder node ->
-                buffer
-                        .append("(").append(node.isTypeOf(RootTreeBuilder.getPredefined("Real")) ? 'f' : 'i')
-                        .append("32.store ")
-                        .append(" (i32.add (local.get $this) (global.get $").append(node.wasmName()).append("_offset))")
-                ;
+            case AttributeTreeBuilder node -> buffer
+                    .append("(").append(node.isTypeOf(RootTreeBuilder.getPredefined("Real")) ? 'f' : 'i')
+                    .append("32.store ")
+                    .append(" (i32.add (local.get $this) (global.get $").append(node.wasmName()).append("_offset))")
+            ;
             case Variable node -> localSet.accept(node);
             case DeclarationBuilder node -> localSet.accept(node);
             default -> throw new InternalCommunicationError("Assignment is not defined for " + of);
@@ -211,7 +285,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
     }
 
     private DeferredVisitorAction visitCalExpression(CallExpressionTreeBuilder instance, MethodTreeBuilder signature) {
-        var callName = signature.wasmName();
+        var callName = signature.isPolymorphic() ? signature.virtualWasmName() : signature.wasmName() ;
         buffer.append("(call $").append(callName).append(' ');
         return closeBlock;
     }
@@ -263,7 +337,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         var trueBlockName = "$block_for_loop_true_" + loopCode;
         var loopName = "$while_loop_" + loopCode;
         buffer.append("(block ").append(loopBlockName).append(' ');
-        if (elseBlock!=null)
+        if (elseBlock != null)
             buffer.append("(block ").append(trueBlockName).append(' ');
         buffer.append("(loop ").append(loopName).append(' ');
         // ----------------vvvvvvvv condition negation

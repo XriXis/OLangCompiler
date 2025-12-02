@@ -29,6 +29,7 @@ public class ClassTreeBuilder extends TreeBuilder {
     ArrayList<ClassMemberTreeBuilder> classMembers;
     ArrayList<Token> genericClasses;
     ArrayList<Token> bufSource;
+    Integer baseIndexInVTable;
 
     public ClassTreeBuilder(String className, Iterable<Token> source, RootTreeBuilder parent, Token inheritanceParent, ArrayList<Token> genericClasses) {
         super(parent);
@@ -158,6 +159,23 @@ public class ClassTreeBuilder extends TreeBuilder {
         } else if (classMembers.get(index).getParent() == this) {
             throw new CompilerError("Class member with name " + classMemberNew.name + " already exists");
         } else {
+            if (classMemberNew instanceof MethodTreeBuilder methodTreeBuilder) {
+                // set overridden
+                methodTreeBuilder.isOverridden = true;
+                // set child on parent method
+                if (classMembers.get(index) instanceof MethodTreeBuilder parentMethod) {
+                    getClass(parentMethod.getParentName())
+                            .getMethod(
+                                    parentMethod.name,
+                                    parentMethod.parameters
+                                            .stream()
+                                            .map(Variable::getType)
+                                            .toList()
+                            )
+                            .overriddenMethods
+                            .add(methodTreeBuilder);
+                }
+            }
             classMembers.set(index, classMemberNew);
         }
     }
@@ -456,6 +474,7 @@ public class ClassTreeBuilder extends TreeBuilder {
                 .stream()
                 .filter((m) -> (m instanceof MethodTreeBuilder))
                 .toList());
+
         return children;
     }
 
@@ -488,5 +507,9 @@ public class ClassTreeBuilder extends TreeBuilder {
 
     public String simpleName() {
         return className;
+    }
+
+    public Integer getBaseIndexInVTable() {
+        return baseIndexInVTable;
     }
 }

@@ -15,23 +15,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 public class MethodTreeBuilder extends ClassMemberTreeBuilder {
     ArrayList<Variable> parameters;
     BodyTreeBuilder body;
+    public ArrayList<MethodTreeBuilder> overriddenMethods; // similar to isVirtual
+    public boolean isOverridden = false;
 
     MethodTreeBuilder(String name, ClassTreeBuilder type, ArrayList<Variable> parameters, ClassTreeBuilder parent, Iterable<Token> sourceCode) {
         super(name, type, parent, parent, sourceCode);
         this.parameters = parameters;
         body = new BodyTreeBuilder(sourceCode, this);
+        overriddenMethods = new ArrayList<>();
     }
 
     MethodTreeBuilder(String name, ClassTreeBuilder type, ArrayList<Variable> parameters, ClassTreeBuilder parent, ClassTreeBuilder owner, Iterable<Token> sourceCode) {
         super(name, type, parent, owner, sourceCode);
         this.parameters = parameters;
         body = new BodyTreeBuilder(sourceCode, this);
+        overriddenMethods = new ArrayList<>();
     }
 
     // todo: get rid of it
@@ -157,6 +160,15 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
             types.add(typeStr);
         }
 
-        return firstName + "_" + name + "_" + String.join("_", types);
+        var wasmName = firstName + "_" + name + "_" + String.join("_", types);
+        return wasmName;
+    }
+
+    public String virtualWasmName() {
+        return wasmName() + "_virtual";
+    }
+
+    public boolean isPolymorphic() {
+        return !overriddenMethods.isEmpty();
     }
 }

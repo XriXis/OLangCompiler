@@ -4,10 +4,6 @@ class Main is
     var cat : Cat()
     this.saySpeak(dog)
     this.saySpeak(cat)
-
-    Console().println(cat.move())
-    Console().println(dog.move())
-
   end
 
   method saySpeak(animal: Animal) is

@@ -107,13 +107,13 @@ public class ClassTreeBuilder extends TreeBuilder {
         }
 
         if (tokenInheritanceParent != null) {
-            if (getClass(tokenInheritanceParent.entry().value()) == null) {
+            classInheritanceParent = getClass(tokenInheritanceParent.entry().value());
+            if (classInheritanceParent == null) {
                 throw new CompilerError("Inherited class " + tokenInheritanceParent.entry().value() + " not found");
             } else {
-                classInheritanceParent = getClass(tokenInheritanceParent.entry().value());
-                // check cross-inheritance
                 if (classInheritanceParent.tokenInheritanceParent != null &&
-                        classInheritanceParent.tokenInheritanceParent.entry().value().equals(className)) {
+                        classInheritanceParent.isSubclassOf(this)
+                ) {
                     throw new CompilerError("Cross-inheritance detected for class " + className);
                 }
                 // build all class members of parent

@@ -65,6 +65,7 @@ public class RootTreeBuilder extends TreeBuilder {
         }
     }
 
+    // todo: segregate to getter and builder in proper place (WASM translator)
     public String buildVTable() {
         ArrayList<String> virtualMethods = new ArrayList<>();
         HashMap<String, String> types = new HashMap<>();

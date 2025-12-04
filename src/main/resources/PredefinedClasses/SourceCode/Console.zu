@@ -6,4 +6,6 @@ class Console is
     // method println(s: String)
     method print(i: Integer)
     method println(i: Integer)
+    method println(i: String)
+    method print(i: String)
 end

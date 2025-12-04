@@ -2,7 +2,6 @@ package org.o_compiler.SyntaxAnalyzer.builder.Classes;
 
 import org.o_compiler.CodeGeneration.BuildTreeVisitor;
 import org.o_compiler.CodeGeneration.DeferredVisitorAction;
-import org.o_compiler.IteratorSingleIterableAdapter;
 import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.Optional;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
@@ -13,6 +12,7 @@ import org.o_compiler.SyntaxAnalyzer.builder.Variable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,10 +30,10 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
         overriddenMethods = new ArrayList<>();
     }
 
-    MethodTreeBuilder(String name, ClassTreeBuilder type, ArrayList<Variable> parameters, ClassTreeBuilder parent, ClassTreeBuilder owner, Iterable<Token> sourceCode) {
-        super(name, type, parent, owner, sourceCode);
+    MethodTreeBuilder(String name, ClassTreeBuilder type, ArrayList<Variable> parameters, ClassTreeBuilder parent, ClassTreeBuilder owner, BodyTreeBuilder body) {
+        super(name, type, parent, owner, Collections.emptyList());
         this.parameters = parameters;
-        body = new BodyTreeBuilder(sourceCode, this);
+        this.body = body;
         overriddenMethods = new ArrayList<>();
     }
 
@@ -80,7 +80,7 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
 
     @Override
     public ClassMemberTreeBuilder clone(ClassTreeBuilder owner) {
-        return new MethodTreeBuilder(name, type, parameters, (ClassTreeBuilder) parent, owner, new IteratorSingleIterableAdapter<>(sourceCode));
+        return new MethodTreeBuilder(name, type, parameters, (ClassTreeBuilder) parent, owner, body);
     }
 
     @Override
@@ -160,8 +160,7 @@ public class MethodTreeBuilder extends ClassMemberTreeBuilder {
             types.add(typeStr);
         }
 
-        var wasmName = firstName + "_" + name + "_" + String.join("_", types);
-        return wasmName;
+        return firstName + "_" + name + "_" + String.join("_", types);
     }
 
     public String virtualWasmName() {

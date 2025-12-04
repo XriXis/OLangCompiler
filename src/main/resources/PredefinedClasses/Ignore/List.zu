@@ -1,0 +1,47 @@
+class List[T] extends AnyRef is
+    this() is end
+
+    method append(v: T) : List is
+        return FullList[T](v, this)
+    end
+
+    method head() : T is
+        return T()
+    end
+
+    method tail() : List is
+        return this
+    end
+
+    method isEmpty() : Boolean is
+        return true
+    end
+end
+
+class FullList[T] extends List is
+    var head_: T
+    var tail_: List[T]
+
+    this() is end
+
+    this(headArg: T, tailArg: List[T]) is
+        head_ := headArg
+        tail_ := tailArg
+    end
+
+    method append(v: T) : List is
+        return FullList[T](v, this)
+    end
+
+    method head() : T is
+        return head_
+    end
+
+    method tail() : List is
+        return tail_
+    end
+
+    method isEmpty() : Boolean is
+        return false
+    end
+end

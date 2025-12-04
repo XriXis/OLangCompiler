@@ -4,7 +4,7 @@ class Array[T] extends AnyRef is
     this(l: Integer)
     this(copy: Array[T], newLen: Integer)
     // Conversion
-    method toList : List
+    // method toList : List
     // Features
     method Length : Integer
     // Access to elements

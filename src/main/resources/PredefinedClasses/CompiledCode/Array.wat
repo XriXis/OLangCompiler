@@ -34,50 +34,47 @@
     call $Array_this_Integer
   )
 
-  (func $Array_this_Array_Integer (param $copy i32) (param $newLen i32) (result i32)
-    (local $this i32) (local $copy_offset i32) (local $i_cap i32)
-    local.get $newLen
-    call $Array_this_Integer
-    (local.set $this)
+  (func $copy_help (param $from i32) (param $to i32) (param $count i32)
+          (local $i i32) ;; индекс/смещение в байтах
+          (local.set $i (i32.const 0))
 
-    (local.set $copy_offset (i32.sub (local.get $copy) (local.get $this)))
+          block $exit
+              loop $loop
+                  ;; если i >= count*4 (байтов) — выходим
+                  (br_if $exit (i32.ge_s (local.get $i) (i32.mul (local.get $count) (i32.const 4))))
 
-    (i32.add
-        (if (result i32) (i32.lt_s (local.get $newLen) (i32.load(local.get $copy)))
-          (then (local.get $newLen))
-          (else (i32.load(local.get $copy)))
-        )
-        (local.get $copy)
-    )
-    i32.const 4
-    i32.mul
-    local.set $i_cap
+                  ;; копируем элемент: to[i] = from[i]
+                  (i32.store
+                      (i32.add (local.get $to) (local.get $i))
+                      (i32.load (i32.add (local.get $from) (local.get $i)))
+                  )
 
-    block $copy_loop_br
-        loop $copy_loop
-            (local.set $copy
-                (i32.add
-                    (local.get $copy)
-                    (i32.const 4)
+                  ;; переходим к следующему элементу (4 байта)
+                  (local.set $i (i32.add (local.get $i) (i32.const 4)))
+                  br $loop
+              end
+          end
+      )
+
+      (func $Array_this_Array_Integer (param $copy i32) (param $newLen i32) (result i32)
+        (local $this i32) (local $copy_count i32)
+            local.get $newLen
+            call $Array_this_Integer
+            local.set $this
+            ;; actual copy len
+            (local.set $copy_count
+                (if (result i32) (i32.lt_s (local.get $newLen) (i32.load (local.get $copy)))
+                    (then (local.get $newLen))
+                    (else (i32.load (local.get $copy)))
                 )
             )
-            (br_if $copy_loop_br
-                (i32.gt_s
-                    (local.get $copy)
-                    (local.get $i_cap)
-                )
-            )
-            (i32.store
-                (i32.add
-                    (local.get $copy_offset)
-                    (local.get $copy))
-                (i32.load (local.get $copy))
-            )
-            br $copy_loop
-        end
-    end
-    local.get $this
-  )
+            ;; copy
+            (call $copy_help
+                (local.get $copy)   ;; from
+                (local.get $this)   ;; to
+                (local.get $copy_count)) ;; count
+            local.get $this
+      )
 
   (func $Array_this_Integer (param $l i32) (result i32)
     (local $this i32)

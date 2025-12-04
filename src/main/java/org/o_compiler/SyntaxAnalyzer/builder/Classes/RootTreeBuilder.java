@@ -269,19 +269,10 @@ public class RootTreeBuilder extends TreeBuilder {
     }
 
     private List<String> generateExcludedClasses() {
-        ArrayList<String> excludedClasses = new ArrayList<>(Arrays.asList("Integer", "Boolean", "Real", "Console", "Void"));
-        ArrayList<String> excludedGenericClasses = new ArrayList<>();
+        ArrayList<String> excludedClasses = new ArrayList<>(Arrays.asList("Integer", "Boolean", "Real", "Console", "Void", "Array_Integer"));
         for (var c : this.classes.values()) {
             if (c.isGeneric()) {
-                excludedGenericClasses.add(c.simpleName());
-            }
-        }
-
-        for (var excludedGenericClass : excludedGenericClasses) {
-            for (var c : this.classes.values()) {
-                if (c.simpleName().contains(excludedGenericClass)) {
-                    excludedClasses.add(c.simpleName());
-                }
+                excludedClasses.add(c.simpleName());
             }
         }
         return excludedClasses;

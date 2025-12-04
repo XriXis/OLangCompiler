@@ -56,12 +56,10 @@ public class ConstructorInvocationTreeBuilder extends CallExpressionTreeBuilder 
             unparsedArgs.revert();
             this.args = new ArgsParser(unparsedArgs, this).get();
         }
-        this.it = type.getMethod(
-                "this",
-                args.stream().map(ExpressionTreeBuilder::getType).collect(Collectors.toList())
-        );
+        var types = args.stream().map(ExpressionTreeBuilder::getType).toList();
+        this.it = type.getMethod("this", types);
         if (it == null) {
-            throw new UndefinedCallError("Undefined constructor of " + type.simpleName() + " with arguments: (" + args + ")");
+            throw new UndefinedCallError("Undefined constructor of " + type.simpleName() + " with arguments: (" + types + ")");
         }
         super.build();
     }

@@ -34,11 +34,11 @@ public abstract class ConditionalBlock extends BlockBuilder {
         condition = parseHead();
         // todo: transfer names of base classes into global constants
         // boolCastMethod just for error detection and printing
-        var boolCastMethod = condition.getType().getMethod("asBool", new ArrayList<>());
+        var boolCastMethod = condition.getType().getMethod("toBoolean", new ArrayList<>());
         if (condition.getType() != getClass("Boolean") && boolCastMethod == null)
             throw new CompilerError("Conditional block with not boolean condition at " + code.lastRead().position());
         if (condition.getType() != getClass("Boolean"))
-            condition = new MethodCallTreeBuilder(new Identifier("asBool"), condition, Collections.emptyIterator(), this);
+            condition = new MethodCallTreeBuilder(new Identifier("toBoolean"), condition, Collections.emptyIterator(), this);
         var buffer = new EntityScanner(code, this).scanFreeBlock(
                 (v) -> (v instanceof Keyword) && ((Keyword) v).isBlockOpen(),
                 (v) -> v.equals(Keyword.END) || v.equals(Keyword.ELSE),

@@ -1,5 +1,5 @@
 class String is
     this()
     this(self: Array[Integer])
-    // method add(another: String): String
+    method add(another: String): String
 end

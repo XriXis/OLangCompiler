@@ -57,24 +57,24 @@
       )
 
       (func $Array_this_Array_Integer (param $copy i32) (param $newLen i32) (result i32)
-        (local $this i32) (local $copy_count i32)
-            local.get $newLen
-            call $Array_this_Integer
-            local.set $this
-            ;; actual copy len
-            (local.set $copy_count
-                (if (result i32) (i32.lt_s (local.get $newLen) (i32.load (local.get $copy)))
-                    (then (local.get $newLen))
-                    (else (i32.load (local.get $copy)))
-                )
-            )
-            ;; copy
-            (call $copy_help
-                (local.get $copy)   ;; from
-                (local.get $this)   ;; to
-                (local.get $copy_count)) ;; count
-            local.get $this
-      )
+          (local $this i32) (local $copy_count i32)
+              local.get $newLen
+              call $Array_this_Integer
+              local.set $this
+              ;; actual copy len
+              (local.set $copy_count
+                  (if (result i32) (i32.lt_s (local.get $newLen) (i32.load (local.get $copy)))
+                      (then (local.get $newLen))
+                      (else (i32.load (local.get $copy)))
+                  )
+              )
+              ;; copy
+              (call $copy_help
+                  (i32.add (i32.const 4) (local.get $copy))   ;; from
+                  (i32.add (i32.const 4) (local.get $this))   ;; to
+                  (local.get $copy_count)) ;; count
+              local.get $this
+        )
 
   (func $Array_this_Integer (param $l i32) (result i32)
     (local $this i32)

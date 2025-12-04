@@ -21,9 +21,10 @@ async function runWat(fileToExecute) {
                     process.stdout.write(`${value}`);
                 },
                 printString: (ptr) => {
-                    const memory = new Uint8Array(importObject.env.memory.buffer);
+                    const memory = new Uint32Array(importObject.env.memory.buffer);
                     let str = '';
-                    for (let i = ptr; memory[i] !== 0; i++) {
+                    let len = memory[ptr]
+                    for (let i = ptr+1; i <= ptr + len; i++) {
                         str += String.fromCharCode(memory[i]);
                     }
                     console.log(str);

@@ -1,0 +1,12 @@
+class Main is
+    this() is
+        Console().println("Hello World")
+        var ar: Array[Integer](10)
+        var i: Integer
+        while (i.Less(10)) loop
+            ar.set(i, i.Plus(41))
+            i := i.Plus(1)
+        end
+        Console().println(String(ar))
+    end
+end

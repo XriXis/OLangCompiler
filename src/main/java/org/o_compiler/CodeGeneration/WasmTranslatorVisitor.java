@@ -25,6 +25,7 @@ import static org.o_compiler.CodeGeneration.DeferredVisitorAction.empty;
 
 public class WasmTranslatorVisitor implements BuildTreeVisitor {
     private final StringBuilder buffer = new StringBuilder();
+    // todo: initiate memory module with heap_heap of staticMemoryLen
     private final HashMap<String, Integer> staticMemoryAllocation = new HashMap<>();
     private int staticMemoryLen = 0;
     private final Random rnd = new Random();
@@ -317,7 +318,7 @@ public class WasmTranslatorVisitor implements BuildTreeVisitor {
         } else if (type == RootTreeBuilder.getPredefined("String")) {
             if (!staticMemoryAllocation.containsKey(value.value())) {
                 staticMemoryAllocation.put(value.value(), staticMemoryLen);
-                staticMemoryLen += value.value().length();
+                staticMemoryLen += value.value().length() * 4 + 4;
             }
             buffer.append("(i32.const ").append(staticMemoryAllocation.get(value.value())).append(") ");
         } else

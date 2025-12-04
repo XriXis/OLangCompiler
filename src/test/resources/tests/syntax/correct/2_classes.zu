@@ -15,5 +15,6 @@ class Main is
         obj := MyClass()
         var result : Integer
         result := obj.add()
+        Console().println(result)
     end
 end

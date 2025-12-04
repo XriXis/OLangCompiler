@@ -1,0 +1,12 @@
+class Main is
+    this() is
+        var example : Integer(6)
+
+        if (example.Rem(2).Equal(0)) then
+          Console().print(0)
+        else
+          Console().print(1)
+        end
+
+    end
+end

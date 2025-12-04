@@ -15,7 +15,7 @@ public class Main {
     static Path outputFile = Path.of("output/out.wat");
 
     public static void main(String[] args) {
-        try (InputStream target = Files.newInputStream(Path.of(args[0]))) {
+        try (InputStream target = Files.newInputStream(Path.of("data/test.o"))) {
             var stream = new IteratorSingleIterableAdapter<>(new TokenStream(target));
             var tree = new RootTreeBuilder(stream);
             tree.build();

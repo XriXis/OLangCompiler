@@ -1,52 +1,5 @@
 class Main is
-  this() is
-    var dog : Dog()
-    var cat : Cat()
-    this.saySpeak(dog)
-    this.saySpeak(cat)
-
-    Console().println(cat.move())
-    Console().println(dog.move())
-
-  end
-
-  method saySpeak(animal: Animal) is
-    var num : Integer
-    num := animal.speak()
-    Console().println(num)
-  end
-end
-
-class Animal is
-  this()
-
-  method speak : Integer is
-    return Integer(10)
-  end
-
-  method move : Integer => Integer(0)
-
-end
-
-
-class Dog extends Animal is
-  this()
-
-  method speak : Integer is
-    return Integer(6)
-  end
-
-  method move : Integer => Integer(1)
-
-end
-
-class Cat extends Animal is
-  this()
-
-  method speak : Integer is
-    return Integer(5)
-  end
-
-  method move : Integer  => Integer(2)
-
+    this() is
+        Console().println("Hello World!")
+    end
 end

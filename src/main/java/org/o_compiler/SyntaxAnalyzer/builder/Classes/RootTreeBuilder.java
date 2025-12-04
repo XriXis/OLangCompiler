@@ -287,7 +287,8 @@ public class RootTreeBuilder extends TreeBuilder {
             }
         }
 
-        for (var excludedGenericClass : excludedGenericClasses) {
+        List<String> predefinedReplaceClasses = List.of("Array");
+        for (var excludedGenericClass : predefinedReplaceClasses) {
             for (var c : this.classes.values()) {
                 if (c.simpleName().contains(excludedGenericClass)) {
                     genericCallReplaceMap.put(c.simpleName(), excludedGenericClass);

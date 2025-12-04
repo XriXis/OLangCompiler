@@ -15,34 +15,15 @@ end
 
 class Animal is
   this()
-
-  method speak : Integer is
-    return Integer(10)
-  end
-
-  method move : Integer => Integer(0)
-
+  method speak : Integer => 10
 end
-
 
 class Dog extends Animal is
   this()
-
-  method speak : Integer is
-    return Integer(6)
-  end
-
-  method move : Integer => Integer(1)
-
+  method speak : Integer => 5
 end
 
 class Cat extends Animal is
   this()
-
-  method speak : Integer is
-    return Integer(5)
-  end
-
-  method move : Integer  => Integer(2)
-
+  method speak : Integer => 6
 end

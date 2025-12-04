@@ -1,16 +1,18 @@
 class PrintValue[T] is
   this()
 
-  method print(value: T) is
-    Console().println(value)
+  method printSum(a: T, b: T) is
+    Console().println(Integer(a.Plus(b)))
   end
 end
 
 
 class Main is
   this() is
-    Console().println(5)
     var printValueInt : PrintValue[Integer]
-    printValueInt.print(5)
+    printValueInt.printSum(2, 3)
+
+    var printValueReal : PrintValue[Real]
+    printValueReal.printSum(3.5, 2.5)
   end
 end

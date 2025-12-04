@@ -41,6 +41,14 @@
     (call $printString (i32.const 256)) ;; адрес строки "\n" в памяти
   )
 
+  ;; Метод println для
+  (func $Console_println_String (param $this i32) (param $i i32)
+    ;; Выводим число
+    (call $printString (local.get $i))
+    ;; Выводим новую строку (через вывод строки "\n")
+    (call $printString (i32.const 256)) ;; адрес строки "\n" в памяти
+  )
+
   ;; Строковые константы в памяти
   (data (i32.const 256) "\0A\00") ;; "\n" в формате null-terminated
 

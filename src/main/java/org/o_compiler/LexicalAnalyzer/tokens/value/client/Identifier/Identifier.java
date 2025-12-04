@@ -13,4 +13,10 @@ public class Identifier implements TokenValue {
     public String value() {
         return value;
     }
+
+    @Override
+    public boolean equals(Object other){
+        if (!(other instanceof Identifier o)) return false;
+        return value.equals(o.value);
+    }
 }

@@ -1,0 +1,18 @@
+class t[T] is
+    var a: T
+    this() is end
+    this(v: T) is
+        a := v
+    end
+
+    method getA(): T is
+        return a
+    end
+end
+
+class Main is
+    this() is
+        var h : t[Integer](9)
+        Console().print(h.getA())
+    end
+end

@@ -6,6 +6,7 @@ import org.o_compiler.LexicalAnalyzer.tokens.Token;
 import org.o_compiler.LexicalAnalyzer.tokens.value.client.Identifier.Identifier;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.ControlSign;
 import org.o_compiler.LexicalAnalyzer.tokens.value.lang.Keyword;
+import org.o_compiler.Pair;
 import org.o_compiler.SyntaxAnalyzer.Exceptions.CompilerError;
 import org.o_compiler.SyntaxAnalyzer.builder.EntityScanner.CodeSegregator;
 import org.o_compiler.SyntaxAnalyzer.builder.TreeBuilder;
@@ -221,7 +222,7 @@ public class ClassTreeBuilder extends TreeBuilder {
             case Keyword.VAR -> scanAttribute();
             case Keyword.METHOD -> scanMethod();
             case Keyword.THIS -> scanConstructor();
-            default -> throw new CompilerError("Unexpected field type: " + fieldType);
+            default -> throw new CompilerError("Unexpected field type: " + fieldType + " at " + fieldType.position());
         };
     }
 
@@ -255,14 +256,11 @@ public class ClassTreeBuilder extends TreeBuilder {
         // : means return type next
         ClassTreeBuilder returnType = getClass("Void");
         if (nextToken.entry().equals(ControlSign.COLUMN)) {
-            var tokenReturnType = source.next();
-            if (!(tokenReturnType.entry() instanceof Identifier)) {
-                throw new CompilerError("Unexpected type name: " + tokenReturnType);
-            } else if (getClass(tokenReturnType.entry().value()) == null && !encloseGenericName(tokenReturnType.entry().value())) {
-                throw new CompilerError("Class " + tokenReturnType.entry().value() + " not found");
-            }
-            returnType = getClass(tokenReturnType.entry().value());
-            nextToken = source.next();
+            var type = parseType();
+            returnType = type.o2.o1;
+            nextToken = type.o1.getLast();
+            if (nextToken.entry().equals(ControlSign.BRACKET_CLOSED))
+                nextToken = source.next();
         }
 
         ArrayList<Token> body = new ArrayList<>();
@@ -291,20 +289,10 @@ public class ClassTreeBuilder extends TreeBuilder {
             throw new CompilerError("Unexpected token: " + source.next());
         }
         // get type of attribute
-        var tokenTypeOfAttribute = source.next();
-        // check for identifier
-        if (!(tokenTypeOfAttribute.entry() instanceof Identifier)) {
-            throw new CompilerError("Unexpected variable type: " + tokenTypeOfAttribute);
-        }
-        // check class exists
-        var treeTypeOfAttribute = getClass(tokenTypeOfAttribute.entry().value());
-        if (treeTypeOfAttribute == null && !encloseGenericName(tokenTypeOfAttribute.entry().value())) {
-            throw new CompilerError("Class " + tokenTypeOfAttribute.entry().value() + " not found at " + tokenTypeOfAttribute.position());
-        }
+        var typeOfAttribute = parseType();
 
         // get value
-        var valueSourceCode = new ArrayList<Token>();
-        valueSourceCode.add(tokenTypeOfAttribute);
+        var valueSourceCode = typeOfAttribute.o1;
 
         // read until end of line
         Token nextToken = null;
@@ -315,7 +303,7 @@ public class ClassTreeBuilder extends TreeBuilder {
 
         if (isGeneric()) return null;
 
-        return new AttributeTreeBuilder(varName.entry().value(), treeTypeOfAttribute, this, valueSourceCode);
+        return new AttributeTreeBuilder(varName.entry().value(), typeOfAttribute.o2.o1, this, valueSourceCode);
     }
 
     private MethodTreeBuilder scanConstructor() {
@@ -386,6 +374,45 @@ public class ClassTreeBuilder extends TreeBuilder {
             }
         }
         return parameters;
+    }
+
+    Pair<ArrayList<Token>, Pair<ClassTreeBuilder, ArrayList<Token>>> parseType(){
+        var buff = new ArrayList<Token>();
+        var tokenReturnType = source.next();
+        buff.add(tokenReturnType);
+        if (!(tokenReturnType.entry() instanceof Identifier)) {
+            throw new CompilerError("Unexpected type name: " + tokenReturnType);
+        } else if (getClass(tokenReturnType.entry().value()) == null && !encloseGenericName(tokenReturnType.entry().value())) {
+            throw new CompilerError("Class " + tokenReturnType.entry().value() + " not found");
+        }
+        var nextToken = source.next();
+        buff.add(nextToken);
+        // todo: todo possible generic nesting
+        var polymorphicClasses = new ArrayList<Token>();
+        if (nextToken.entry().equals(ControlSign.BRACKET_OPEN)) {
+            while (!nextToken.entry().equals(ControlSign.BRACKET_CLOSED)) {
+                nextToken = source.next();
+                buff.add(nextToken);
+                if (!(nextToken.entry() instanceof Identifier)) {
+                    throw new CompilerError("Class name expected at " + nextToken.position() + ", got " + nextToken);
+                } else if (encloseName(nextToken.entry().value()) || polymorphicClasses.contains(nextToken)) {
+                    throw new CompilerError("Class name " + nextToken.entry().value() + " already exists");
+                }
+                polymorphicClasses.add(nextToken);
+                nextToken = source.next();
+                buff.add(nextToken);
+                if (nextToken.entry().equals(ControlSign.SEPARATOR)) {
+                    nextToken = source.next();
+                    buff.add(nextToken);
+                } else if (!nextToken.entry().equals(ControlSign.BRACKET_CLOSED)) {
+                    throw new CompilerError("Unexpected token met " + nextToken + " at " + nextToken.position());
+                }
+            }
+        }
+        var returnType = getClass(tokenReturnType.entry().value());
+        if (!polymorphicClasses.isEmpty() && genericClasses.stream().noneMatch(polymorphicClasses::contains))
+            returnType.initGenericClass(polymorphicClasses);
+        return new Pair<>(buff , new Pair<>(returnType, polymorphicClasses));
     }
 
     private ArrayList<Token> scanMultilineBody() {
